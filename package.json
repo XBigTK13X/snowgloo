@@ -1,0 +1,17 @@
+{
+  "name": "snowgloo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "format-all": "prettier --write 'web-{server,client}/src/**/*.{js,html,css}'",
+    "develop": "concurrently 'cd web-server && nodemon ./src/index.js' 'cd web-client && yarn start'"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^5.0.2",
+    "nodemon": "^2.0.2",
+    "prettier": "^1.19.1"
+  }
+}
