@@ -33,7 +33,7 @@ if (fs.existsSync(webRoot)) {
     if (settingsPath) {
         console.log(`Swapping tokens in ${settingsPath}`)
         fileSystem.tokenSwap(settingsPath, {
-            WEB_API_URL: process.env.ARCHIVIST_WEB_API_URL,
+            WEB_API_URL: process.env.SNOWGLOO_WEB_API_URL,
         })
     }
     console.log(`Hosting static files`)
