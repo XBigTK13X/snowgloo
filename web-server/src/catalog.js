@@ -12,7 +12,11 @@ class Catalog {
         if(err){
           return reject(err)
         }
-        resolve(files)
+        resolve(files.map(file=>{
+          return {
+            path: file
+          }
+        }))
       })
     })
   }
