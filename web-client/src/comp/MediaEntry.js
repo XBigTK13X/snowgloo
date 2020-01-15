@@ -2,12 +2,9 @@ import React,{Component} from 'react'
 
 export default class MediaEntry extends Component {
   render(){
-    if(!this.props.path){
-      return null
-    }
     return (
-      <p onClick={()=>{this.props.playMedia(this.props.path)}}>
-        {this.props.path}
+      <p onClick={()=>{this.props.playMedia(this.props.details.Path)}}>
+        song: {this.props.details.Title} | album: {this.props.details.Album} | artist: {this.props.details.Artist}
       </p>
     )
   }

@@ -11,7 +11,6 @@ export default class App extends Component {
   }
 
   componentDidMount(){
-    console.log({props:this.props})
     this.props.api.getFiles()
     .then(result=>{
       this.setState({
@@ -28,7 +27,7 @@ export default class App extends Component {
       <div>
       {this.state.files.map((file,fileIndex)=>{
         return (
-          <Comp.MediaEntry key={fileIndex} path={file.Path} playMedia={this.props.playMedia}/>
+          <Comp.MediaEntry key={fileIndex} details={file} playMedia={this.props.playMedia}/>
         )
       })}
       </div>

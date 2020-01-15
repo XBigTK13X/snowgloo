@@ -4,15 +4,19 @@ const recurse = require('recursive-readdir')
 class Catalog {
   constructor(){
     this.mediaRoot = settings.mediaRoot
+    this.fileCache = null
   }
 
   readFiles(){
     return new Promise((resolve,reject)=>{
+      if(this.fileCache){
+          return resolve(this.fileCache)
+      }
       recurse(this.mediaRoot,(err,files)=>{
         if(err){
           return reject(err)
         }
-        resolve(files
+        this.fileCache = files
           .filter(x=>{return !(x.includes('.jpg') || x.includes('.png'))})
           .map(file=>{
             const parts = file.split("/")
@@ -26,12 +30,15 @@ class Catalog {
             }
           })
           .sort((a,b)=>{
-            if(a.Album === b.Album){
-              return a.Title > b.Title?1:-1
+            if(a.Artist !== b.Artist){
+              return a.Artist < b.Artist ? 1 : -1
             }
-            return a.Album > b.Album ? 1:-1
+            if(a.Album !== b.Album){
+              return a.Album < b.Album ? 1 : -1
+            }
+            return a.Title < b.Title ? 1 : -1
           })
-        )
+        resolve(this.fileCache)
       })
     })
   }

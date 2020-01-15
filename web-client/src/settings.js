@@ -6,7 +6,7 @@ try {
   webApiUrl = WEB_API_URL
 }
 catch{
-  webApiUrl = 'http://localhost:5051/api/'
+  webApiUrl = 'http://192.168.1.20:5051/api/'
 }
 module.exports = {
   webApiUrl
