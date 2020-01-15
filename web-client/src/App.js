@@ -1,31 +1,26 @@
 import React,{Component} from 'react'
+import { UIRouter, UIView, pushStateLocationPlugin } from '@uirouter/react';
+import routes from './routes'
+import Comp from './comp'
+import service from './service'
 
-import api from './snowgloo-api-client'
+const plugins = [pushStateLocationPlugin];
 
-import AudioControls from './AudioControls'
-import MediaEntry from './MediaEntry'
+const configRouter = (router)=>{
+  router.urlRouter.otherwise('/')
+}
 
 export default class App extends Component {
   constructor(props){
     super(props)
-    this.api = api
     this.playMedia = this.playMedia.bind(this)
     this.state = {
-      files:null
+      audioUrl:null
     }
   }
 
-  componentDidMount(){
-    this.api.getFiles()
-    .then(result=>{
-      this.setState({
-        files: result
-      })
-    })
-  }
-
   playMedia(path){
-    this.api.playMedia(path)
+    service.api.playMedia(path)
     .then(result=>{
       this.setState({
         audioUrl: result
@@ -34,18 +29,16 @@ export default class App extends Component {
   }
 
   render(){
-    if(!this.state.files){
-      return null
-    }
     return (
-      <div>
-      <AudioControls audioUrl={this.state.audioUrl} />
-      {this.state.files.map((file,fileIndex)=>{
-        return (
-          <MediaEntry key={fileIndex} path={file.path} playMedia={this.playMedia}/>
-        )
-      })}
-      </div>
-    )
+    <div>
+      <UIRouter plugins={plugins} states={routes} config={configRouter} >
+        <Comp.AudioControls audioUrl={this.state.audioUrl} />
+        <Comp.NavBar />
+        <UIView render={(Component,props)=>{
+          return <Component {...props} playMedia={this.playMedia} api={service.api} />
+        }} />
+      </UIRouter>
+    </div>
+  )
   }
 }

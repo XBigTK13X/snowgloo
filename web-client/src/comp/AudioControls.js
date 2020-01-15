@@ -1,12 +1,12 @@
 import React,{Component} from 'react'
 
-import audioPlayer from './audio-player'
+import service from '../service'
 
 export default class AudioControls extends Component {
   constructor(props){
     super(props)
     this.state = {
-      player: audioPlayer
+      player: service.audio
     }
     this.audio = React.createRef()
   }
