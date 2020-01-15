@@ -28,6 +28,7 @@ import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.api.model.MediaFile;
 import com.simplepathstudios.snowgloo.expandedcontrols.ExpandedControlsActivity;
 import com.simplepathstudios.snowgloo.settings.CastPreference;
 import com.simplepathstudios.snowgloo.utils.CustomVolleyRequest;
@@ -38,6 +39,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -66,8 +68,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-import android.widget.VideoView;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -77,7 +79,7 @@ import java.util.TimerTask;
 public class LocalPlayerActivity extends AppCompatActivity {
 
     private static final String TAG = "LocalPlayerActivity";
-    private VideoView mVideoView;
+    private MediaPlayer mMediaPlayer;
     private TextView mTitleView;
     private TextView mDescriptionView;
     private TextView mStartText;
@@ -93,7 +95,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
     private PlaybackState mPlaybackState;
     private final Handler mHandler = new Handler();
     private final float mAspectRatio = 72f / 128;
-    private MediaItem mSelectedMedia;
+    private MediaFile mSelectedMedia;
     private boolean mControllersVisible;
     private int mDuration;
     private TextView mAuthorView;
@@ -128,36 +130,32 @@ public class LocalPlayerActivity extends AppCompatActivity {
         setupCastListener();
         mCastContext = CastContext.getSharedInstance(this);
         mCastSession = mCastContext.getSessionManager().getCurrentCastSession();
+
         // see what we need to play and where
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            mSelectedMedia = MediaItem.fromBundle(getIntent().getBundleExtra("media"));
-            setupActionBar();
-            boolean shouldStartPlayback = bundle.getBoolean("shouldStart");
-            int startPosition = bundle.getInt("startPosition", 0);
-            mVideoView.setVideoURI(Uri.parse(mSelectedMedia.getUrl()));
-            Log.d(TAG, "Setting url of the VideoView to: " + mSelectedMedia.getUrl());
-            if (shouldStartPlayback) {
+            try {
+                mSelectedMedia = MediaFile.fromBundle(getIntent().getBundleExtra("media"));
+
+                setupActionBar();
+                int startPosition = bundle.getInt("startPosition", 0);
+                mMediaPlayer.setDataSource(mSelectedMedia.AudioUrl);
+                Log.d(TAG, "Setting url of the media player to: " + mSelectedMedia.AudioUrl);
                 // this will be the case only if we are coming from the
                 // CastControllerActivity by disconnecting from a device
                 mPlaybackState = PlaybackState.PLAYING;
                 updatePlaybackLocation(PlaybackLocation.LOCAL);
                 updatePlayButton(mPlaybackState);
                 if (startPosition > 0) {
-                    mVideoView.seekTo(startPosition);
+                    mMediaPlayer.seekTo(startPosition);
                 }
-                mVideoView.start();
+                mMediaPlayer.prepare();
+                mMediaPlayer.start();
                 startControllersTimer();
-            } else {
-                // we should load the video but pause it
-                // and show the album art.
-                if (mCastSession != null && mCastSession.isConnected()) {
-                    updatePlaybackLocation(PlaybackLocation.REMOTE);
-                } else {
-                    updatePlaybackLocation(PlaybackLocation.LOCAL);
-                }
-                mPlaybackState = PlaybackState.IDLE;
-                updatePlayButton(mPlaybackState);
+
+            }
+            catch(IOException exception){
+                Log.e("LocalPlayerActivity.onCreate","Unable to access the URL",exception);
             }
         }
         if (mTitleView != null) {
@@ -214,7 +212,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 if (null != mSelectedMedia) {
 
                     if (mPlaybackState == PlaybackState.PLAYING) {
-                        mVideoView.pause();
+                        mMediaPlayer.pause();
                         loadRemoteMedia(mSeekbar.getProgress(), true);
                         return;
                     } else {
@@ -245,11 +243,11 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 startControllersTimer();
             } else {
                 stopControllersTimer();
-                setCoverArtStatus(mSelectedMedia.getImage(0));
+                setCoverArtStatus(mSelectedMedia.CoverImageUrl);
             }
         } else {
             stopControllersTimer();
-            setCoverArtStatus(mSelectedMedia.getImage(0));
+            setCoverArtStatus(mSelectedMedia.CoverImageUrl);
             updateControllersVisibility(false);
         }
     }
@@ -258,8 +256,8 @@ public class LocalPlayerActivity extends AppCompatActivity {
         startControllersTimer();
         switch (mLocation) {
             case LOCAL:
-                mVideoView.seekTo(position);
-                mVideoView.start();
+                mMediaPlayer.seekTo(position);
+                mMediaPlayer.start();
                 break;
             case REMOTE:
                 mPlaybackState = PlaybackState.BUFFERING;
@@ -278,7 +276,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
             case PAUSED:
                 switch (mLocation) {
                     case LOCAL:
-                        mVideoView.start();
+                        mMediaPlayer.start();
                         Log.d(TAG, "Playing locally...");
                         mPlaybackState = PlaybackState.PLAYING;
                         startControllersTimer();
@@ -295,18 +293,25 @@ public class LocalPlayerActivity extends AppCompatActivity {
 
             case PLAYING:
                 mPlaybackState = PlaybackState.PAUSED;
-                mVideoView.pause();
+                mMediaPlayer.pause();
                 break;
 
             case IDLE:
                 switch (mLocation) {
                     case LOCAL:
-                        mVideoView.setVideoURI(Uri.parse(mSelectedMedia.getUrl()));
-                        mVideoView.seekTo(0);
-                        mVideoView.start();
-                        mPlaybackState = PlaybackState.PLAYING;
-                        restartTrickplayTimer();
-                        updatePlaybackLocation(PlaybackLocation.LOCAL);
+                        try {
+                            mMediaPlayer.reset();
+                            mMediaPlayer.setDataSource(mSelectedMedia.AudioUrl);
+                            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            mMediaPlayer.seekTo(0);
+                            mMediaPlayer.start();
+                            mPlaybackState = PlaybackState.PLAYING;
+                            restartTrickplayTimer();
+                            updatePlaybackLocation(PlaybackLocation.LOCAL);
+                        }
+                        catch(IOException exception){
+                            Log.e("VideoPlayerActivity.togglePlayback","Unable to access the URL",exception);
+                        }
                         break;
                     case REMOTE:
                         if (mCastSession != null && mCastSession.isConnected()) {
@@ -353,10 +358,8 @@ public class LocalPlayerActivity extends AppCompatActivity {
             mCoverArt.setImageUrl(url, mImageLoader);
 
             mCoverArt.setVisibility(View.VISIBLE);
-            mVideoView.setVisibility(View.INVISIBLE);
         } else {
             mCoverArt.setVisibility(View.GONE);
-            mVideoView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -419,7 +422,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
             }
             // since we are playing locally, we need to stop the playback of
             // video (if user is not watching, pause it!)
-            mVideoView.pause();
+            mMediaPlayer.pause();
             mPlaybackState = PlaybackState.PAUSED;
             updatePlayButton(PlaybackState.PAUSED);
         }
@@ -438,6 +441,9 @@ public class LocalPlayerActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy() is called");
         stopControllersTimer();
         stopTrickplayTimer();
+        if (mMediaPlayer != null){
+            mMediaPlayer.release();
+        }
         super.onDestroy();
     }
 
@@ -484,7 +490,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     if (mLocation == PlaybackLocation.LOCAL) {
-                        int currentPos = mVideoView.getCurrentPosition();
+                        int currentPos = mMediaPlayer.getCurrentPosition();
                         updateSeekbar(currentPos, mDuration);
                     }
                 }
@@ -493,7 +499,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
     }
 
     private void setupControlsCallbacks() {
-        mVideoView.setOnErrorListener(new OnErrorListener() {
+        mMediaPlayer.setOnErrorListener(new OnErrorListener() {
 
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -508,14 +514,14 @@ public class LocalPlayerActivity extends AppCompatActivity {
                     msg = getString(R.string.video_error_unknown_error);
                 }
                 Utils.showErrorDialog(LocalPlayerActivity.this, msg);
-                mVideoView.stopPlayback();
+                mMediaPlayer.stop();
                 mPlaybackState = PlaybackState.IDLE;
                 updatePlayButton(mPlaybackState);
                 return true;
             }
         });
 
-        mVideoView.setOnPreparedListener(new OnPreparedListener() {
+        mMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
 
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -527,7 +533,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
             }
         });
 
-        mVideoView.setOnCompletionListener(new OnCompletionListener() {
+        mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -537,8 +543,9 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 updatePlayButton(mPlaybackState);
             }
         });
+/*
 
-        mVideoView.setOnTouchListener(new OnTouchListener() {
+        mMediaPlayer.setOnTouchListener(new OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -549,6 +556,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 return false;
             }
         });
+*/
 
         mSeekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
@@ -557,7 +565,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 if (mPlaybackState == PlaybackState.PLAYING) {
                     play(seekBar.getProgress());
                 } else if (mPlaybackState != PlaybackState.IDLE) {
-                    mVideoView.seekTo(seekBar.getProgress());
+                    mMediaPlayer.seekTo(seekBar.getProgress());
                 }
                 startControllersTimer();
             }
@@ -565,7 +573,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 stopTrickplayTimer();
-                mVideoView.pause();
+                mMediaPlayer.pause();
                 stopControllersTimer();
             }
 
@@ -612,7 +620,6 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 mPlayCircle.setVisibility(View.VISIBLE);
                 mControllers.setVisibility(View.GONE);
                 mCoverArt.setVisibility(View.VISIBLE);
-                mVideoView.setVisibility(View.INVISIBLE);
                 break;
             case PAUSED:
                 mLoading.setVisibility(View.INVISIBLE);
@@ -669,12 +676,10 @@ public class LocalPlayerActivity extends AppCompatActivity {
                     RelativeLayout.LayoutParams(displaySize.x,
                     displaySize.y + getSupportActionBar().getHeight());
             lp.addRule(RelativeLayout.CENTER_IN_PARENT);
-            mVideoView.setLayoutParams(lp);
-            mVideoView.invalidate();
         } else {
-            mDescriptionView.setText(mSelectedMedia.getSubTitle());
-            mTitleView.setText(mSelectedMedia.getTitle());
-            mAuthorView.setText(mSelectedMedia.getStudio());
+            mDescriptionView.setText(mSelectedMedia.Album);
+            mTitleView.setText(mSelectedMedia.Title);
+            mAuthorView.setText(mSelectedMedia.Artist);
             mDescriptionView.setVisibility(View.VISIBLE);
             mTitleView.setVisibility(View.VISIBLE);
             mAuthorView.setVisibility(View.VISIBLE);
@@ -683,8 +688,6 @@ public class LocalPlayerActivity extends AppCompatActivity {
                     RelativeLayout.LayoutParams(displaySize.x,
                     (int) (displaySize.x * mAspectRatio));
             lp.addRule(RelativeLayout.BELOW, R.id.toolbar);
-            mVideoView.setLayoutParams(lp);
-            mVideoView.invalidate();
         }
     }
 
@@ -711,13 +714,13 @@ public class LocalPlayerActivity extends AppCompatActivity {
 
     private void setupActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(mSelectedMedia.getTitle());
+        toolbar.setTitle(mSelectedMedia.Title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void loadViews() {
-        mVideoView = (VideoView) findViewById(R.id.videoView1);
+        mMediaPlayer = new MediaPlayer();
         mTitleView = (TextView) findViewById(R.id.textView1);
         mDescriptionView = (TextView) findViewById(R.id.textView2);
         mDescriptionView.setMovementMethod(new ScrollingMovementMethod());
@@ -744,16 +747,16 @@ public class LocalPlayerActivity extends AppCompatActivity {
     private MediaInfo buildMediaInfo() {
         MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
 
-        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, mSelectedMedia.getStudio());
-        movieMetadata.putString(MediaMetadata.KEY_TITLE, mSelectedMedia.getTitle());
-        movieMetadata.addImage(new WebImage(Uri.parse(mSelectedMedia.getImage(0))));
-        movieMetadata.addImage(new WebImage(Uri.parse(mSelectedMedia.getImage(1))));
+        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, mSelectedMedia.Artist);
+        movieMetadata.putString(MediaMetadata.KEY_TITLE, mSelectedMedia.Title);
+        if(mSelectedMedia.CoverImageUrl != null){
+            movieMetadata.addImage(new WebImage(Uri.parse(mSelectedMedia.CoverImageUrl)));
+        }
 
-        return new MediaInfo.Builder(mSelectedMedia.getUrl())
+        return new MediaInfo.Builder(mSelectedMedia.AudioUrl)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setContentType("videos/mp4")
                 .setMetadata(movieMetadata)
-                .setStreamDuration(mSelectedMedia.getDuration() * 1000)
+                .setStreamDuration(mSelectedMedia.Duration * 1000)
                 .build();
     }
 

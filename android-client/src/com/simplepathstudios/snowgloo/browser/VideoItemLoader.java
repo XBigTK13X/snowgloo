@@ -18,7 +18,6 @@ package com.simplepathstudios.snowgloo.browser;
 
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MediaFile;
-import com.simplepathstudios.snowgloo.utils.MediaItem;
 
 import android.content.Context;
 import androidx.loader.content.AsyncTaskLoader;
@@ -26,11 +25,7 @@ import android.util.Log;
 
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class VideoItemLoader extends AsyncTaskLoader<List<MediaItem>> {
+public class VideoItemLoader extends AsyncTaskLoader<List<MediaFile>> {
 
     private static final String TAG = "VideoItemLoader";
     private final String mUrl;
@@ -41,21 +36,11 @@ public class VideoItemLoader extends AsyncTaskLoader<List<MediaItem>> {
     }
 
     @Override
-    public List<MediaItem> loadInBackground() {
+    public List<MediaFile> loadInBackground() {
         try {
-            ApiClient.getInstance().listFiles().enqueue(new Callback<List<MediaFile>>(){
-                @Override
-                public void onResponse(Call<List<MediaFile>> call, Response<List<MediaFile>> response) {
-                    List<MediaFile> files = response.body();
-                    int x = 0;
-                }
-
-                @Override
-                public void onFailure(Call<List<MediaFile>> call, Throwable t) {
-                    int y = 0;
-                }
-            });
-            return VideoProvider.buildMedia(mUrl);
+            List<MediaFile> items = ApiClient.getInstance().listFiles().execute().body();
+            int x = 0;
+            return items;
         } catch (Exception e) {
             Log.e(TAG, "Failed to fetch media data", e);
             return null;
@@ -68,12 +53,8 @@ public class VideoItemLoader extends AsyncTaskLoader<List<MediaItem>> {
         forceLoad();
     }
 
-    /**
-     * Handles a request to stop the Loader.
-     */
     @Override
     protected void onStopLoading() {
-        // Attempt to cancel the current load task if possible.
         cancelLoad();
     }
 

@@ -17,7 +17,6 @@
 package com.simplepathstudios.snowgloo.browser;
 
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MediaFile;
 import com.simplepathstudios.snowgloo.mediaplayer.LocalPlayerActivity;
 import com.simplepathstudios.snowgloo.utils.MediaItem;
@@ -39,21 +38,17 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 /**
  * A fragment to host a list view of the video catalog.
  */
-public class VideoBrowserFragment extends Fragment implements VideoListAdapter.ItemClickListener,
-        LoaderManager.LoaderCallbacks<List<MediaItem>> {
+public class VideoBrowserFragment extends Fragment implements MediaListAdapter.ItemClickListener,
+        LoaderManager.LoaderCallbacks<List<MediaFile>> {
 
     private static final String TAG = "VideoBrowserFragment";
     private static final String CATALOG_URL =
             "https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/f.json";
     private RecyclerView mRecyclerView;
-    private VideoListAdapter mAdapter;
+    private MediaListAdapter mAdapter;
     private View mEmptyView;
     private View mLoadingView;
 
@@ -75,16 +70,16 @@ public class VideoBrowserFragment extends Fragment implements VideoListAdapter.I
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
-        mAdapter = new VideoListAdapter(this, this.getContext());
+        mAdapter = new MediaListAdapter(this, this.getContext());
         mRecyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
-    public void itemClicked(View view, MediaItem item, int position) {
+    public void itemClicked(View view, MediaFile item, int position) {
         String transitionName = getString(R.string.transition_image);
-        VideoListAdapter.ViewHolder viewHolder =
-                (VideoListAdapter.ViewHolder) mRecyclerView.findViewHolderForPosition(position);
+        MediaListAdapter.ViewHolder viewHolder =
+                (MediaListAdapter.ViewHolder) mRecyclerView.findViewHolderForPosition(position);
         Pair<View, String> imagePair = Pair
                 .create((View) viewHolder.getImageView(), transitionName);
         ActivityOptionsCompat options = ActivityOptionsCompat
@@ -97,19 +92,19 @@ public class VideoBrowserFragment extends Fragment implements VideoListAdapter.I
     }
 
     @Override
-    public Loader<List<MediaItem>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<MediaFile>> onCreateLoader(int id, Bundle args) {
         return new VideoItemLoader(getActivity(), CATALOG_URL);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<MediaItem>> loader, List<MediaItem> data) {
+    public void onLoadFinished(Loader<List<MediaFile>> loader, List<MediaFile> data) {
         mAdapter.setData(data);
         mLoadingView.setVisibility(View.GONE);
         mEmptyView.setVisibility(null == data || data.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<MediaItem>> loader) {
+    public void onLoaderReset(Loader<List<MediaFile>> loader) {
         mAdapter.setData(null);
     }
 

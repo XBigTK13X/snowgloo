@@ -2,6 +2,6 @@ package com.simplepathstudios.snowgloo;
 
 public class SnowglooSettings {
     public static String ServerUrl(){
-        return "http://9914.us:5051";
+        return "http://192.168.1.20:5051";
     }
 }

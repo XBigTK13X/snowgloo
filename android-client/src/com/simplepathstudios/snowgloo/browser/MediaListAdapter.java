@@ -19,6 +19,7 @@ package com.simplepathstudios.snowgloo.browser;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.api.model.MediaFile;
 import com.simplepathstudios.snowgloo.utils.CustomVolleyRequest;
 import com.simplepathstudios.snowgloo.utils.MediaItem;
 
@@ -36,14 +37,14 @@ import java.util.List;
 /**
  * An {@link ArrayAdapter} to populate the list of videos.
  */
-public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.ViewHolder> {
+public class MediaListAdapter extends RecyclerView.Adapter<MediaListAdapter.ViewHolder> {
 
     private static final float mAspectRatio = 9f / 16f;
     private final ItemClickListener mClickListener;
     private final Context mAppContext;
-    private List<MediaItem> videos;
+    private List<MediaFile> videos;
 
-    public VideoListAdapter(ItemClickListener clickListener, Context context) {
+    public MediaListAdapter(ItemClickListener clickListener, Context context) {
         mClickListener = clickListener;
         mAppContext = context.getApplicationContext();
     }
@@ -57,10 +58,10 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        final MediaItem item = videos.get(position);
-        viewHolder.setTitle(item.getTitle());
-        viewHolder.setDescription(item.getStudio());
-        viewHolder.setImage(item.getImage(0), mAppContext);
+        final MediaFile item = videos.get(position);
+        viewHolder.setTitle(item.Title);
+        //viewHolder.setDescription(item.getStudio());
+        //viewHolder.setImage(item.getImage(0), mAppContext);
 
         viewHolder.mImgView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,14 +134,14 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         }
     }
 
-    public void setData(List<MediaItem> data) {
+    public void setData(List<MediaFile> data) {
         videos = data;
         notifyDataSetChanged();
     }
 
     public interface ItemClickListener {
 
-        void itemClicked(View v, MediaItem item, int position);
+        void itemClicked(View v, MediaFile item, int position);
     }
 
     @Override

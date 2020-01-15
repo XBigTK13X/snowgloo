@@ -12,11 +12,26 @@ class Catalog {
         if(err){
           return reject(err)
         }
-        resolve(files.map(file=>{
-          return {
-            path: file
-          }
-        }))
+        resolve(files
+          .filter(x=>{return !(x.includes('.jpg') || x.includes('.png'))})
+          .map(file=>{
+            const parts = file.split("/")
+            return {
+              Album: parts[parts.length-2],
+              Artist: parts[parts.length-3],
+              AudioUrl:`${settings.mediaServer}${file}`,
+              Duration:1000,
+              Path: file,
+              Title: parts[parts.length-1]
+            }
+          })
+          .sort((a,b)=>{
+            if(a.Album === b.Album){
+              return a.Title > b.Title?1:-1
+            }
+            return a.Album > b.Album ? 1:-1
+          })
+        )
       })
     })
   }

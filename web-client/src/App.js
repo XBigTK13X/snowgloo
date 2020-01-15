@@ -42,7 +42,7 @@ export default class App extends Component {
       <AudioControls audioUrl={this.state.audioUrl} />
       {this.state.files.map((file,fileIndex)=>{
         return (
-          <MediaEntry key={fileIndex} path={file} playMedia={this.playMedia}/>
+          <MediaEntry key={fileIndex} path={file.path} playMedia={this.playMedia}/>
         )
       })}
       </div>

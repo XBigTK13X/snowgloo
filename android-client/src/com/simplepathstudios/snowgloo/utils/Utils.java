@@ -16,6 +16,7 @@
 
 package com.simplepathstudios.snowgloo.utils;
 
+import com.google.gson.Gson;
 import com.simplepathstudios.snowgloo.R;
 
 import android.app.AlertDialog;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 public class Utils {
 
     private static final String TAG = "Utils";
+    private static final Gson JSON = new Gson();
 
     /*
      * Making sure public utility methods remain static
@@ -134,5 +136,13 @@ public class Utils {
             time = String.format("%d:%02d", minutes, seconds);
         }
         return time;
+    }
+
+    public static String toJSON(Object object){
+        return JSON.toJson(object);
+    }
+
+    public static Object fromJSON(String json, Class type){
+        return JSON.fromJson(json,type);
     }
 }
