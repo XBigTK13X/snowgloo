@@ -1,6 +1,6 @@
 FROM node:13.6.0
 
-RUN apt-get update && apt-get install nginx -y
+RUN apt-get update && apt-get install nginx ffmpeg -y
 
 COPY script/nginx/site.conf /etc/nginx/sites-enabled/default
 

@@ -13,5 +13,6 @@
     "concurrently": "^5.0.2",
     "nodemon": "^2.0.2",
     "prettier": "^1.19.1"
-  }
+  },
+  "dependencies": {}
 }

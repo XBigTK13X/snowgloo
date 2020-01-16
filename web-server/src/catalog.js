@@ -1,5 +1,6 @@
 const settings = require('./settings')
 const recurse = require('recursive-readdir')
+const MusicFile = require('./music-file')
 
 class Catalog {
   constructor(){
@@ -17,17 +18,17 @@ class Catalog {
           return reject(err)
         }
         this.fileCache = files
-          .filter(x=>{return !(x.includes('.jpg') || x.includes('.png'))})
-          .map(file=>{
-            const parts = file.split("/")
-            return {
-              Album: parts[parts.length-2],
-              Artist: parts[parts.length-3],
-              AudioUrl:`${settings.mediaServer}${file}`,
-              Duration:1000,
-              Path: file,
-              Title: parts[parts.length-1]
+          .filter(x=>{
+            if(x.includes('Anime/') || x.includes('Custom/') || x.includes('Game/')){
+              return false
             }
+            if(x.includes('.jpg') || x.includes('.png')){
+              return false
+            }
+            return true
+          })
+          .map(file=>{
+            return new MusicFile(file)
           })
           .sort((a,b)=>{
             if(a.Artist !== b.Artist){
@@ -38,7 +39,10 @@ class Catalog {
             }
             return a.Title < b.Title ? 1 : -1
           })
-        resolve(this.fileCache)
+        Promise.all(this.fileCache.map(x=>{return x.readDuration()}))
+        .then(()=>{
+          resolve(this.fileCache)
+        })
       })
     })
   }
