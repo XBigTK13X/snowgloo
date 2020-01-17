@@ -457,11 +457,6 @@ nice-try@^1.0.4:
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
 
-node-ffprobe@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/node-ffprobe/-/node-ffprobe-3.0.0.tgz#e6a9f6942fb2dc9c0897a68c9292a366b10bccd7"
-  integrity sha512-2LNTLStz2hw/urwo4xJ00TIOvthgepcl3tF4HB8BWnhJ4nhJ7S08YThapBHkGLYV+GUuY9pML/kX76+dqY2iUg==
-
 npm-run-path@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/npm-run-path/-/npm-run-path-2.0.2.tgz#35a9232dfa35d7067b4cb2ddf2357b1871536c5f"

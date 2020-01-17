@@ -1,23 +1,22 @@
 class AudioPlayer {
-  constructor(){
-    this.audio = null;
-  }
-  start(url){
-    if(!this.audio){
-      this.audio = new Audio(url);
+    constructor() {
+        this.audio = null
     }
-    else{
-      this.audio.setAttribute('src',url);
-      this.audio.load();
+    start(url) {
+        if (!this.audio) {
+            this.audio = new Audio(url)
+        } else {
+            this.audio.setAttribute('src', url)
+            this.audio.load()
+        }
+        this.audio.play()
     }
-    this.audio.play();
-  }
 }
 
-let instance;
+let instance
 
-if(!instance){
-  instance = new AudioPlayer()
+if (!instance) {
+    instance = new AudioPlayer()
 }
 
 export default instance
