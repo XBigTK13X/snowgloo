@@ -29,7 +29,7 @@ export default class SongList extends Component {
       <div>
       {this.state.songs.list.map((song,songIndex)=>{
         return (
-          <Comp.SongListItem key={songIndex} song={song} playMedia={this.props.playMedia}/>
+          <Comp.SongListItem key={songIndex} song={song} playMedia={this.props.playMedia} alternate={songIndex%2===0}/>
         )
       })}
       </div>

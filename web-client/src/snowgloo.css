@@ -5,13 +5,25 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+.alternate {
+  background-color: #c7c7c7;
+}
+
+.list-item-text {
+  padding: 5px 5px 5px 5px;
+}
+
+.list-item-text:hover {
+  background-color: #878787;
+  cursor: pointer;
+}
+
 .sticky-footer {
   align-self: flex-start;
   background-color:#fff;
   border: 5px solid black;
-  margin-left: 35%;
   padding: 20px;
-  width: 20%;
+  width: 100%;
   position: -webkit-sticky;
   position: sticky;
   bottom: 10px;
@@ -44,6 +56,19 @@ body {
 .list-item {
   width: 300px;
   height: 300px;
+  background-color: #e7e7e7;
+  border: 2px solid black;
+  margin: 2px;
+  padding: 2px;
+  overflow: hidden;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.list-item-small {
+  width: 350px;
+  height: 50px;
+  line-height: 50px;
   background-color: #e7e7e7;
   border: 2px solid black;
   margin: 2px;

@@ -6,28 +6,28 @@ export default class AlbumList extends Component {
     super(props)
 
     this.state = {
-      files:null
+      artists:null
     }
   }
 
   componentDidMount(){
-    this.props.api.getFiles()
+    this.props.api.getArtists()
     .then(result=>{
       this.setState({
-        files: result
+        artists: result.list
       })
     })
   }
 
   render(){
-    if(!this.state.files){
+    if(!this.state.artists){
       return null
     }
     return (
-      <div>
-      {this.state.files.map((file,fileIndex)=>{
+      <div className="list-grid">
+      {this.state.artists.map((artist,artistIndex)=>{
         return (
-          <Comp.MediaEntry key={fileIndex} details={file} playMedia={this.props.playMedia}/>
+          <Comp.ArtistListItem key={artistIndex} artist={artist} playMedia={this.props.playMedia}/>
         )
       })}
       </div>

@@ -5,8 +5,25 @@ class MusicFile {
   constructor(path){
     const parts = path.split("/")
     this.Path = `${settings.mediaServer}${path}`
-    this.Album = parts[parts.length-2]
-    this.Artist = parts[parts.length-3]
+    this.Kind = 'Artist'
+    this.SubKind = null
+    if(path.includes('/Anime/')){
+      this.Kind = 'Anime'
+    }
+    else if(path.includes('/Game')){
+      this.Kind = 'Game'
+    }
+    else if(path.includes('/Compilation')){
+      this.Kind = 'Compilation'
+    }
+    this.Album = parts[parts.length - 2]
+    this.Artist = parts[parts.length - 3]
+    if(this.Kind === 'Artist'){
+      if(this.Artist === 'Single' || this.Artist === 'Collab' || this.Artist === 'Special'){
+        this.SubKind = parts[parts.length - 3]
+        this.Artist = parts[parts.length - 4]
+      }
+    }
     this.AudioUrl = `${settings.mediaServer}${path}`
     let trackAndTitle = parts[parts.length-1]
     if(!trackAndTitle.includes(' - ')){

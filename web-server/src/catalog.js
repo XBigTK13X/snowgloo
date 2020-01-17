@@ -7,6 +7,17 @@ const database = require('./database')
 
 const MusicFile = require('./music-file')
 
+const alphabetize = (items,property)=>{
+  if(property){
+    return items.sort((a,b)=>{
+      return a[property].toLowerCase() > b[property].toLowerCase() ? 1 : -1
+    })
+  }
+  return items.sort((a,b)=>{
+    return a.toLowerCase() > b.toLowerCase() ? 1 : -1
+  })
+}
+
 class Catalog {
   constructor(){
     this.mediaRoot = settings.mediaRoot
@@ -18,7 +29,7 @@ class Catalog {
     return new Promise((resolve,reject)=>{
       this.database.read()
       .then(workingSet=>{
-        if(!this.database.isEmpty()){
+        if(!this.database.isEmpty() && !settings.ignoreDatabaseCache){
           console.log(`Using ${workingSet.files.length} cached database results`)
           this.workingSet = workingSet
           return resolve(workingSet.files)
@@ -34,7 +45,7 @@ class Catalog {
           }
           files = files
             .filter(x=>{
-              if(x.includes('Anime/') || x.includes('Custom/') || x.includes('Game/')){
+              if(x.includes('Anime/') || x.includes('Compilation/') || x.includes('Game/')){
                 return false
               }
               if(x.includes('.jpg') || x.includes('.png') || x.includes('.jpeg')){
@@ -47,13 +58,13 @@ class Catalog {
               return new MusicFile(file)
             })
             .sort((a,b)=>{
-              if(a.Artist !== b.Artist){
-                return a.Artist > b.Artist ? 1 : -1
+              if(a.Artist.toLowerCase() !== b.Artist.toLowerCase()){
+                return a.Artist.toLowerCase() > b.Artist.toLowerCase() ? 1 : -1
               }
-              if(a.Album !== b.Album){
-                return a.Album > b.Album ? 1 : -1
+              if(a.Album.toLowerCase() !== b.Album.toLowerCase()){
+                return a.Album.toLowerCase() > b.Album.toLowerCase() ? 1 : -1
               }
-              return a.Title > b.Title ? 1 : -1
+              return a.Title.toLowerCase() > b.Title.toLowerCase() ? 1 : -1
             })
           Promise.all(files.map(x=>{return x.readInfo()}))
           .then(()=>{
@@ -95,12 +106,32 @@ class Catalog {
   }
 
   getArtists(){
-
+    return new Promise(resolve=>{
+      if(this.workingSet.artists && !settings.ignoreDatabaseCache){
+        return resolve(this.workingSet.artists)
+      }
+      let artists = {
+        list: [],
+        lookup: {}
+      }
+      this.workingSet.files.forEach(file=>{
+        if(!_.has(artists.lookup, file.Artist)){
+          artists.lookup[file.Artist] = {
+            Artist: file.Artist
+          }
+          artists.list.push(file.Artist)
+        }
+      })
+      artists.list = alphabetize(artists.list)
+      this.workingSet.artists = artists
+      this.database.write(this.workingSet)
+      resolve(artists)
+    })
   }
 
   getAlbums(){
     return new Promise(resolve=>{
-      if(this.workingSet.albums){
+      if(this.workingSet.albums && !settings.ignoreDatabaseCache){
           return resolve(this.workingSet.albums)
       }
       let albums = {
@@ -120,9 +151,7 @@ class Catalog {
         }
         albums.lookup[file.AlbumSlug].Songs.push(file)
       })
-      albums.list = albums.list.sort((a,b)=>{
-        return a.AlbumSlug > b.AlbumSlug? 1: - 1
-      })
+      albums.list = alphabetize(albums.list)
       this.workingSet.albums = albums
       this.database.write(this.workingSet)
       resolve(albums)

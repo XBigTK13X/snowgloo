@@ -28,6 +28,7 @@ export default class AudioControls extends Component {
          <source src={this.props.song.Path} />
          Your browser does not support the audio element.
         </audio>
+        <br/>
         <div className="neighbor">
           <p className="short-text" title={this.props.song.Title}>
             {this.props.song.Title}
