@@ -1,35 +1,33 @@
 import React,{Component} from 'react'
 import Comp from '../comp'
 
-export default class SongList extends Component {
+export default class AlbumList extends Component {
   constructor(props){
     super(props)
 
     this.state = {
-      songs:null
+      files:null
     }
   }
 
   componentDidMount(){
-    this.props.api.getSongs()
+    this.props.api.getFiles()
     .then(result=>{
       this.setState({
-        songs:{
-          list: result
-        }
+        files: result
       })
     })
   }
 
   render(){
-    if(!this.state.songs || !this.state.songs.list){
+    if(!this.state.files){
       return null
     }
     return (
       <div>
-      {this.state.songs.list.map((song,songIndex)=>{
+      {this.state.files.map((file,fileIndex)=>{
         return (
-          <Comp.SongListItem key={songIndex} song={song} playMedia={this.props.playMedia}/>
+          <Comp.MediaEntry key={fileIndex} details={file} playMedia={this.props.playMedia}/>
         )
       })}
       </div>

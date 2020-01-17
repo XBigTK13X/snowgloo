@@ -8,6 +8,14 @@ const links = [
     text: 'Home'
   },
   {
+    to: 'artist-list',
+    text: 'Artists'
+  },
+  {
+    to: 'album-list',
+    text: 'Albums'
+  },
+  {
     to: 'song-list',
     text: 'Songs'
   }

@@ -9,14 +9,13 @@
   "author": "",
   "dependencies": {
     "@koa/cors": "^3.0.0",
-    "ffprobe": "^1.1.0",
     "get-audio-duration": "^1.0.0",
-    "jsmediatags": "^3.9.3",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "lodash": "^4.17.15",
+    "node-ffprobe": "^3.0.0",
     "recursive-readdir": "^2.2.2"
   }
 }

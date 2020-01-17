@@ -1,33 +1,39 @@
 const settings = require('./settings')
-const jsmediatags = require('jsmediatags')
-const {getAudioDurationInSeconds} = require('get-audio-duration')
+const inspect = require('./inspect')
+
 class MusicFile {
   constructor(path){
     const parts = path.split("/")
-    //Use ffprobe for this this.Tags = NODEID3.read(path)
-    this.Path = path
+    this.Path = `${settings.mediaServer}${path}`
     this.Album = parts[parts.length-2]
     this.Artist = parts[parts.length-3]
     this.AudioUrl = `${settings.mediaServer}${path}`
-    this.Title = parts[parts.length-1]
+    let trackAndTitle = parts[parts.length-1]
+    if(!trackAndTitle.includes(' - ')){
+      this.Title = trackAndTitle
+    }
+    else {
+      let titleParts = trackAndTitle.split(' - ')
+      if(titleParts[0].includes('D')){
+        let discAndTrackParts  = titleParts[0].split('D')[1].split('T')
+        this.Disc = parseInt(discAndTrackParts[0],10)
+        this.Track = parseInt(discAndTrackParts[1],10)
+        this.Title = titleParts[1]
+      }
+      else {
+        this.Disc = 1
+        this.Track = parseInt(titleParts[0],10)
+        this.Title = titleParts[1]
+      }
+    }
+    this.Title = this.Title.split('.').slice(0, -1).join('.')
+    this.AlbumSlug = `${this.Album}-${this.Artist}`
   }
 
-  readTags(){
-    return new Promise(resolve=>{
-      return jsmediatags.read(this.Path,{
-        onSuccess: (tags) =>{
-          console.log(tags)
-          this.Tags = tags
-          resolve(tags)
-        }
-      })
-    })
-  }
-
-  readDuration(){
-    return getAudioDurationInSeconds(this.Path)
-    .then((duration)=>{
-      this.Duration = duration
+  readInfo(){
+    return inspect.audio(this.Path)
+    .then(data=>{
+      this.Info = data
     })
   }
 }

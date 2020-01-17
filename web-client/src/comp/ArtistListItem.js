@@ -1,6 +1,6 @@
 import React,{Component} from 'react'
 
-export default class MediaEntry extends Component {
+export default class ArtistListItem extends Component {
   render(){
     return (
       <p onClick={()=>{this.props.playMedia(this.props.details.Path)}}>

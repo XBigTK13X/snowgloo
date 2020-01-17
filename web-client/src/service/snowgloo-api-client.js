@@ -8,8 +8,22 @@ class ApiClient {
     })
   }
 
-  getFiles(){
-    return this.httpClient.get('files')
+  getSongs(){
+    return this.httpClient.get('song/list')
+    .then((response)=>{
+      return response.data
+    })
+  }
+
+  getAlbums(){
+    return this.httpClient.get('album/list')
+    .then((response)=>{
+      return response.data
+    })
+  }
+
+  getArtists(){
+    return this.httpClient.get('artist/list')
     .then((response)=>{
       return response.data
     })

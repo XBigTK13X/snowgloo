@@ -1,14 +1,17 @@
 const catalog = require('./catalog')
 
 const register = (router)=>{
-  router.get('/api/files', async (ctx, next) => {
-      ctx.body = await catalog.readFiles()
+  router.get('/api/song/list', async (ctx, next) => {
+      ctx.body = await catalog.getSongs()
   })
-  router.post('/api/media/play', async (ctx, next)=>{
-    ctx.body = await catalog.playMedia(ctx.request.body.path)
+  router.get('/api/album/list', async (ctx, next) => {
+      ctx.body = await catalog.getAlbums()
+  })
+  router.get('/api/artist/list', async (ctx, next) => {
+      ctx.body = await catalog.getArtists()
   })
 }
 
 module.exports ={
   register
-} 
+}

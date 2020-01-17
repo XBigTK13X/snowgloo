@@ -19,12 +19,9 @@ export default class App extends Component {
     }
   }
 
-  playMedia(path){
-    service.api.playMedia(path)
-    .then(result=>{
-      this.setState({
-        audioUrl: result
-      })
+  playMedia(song){
+    this.setState({
+      song
     })
   }
 
@@ -32,11 +29,11 @@ export default class App extends Component {
     return (
     <div>
       <UIRouter plugins={plugins} states={routes} config={configRouter} >
-        <Comp.AudioControls audioUrl={this.state.audioUrl} />
         <Comp.NavBar />
         <UIView render={(Component,props)=>{
           return <Component {...props} playMedia={this.playMedia} api={service.api} />
         }} />
+        <Comp.AudioControls song={this.state.song} />
       </UIRouter>
     </div>
   )
