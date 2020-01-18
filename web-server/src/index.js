@@ -1,4 +1,3 @@
-console.log('Reading catalog into memory')
 const catalog = require('./catalog')
 catalog.build().catch(err => {
     console.err('Unable to build the catalog', { err })
@@ -10,21 +9,15 @@ const path = require('path')
 const settings = require('./settings')
 const fileSystem = require('./file-system')
 
-const Koa = require('koa')
-const Router = require('koa-router')
-const cors = require('@koa/cors')
-const static = require('koa-static')
-const koaBody = require('koa-body')
+const express = require('express')
+const cors = require('cors')
 
-const app = new Koa()
-const router = new Router()
+const app = express()
+app.use(cors())
 
 const routes = require('./routes')
 
-routes.register(router)
-
-app.use(cors())
-app.use(koaBody())
+routes.register(app)
 
 const webRoot = path.join(__dirname, 'web-build')
 if (fs.existsSync(webRoot)) {
@@ -38,14 +31,14 @@ if (fs.existsSync(webRoot)) {
         })
     }
     console.log(`Hosting static files`)
-    const frontend = static(webRoot)
-    app.use(frontend)
-    router.redirect('/*', '/')
+    app.use('/', express.static(webRoot))
+    app.use('/*', (request, response) => {
+        response.sendFile(path.join(webRoot, 'index.html'))
+    })
 } else {
     console.log(`No static web files found at ${webRoot}.`)
 }
 
-app.use(router.routes()).use(router.allowedMethods())
-
-console.log(`Server listening on ${settings.webServerPort}`)
-app.listen(settings.webServerPort)
+app.listen(settings.webServerPort, () => {
+    console.log(`Server listening on ${settings.webServerPort}`)
+})

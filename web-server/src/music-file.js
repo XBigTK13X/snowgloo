@@ -5,7 +5,7 @@ class MusicFile {
     constructor(path) {
         const parts = path.split('/')
         this.LocalFilePath = path
-        this.AudioUrl = `${settings.mediaServer}${path}`
+        this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
         this.Kind = 'Artist'
         this.SubKind = null
         if (path.includes('/Anime/')) {
@@ -33,7 +33,6 @@ class MusicFile {
                 this.Artist = parts[parts.length - 4]
             }
         }
-        this.AudioUrl = `${settings.mediaServer}${path}`
         let trackAndTitle = parts[parts.length - 1]
             .split('.')
             .slice(0, -1)

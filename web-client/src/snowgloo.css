@@ -83,8 +83,8 @@ table {
 }
 
 .list-item {
-    width: 300px;
-    height: 300px;
+    width: 325px;
+    height: 325px;
     background-color: #e7e7e7;
     border: 2px solid black;
     margin: 2px;
@@ -108,11 +108,11 @@ table {
 }
 
 .cover-art-medium {
-    width: 200px;
-    height: 200px;
+    width: 250px;
+    height: 250px;
 }
 
 .cover-art-small {
-    width: 100px;
-    height: 100px;
+    width: 250px;
+    height: 250px;
 }

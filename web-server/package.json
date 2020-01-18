@@ -8,12 +8,8 @@
   },
   "author": "",
   "dependencies": {
-    "@koa/cors": "^3.0.0",
-    "get-audio-duration": "^1.0.0",
-    "koa": "^2.11.0",
-    "koa-body": "^4.1.1",
-    "koa-router": "^7.4.0",
-    "koa-static": "^5.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "recursive-readdir": "^2.2.2"

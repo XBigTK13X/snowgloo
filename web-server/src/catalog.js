@@ -37,6 +37,7 @@ class Catalog {
     }
 
     build(force) {
+        console.log('Reading catalog into memory')
         return new Promise((resolve, reject) => {
             this.database.read().then(workingSet => {
                 if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
@@ -83,7 +84,7 @@ class Catalog {
                     let promiseBatches = []
                     for (let ii = 0; ii < files.length; ii += batchSize) {
                         promiseBatches.push(() => {
-                            if (ii % batchSize === 0) {
+                            if (ii % batchSize === 0 || ii === files.length - 1) {
                                 console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
                                 this.rebuildCount = ii
                                 this.totalCount = files.length
