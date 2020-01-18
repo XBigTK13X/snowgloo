@@ -20,9 +20,13 @@ class MusicFile {
         if (this.Album.includes('(') && this.Album.includes(')')) {
             let albumParts = this.Album.split('(')
             this.Album = albumParts[0]
-            this.ReleaseYear = parseInt(albumParts[1].split(')')[0], 10)
+            let year = albumParts[1].split(')')[0]
+            this.ReleaseYear = parseInt(year.split('.')[0], 10)
+            this.ReleaseYearSort = parseFloat(year)
         }
+        this.DisplayAlbum = this.Album
         this.Artist = parts[parts.length - 3]
+        this.DisplayArtist = this.Artist
         if (this.Kind === 'Artist') {
             if (this.Artist === 'Single' || this.Artist === 'Collab' || this.Artist === 'Special') {
                 this.SubKind = parts[parts.length - 3]
@@ -30,9 +34,10 @@ class MusicFile {
             }
         }
         this.AudioUrl = `${settings.mediaServer}${path}`
-        let trackAndTitle = parts[parts.length - 1]
+        let trackAndTitle = parts[parts.length - 1].split('.')
+            .slice(0, -1)
+            .join('.')
         if (!trackAndTitle.includes(' - ')) {
-            console.log(path)
             this.Title = trackAndTitle
         } else {
             let titleParts = trackAndTitle.split(' - ')
@@ -46,10 +51,12 @@ class MusicFile {
                 this.Track = parseInt(titleParts[0], 10)
                 this.Title = titleParts[1]
             }
+            if(this.Kind === 'Compilation'){
+              this.Title = titleParts[1]
+              this.DisplayAlbum = titleParts[2]
+              this.DisplayArtist = this.Album
+            }
         }
-        this.Title = this.Title.split('.')
-            .slice(0, -1)
-            .join('.')
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 

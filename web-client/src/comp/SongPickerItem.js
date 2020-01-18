@@ -15,8 +15,8 @@ export default class SongPickerItem extends Component {
                     Disc {this.props.song.Disc} Track {this.props.song.Track}
                 </td>
                 <td>{this.props.song.Title}</td>
-                <td>{this.props.song.Album}</td>
-                <td>{this.props.song.Artist}</td>
+                <td>{this.props.song.DisplayAlbum}</td>
+                <td>{this.props.song.DisplayArtist}</td>
                 <td>
                     <Comp.SongDuration song={this.props.song} />
                 </td>

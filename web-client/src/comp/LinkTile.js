@@ -6,7 +6,11 @@ export default class LinkTile extends Component {
     render() {
         return (
             <Comp.Href to={this.props.to}>
-                <button>{this.props.text}</button>
+              <a href="/">
+                <div className="nav-button">
+                  {this.props.text}
+                </div>
+              </a>
             </Comp.Href>
         )
     }

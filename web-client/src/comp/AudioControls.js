@@ -30,18 +30,18 @@ export default class AudioControls extends Component {
                 </audio>
                 <br />
                 <div className="neighbor">
+                    <Comp.CoverArt size="small" imageUrl={this.props.song.CoverArt} />
+                </div>
+                <div className="neighbor">
                     <p className="short-text" title={this.props.song.Title}>
                         {this.props.song.Title}
                     </p>
                     <p className="short-text" title={this.props.song.Album}>
-                        {this.props.song.Album}
+                        {this.props.song.DisplayAlbum}
                     </p>
                     <p className="short-text" title={this.props.song.Artist}>
-                        {this.props.song.Artist}
+                        {this.props.song.DisplayArtist}
                     </p>
-                </div>
-                <div className="neighbor">
-                    <Comp.CoverArt size="small" imageUrl={this.props.song.CoverArt} />
                 </div>
             </div>
         )
