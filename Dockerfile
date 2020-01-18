@@ -21,6 +21,7 @@ COPY ./web-client/public ./web-client/public
 
 WORKDIR /usr/src/app/web-client
 RUN yarn build
+RUN rm -rf /usr/src/app/web-server/src/web-build/
 RUN cp -r /usr/src/app/web-client/build/ /usr/src/app/web-server/src/web-build/
 
 EXPOSE 5050
