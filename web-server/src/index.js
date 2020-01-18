@@ -1,10 +1,8 @@
 console.log('Reading catalog into memory')
 const catalog = require('./catalog')
-catalog
-    .build()
-    .catch(err => {
-        console.err('Unable to build the catalog', { err })
-    })
+catalog.build().catch(err => {
+    console.err('Unable to build the catalog', { err })
+})
 
 const fs = require('fs')
 const path = require('path')

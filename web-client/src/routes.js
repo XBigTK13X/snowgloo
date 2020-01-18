@@ -2,9 +2,9 @@ import pages from './page'
 
 export default [
     {
-      name: 'admin',
-      url: '/admin',
-      component: pages.Admin
+        name: 'admin',
+        url: '/admin',
+        component: pages.Admin,
     },
     {
         name: 'home',

@@ -6,6 +6,6 @@ const config = {
     ignoreDatabaseCache: process.env.SNOWGLOO_IGNORE_DATABASE_CACHE || false,
 }
 
-console.log("Configuration read as ",{config})
+console.log('Configuration read as ', { config })
 
 module.exports = config

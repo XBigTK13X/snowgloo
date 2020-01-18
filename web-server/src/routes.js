@@ -23,13 +23,13 @@ const register = router => {
         ctx.body = result
     })
 
-    router.post('/api/catalog/build', async (ctx,next)=>{
-      catalog.build(true)
-      ctx.body = "Building"
+    router.post('/api/catalog/build', async (ctx, next) => {
+        catalog.build(true)
+        ctx.body = 'Building'
     })
 
-    router.get('/api/catalog/build/status', async (ctx, next)=>{
-      ctx.body = catalog.status()
+    router.get('/api/catalog/build/status', async (ctx, next) => {
+        ctx.body = catalog.status()
     })
 }
 

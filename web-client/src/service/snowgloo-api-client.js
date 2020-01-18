@@ -38,15 +38,14 @@ class ApiClient {
         })
     }
 
-    catalogRebuild(){
-      return this.httpClient.post('catalog/build')
-      .then((response=>{
-        return response.data
-      }))
+    catalogRebuild() {
+        return this.httpClient.post('catalog/build').then(response => {
+            return response.data
+        })
     }
 
-    catalogStatus(){
-      return this.get('catalog/build/status')
+    catalogStatus() {
+        return this.get('catalog/build/status')
     }
 }
 

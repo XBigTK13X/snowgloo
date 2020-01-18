@@ -34,7 +34,8 @@ class MusicFile {
             }
         }
         this.AudioUrl = `${settings.mediaServer}${path}`
-        let trackAndTitle = parts[parts.length - 1].split('.')
+        let trackAndTitle = parts[parts.length - 1]
+            .split('.')
             .slice(0, -1)
             .join('.')
         if (!trackAndTitle.includes(' - ')) {
@@ -51,10 +52,10 @@ class MusicFile {
                 this.Track = parseInt(titleParts[0], 10)
                 this.Title = titleParts[1]
             }
-            if(this.Kind === 'Compilation'){
-              this.Title = titleParts[1]
-              this.DisplayAlbum = titleParts[2]
-              this.DisplayArtist = this.Album
+            if (this.Kind === 'Compilation') {
+                this.Title = titleParts[1]
+                this.DisplayAlbum = titleParts[2]
+                this.DisplayArtist = this.Album
             }
         }
         this.AlbumSlug = `${this.Album}-${this.Artist}`

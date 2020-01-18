@@ -29,15 +29,15 @@ export default class App extends Component {
         return (
             <div>
                 <UIRouter plugins={plugins} states={routes} config={configRouter}>
-                  <div className="page-wrapper">
-                      <Comp.NavBar />
-                      <UIView
-                          render={(Component, props) => {
-                              return <Component {...props} playMedia={this.playMedia} api={service.api} />
-                          }}
-                      />
-                  </div>
-                  <Comp.AudioControls song={this.state.song} />
+                    <div className="page-wrapper">
+                        <Comp.NavBar />
+                        <UIView
+                            render={(Component, props) => {
+                                return <Component {...props} playMedia={this.playMedia} api={service.api} />
+                            }}
+                        />
+                    </div>
+                    <Comp.AudioControls song={this.state.song} />
                 </UIRouter>
             </div>
         )

@@ -28,12 +28,12 @@ class Catalog {
         this.totalCount = 0
     }
 
-    status(){
-      return {
-        building: this.building,
-        rebuildCount: this.rebuildCount,
-        totalCount: this.totalCount
-      }
+    status() {
+        return {
+            building: this.building,
+            rebuildCount: this.rebuildCount,
+            totalCount: this.totalCount,
+        }
     }
 
     build(force) {
@@ -79,30 +79,27 @@ class Catalog {
                             }
                             return a.Track > b.Track ? 1 : -1
                         })
-                        const batchSize = 300;
-                        let promiseBatches = []
-                        for(let ii = 0;ii < files.length; ii+=batchSize){
-                          promiseBatches.push(()=>{
-                            if(ii % batchSize === 0){
-                              console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
-                              this.rebuildCount = ii;
-                              this.totalCount = files.length
+                    const batchSize = 300
+                    let promiseBatches = []
+                    for (let ii = 0; ii < files.length; ii += batchSize) {
+                        promiseBatches.push(() => {
+                            if (ii % batchSize === 0) {
+                                console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
+                                this.rebuildCount = ii
+                                this.totalCount = files.length
                             }
                             let internalPromises = []
-                            for(let jj=0;jj<batchSize;jj++){
-                                if(ii+jj<files.length){
-                                  internalPromises.push(files[ii+jj].readInfo())
+                            for (let jj = 0; jj < batchSize; jj++) {
+                                if (ii + jj < files.length) {
+                                    internalPromises.push(files[ii + jj].readInfo())
                                 }
                             }
                             return Promise.all(internalPromises)
-                          })
-                        }
-                        const serialReads = promiseBatches
-                        .reduce(
-                          (m, p) => m.then(v => Promise.all([...v, p()])),
-                          Promise.resolve([])
-                        )
-                        serialReads.then(() => {
+                        })
+                    }
+                    const serialReads = promiseBatches.reduce((m, p) => m.then(v => Promise.all([...v, p()])), Promise.resolve([]))
+                    serialReads
+                        .then(() => {
                             return new Promise(resolve => {
                                 coverArts.forEach(coverArt => {
                                     let artDir = path.dirname(coverArt)
@@ -140,7 +137,7 @@ class Catalog {
                                         Songs: [],
                                         AlbumSlug: file.AlbumSlug,
                                         CoverArt: this.workingSet.albumCoverArts[file.AlbumSlug],
-                                        Kind: file.Kind
+                                        Kind: file.Kind,
                                     }
                                     albums.list.push(file.AlbumSlug)
                                 }
@@ -169,10 +166,10 @@ class Catalog {
                             return this.database.write(this.workingSet)
                         })
                         .then(() => {
-                          let timeSpent = (new Date().getTime() - startTime) / 1000
-                          this.building = false
-                          console.log(`Finished building catalog in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent%60)} seconds`)
-                          resolve(this.workingSet)
+                            let timeSpent = (new Date().getTime() - startTime) / 1000
+                            this.building = false
+                            console.log(`Finished building catalog in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
+                            resolve(this.workingSet)
                         })
                 })
             })
@@ -209,10 +206,10 @@ class Catalog {
                     return albums.lookup[x].Artist === artist
                 })
                 .sort((a, b) => {
-                  if(albums.lookup[a].ReleaseYear === albums.lookup[b].ReleaseYear){
-                    return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
-                  }
-                  return albums.lookup[a].ReleaseYear > albums.lookup[b].ReleaseYear ? 1 : -1
+                    if (albums.lookup[a].ReleaseYear === albums.lookup[b].ReleaseYear) {
+                        return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
+                    }
+                    return albums.lookup[a].ReleaseYear > albums.lookup[b].ReleaseYear ? 1 : -1
                 })
             let albumLookup = albumList.reduce((result, next) => {
                 result[next] = albums.lookup[next]
