@@ -25,6 +25,7 @@ routes.register(router)
 
 app.use(cors())
 app.use(koaBody())
+
 const webRoot = path.join(__dirname, 'web-build')
 if (fs.existsSync(webRoot)) {
     console.log(`Web root found at ${webRoot}.`)
@@ -33,14 +34,18 @@ if (fs.existsSync(webRoot)) {
     if (settingsPath) {
         console.log(`Swapping tokens in ${settingsPath}`)
         fileSystem.tokenSwap(settingsPath, {
-            WEB_API_URL: process.env.SNOWGLOO_WEB_API_URL,
+            WEB_API_URL: settings.webApiUrl,
         })
     }
     console.log(`Hosting static files`)
-    app.use(static(webRoot))
+    const frontend = static(webRoot)
+    app.use(frontend)
+    router.redirect('/*', '/')
 } else {
     console.log(`No static web files found at ${webRoot}.`)
 }
+
 app.use(router.routes()).use(router.allowedMethods())
+
 console.log(`Server listening on ${settings.webServerPort}`)
 app.listen(settings.webServerPort)

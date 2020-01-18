@@ -15,7 +15,6 @@ export default class Admin extends Component {
 
     componentDidMount() {
         this.props.api.catalogStatus().then(result => {
-            console.log({ result })
             this.setState({
                 catalogStatus: result,
             })

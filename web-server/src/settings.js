@@ -4,6 +4,7 @@ const config = {
     mediaServer: process.env.SNOWGLOO_MEDIA_SERVER_URL || 'http://192.168.1.20:5050',
     databasePath: process.env.SNOWGLOO_DATABASE_PATH || '/tmp/snowgloo.json',
     ignoreDatabaseCache: process.env.SNOWGLOO_IGNORE_DATABASE_CACHE || false,
+    webApiUrl: process.env.SNOWGLOO_WEB_API_URL || '"http://192.168.1.20:5051/api"',
 }
 
 console.log('Configuration read as ', { config })
