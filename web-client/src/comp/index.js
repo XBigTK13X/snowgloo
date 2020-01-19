@@ -6,6 +6,7 @@ export default {
     CoverArt: require('./CoverArt').default,
     Href: require('@uirouter/react').UISref,
     LinkTile: require('./LinkTile').default,
+    LoginForm: require('./LoginForm').default,
     NavBar: require('./NavBar').default,
     SongDuration: require('./SongDuration').default,
     SongPickerItem: require('./SongPickerItem').default,

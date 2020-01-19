@@ -1,4 +1,5 @@
 const catalog = require('./catalog')
+const settings = require('./settings')
 
 const register = router => {
     router.get('/api/song/list', async (request, response) => {
@@ -30,6 +31,12 @@ const register = router => {
 
     router.get('/api/catalog/build/status', async (request, response) => {
         response.send(catalog.status())
+    })
+
+    router.get('/api/user/list', async (request, response) => {
+        response.send({
+            users: settings.userList,
+        })
     })
 }
 

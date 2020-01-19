@@ -19,11 +19,18 @@ const links = [
         to: 'song-list',
         text: 'Songs',
     },
+    {
+        text: 'Logout',
+        action: 'logout',
+    },
 ]
 
 export default class NavBar extends Component {
     render() {
         return links.map((link, linkIndex) => {
+            if (link.action) {
+                return <Comp.LinkTile key={linkIndex} text={link.text} action={this.props.logout} />
+            }
             return <Comp.LinkTile key={linkIndex} to={link.to} text={link.text} />
         })
     }

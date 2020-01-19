@@ -47,6 +47,10 @@ class ApiClient {
     catalogStatus() {
         return this.get('catalog/build/status')
     }
+
+    userList() {
+        return this.get('user/list')
+    }
 }
 
 let instance
