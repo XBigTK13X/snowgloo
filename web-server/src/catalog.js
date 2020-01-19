@@ -43,8 +43,9 @@ class Catalog {
                 if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
                     console.log(`Using ${workingSet.files.length} cached database results`)
                     this.workingSet = workingSet
-                    return resolve(workingSet.files)
+                    return resolve(this.workingSet.files)
                 }
+                workingSet = {}
                 let startTime = new Date().getTime()
                 this.building = true
                 this.rebuildCount = 0
@@ -118,7 +119,7 @@ class Catalog {
                             })
                         })
                         .then(() => {
-                            this.workingSet = {
+                            workingSet = {
                                 files,
                                 albumCoverArts,
                             }
@@ -128,7 +129,7 @@ class Catalog {
                                 list: [],
                                 lookup: {},
                             }
-                            this.workingSet.files.forEach(file => {
+                            workingSet.files.forEach(file => {
                                 if (!_.has(albums.lookup, file.AlbumSlug)) {
                                     albums.lookup[file.AlbumSlug] = {
                                         Album: file.Album,
@@ -137,7 +138,7 @@ class Catalog {
                                         ReleaseYearSort: file.ReleaseYearSort,
                                         Songs: [],
                                         AlbumSlug: file.AlbumSlug,
-                                        CoverArt: this.workingSet.albumCoverArts[file.AlbumSlug],
+                                        CoverArt: workingSet.albumCoverArts[file.AlbumSlug],
                                         Kind: file.Kind,
                                     }
                                     albums.list.push(file.AlbumSlug)
@@ -145,14 +146,14 @@ class Catalog {
                                 albums.lookup[file.AlbumSlug].Songs.push(file)
                             })
                             albums.list = alphabetize(albums.list)
-                            this.workingSet.albums = albums
+                            workingSet.albums = albums
                         })
                         .then(() => {
                             let artists = {
                                 list: [],
                                 lookup: {},
                             }
-                            this.workingSet.files.forEach(file => {
+                            workingSet.files.forEach(file => {
                                 if (!_.has(artists.lookup, file.Artist)) {
                                     artists.lookup[file.Artist] = {
                                         Artist: file.Artist,
@@ -161,15 +162,16 @@ class Catalog {
                                 }
                             })
                             artists.list = alphabetize(artists.list)
-                            this.workingSet.artists = artists
+                            workingSet.artists = artists
                         })
                         .then(() => {
-                            return this.database.write(this.workingSet)
+                            return this.database.write(workingSet)
                         })
                         .then(() => {
                             let timeSpent = (new Date().getTime() - startTime) / 1000
                             this.building = false
                             console.log(`Finished building catalog in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
+                            this.workingSet = workingSet
                             resolve(this.workingSet)
                         })
                 })
