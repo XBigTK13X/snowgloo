@@ -1,10 +1,11 @@
 const settings = require('./settings')
 const fs = require('fs')
 const _ = require('lodash')
+const path = require('path')
 
 class Database {
-    constructor() {
-        this.filePath = settings.databasePath
+    constructor(name) {
+        this.filePath = path.join(settings.databaseDirectory, `${name}.json`)
         this.workingSet = {}
     }
 
@@ -50,9 +51,15 @@ class Database {
     }
 }
 
-let instance
-if (!instance) {
-    instance = new Database()
+let instances = {}
+
+let getInstance = name => {
+    if (!_.has(instances, name)) {
+        instances[name] = new Database(name)
+    }
+    return instances[name]
 }
 
-module.exports = instance
+module.exports = {
+    getInstance,
+}

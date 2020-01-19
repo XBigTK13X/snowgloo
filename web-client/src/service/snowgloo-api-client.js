@@ -5,7 +5,12 @@ class ApiClient {
     constructor() {
         this.httpClient = axios.create({
             baseURL: settings.webApiUrl,
+            username: null,
         })
+    }
+
+    setUser(username) {
+        this.username = username
     }
 
     get(url) {
@@ -50,6 +55,20 @@ class ApiClient {
 
     userList() {
         return this.get('user/list')
+    }
+
+    getQueue() {
+        return this.get(`/queue/${this.username}`)
+    }
+
+    setQueue(queue) {
+        return this.httpClient
+            .post(`/queue/${this.username}`, {
+                queue,
+            })
+            .then(response => {
+                return response.data
+            })
     }
 }
 

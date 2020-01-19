@@ -22,7 +22,7 @@ class Catalog {
     constructor() {
         this.mediaRoot = settings.mediaRoot
         this.workingSet = {}
-        this.database = database
+        this.database = database.getInstance('catalog')
         this.building = false
         this.rebuildCount = 0
         this.totalCount = 0
