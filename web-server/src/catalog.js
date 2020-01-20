@@ -64,6 +64,9 @@ class Catalog {
                                 coverArts.push(x)
                                 return false
                             }
+                            if (x.includes('.txt')) {
+                                return false
+                            }
                             return true
                         })
                         .map(file => {
@@ -140,6 +143,7 @@ class Catalog {
                                         AlbumSlug: file.AlbumSlug,
                                         CoverArt: workingSet.albumCoverArts[file.AlbumSlug],
                                         Kind: file.Kind,
+                                        SubKind: file.SubKind,
                                     }
                                     albums.list.push(file.AlbumSlug)
                                 }
@@ -214,13 +218,26 @@ class Catalog {
                     }
                     return albums.lookup[a].ReleaseYear > albums.lookup[b].ReleaseYear ? 1 : -1
                 })
+            let lists = {
+                Main: [],
+                Special: [],
+                Single: [],
+                Collab: [],
+            }
             let albumLookup = albumList.reduce((result, next) => {
+                if (_.has(lists, albums.lookup[next].SubKind)) {
+                    lists[albums.lookup[next].SubKind].push(next)
+                } else {
+                    lists.Main.push(next)
+                }
                 result[next] = albums.lookup[next]
                 return result
             }, {})
+
             return resolve({
-                list: albumList,
+                lists: lists,
                 lookup: albumLookup,
+                listKinds: ['Main', 'Single', 'Special', 'Collab'],
             })
         })
     }

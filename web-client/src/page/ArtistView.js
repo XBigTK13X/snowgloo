@@ -25,7 +25,20 @@ export default class ArtistView extends Component {
 
         return (
             <div>
-                <Comp.AlbumPicker albums={this.state.albums} />
+                {this.state.albums.listKinds.map((listKind, listKindIndex) => {
+                    return (
+                        <div>
+                            <h3>{listKind}</h3>
+                            <Comp.AlbumPicker
+                                key={listKindIndex}
+                                albums={{
+                                    list: this.state.albums.lists[listKind],
+                                    lookup: this.state.albums.lookup,
+                                }}
+                            />
+                        </div>
+                    )
+                })}
             </div>
         )
     }
