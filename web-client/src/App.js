@@ -27,12 +27,26 @@ export default class App extends Component {
                 songs: null,
                 currentIndex: null,
             },
+            castSession: null,
         }
 
         this.playMedia = this.playMedia.bind(this)
         this.login = this.login.bind(this)
         this.emptyQueue = this.emptyQueue.bind(this)
         this.songFinished = this.songFinished.bind(this)
+        this.listenForGoogleCast()
+    }
+
+    listenForGoogleCast() {
+        let castSessionInterval = setInterval(() => {
+            let session = window.cast.framework.CastContext.getInstance().getCurrentSession()
+            if (session) {
+                this.setState({
+                    castSession: session,
+                })
+            }
+            clearInterval(castSessionInterval)
+        }, 100)
     }
 
     componentDidMount() {
@@ -68,6 +82,16 @@ export default class App extends Component {
     playMedia(song) {
         service.musicQueue.add(song)
         service.musicQueue.serverWrite()
+        var mediaInfo = new window.chrome.cast.media.MediaInfo(song.AudioUrl)
+        var request = new window.chrome.cast.media.LoadRequest(mediaInfo)
+        this.state.castSession.loadMedia(request).then(
+            function() {
+                console.log('Load succeed')
+            },
+            function(errorCode) {
+                console.log('Error code: ' + errorCode)
+            }
+        )
         this.setState({
             song,
             queue: service.musicQueue.getQueue(),

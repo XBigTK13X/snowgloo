@@ -5,6 +5,7 @@ export default {
     AudioControls: require('./AudioControls').default,
     AudioPlayer: require('./AudioPlayer').default,
     CoverArt: require('./CoverArt').default,
+    GoogleCast: require('./GoogleCast').default,
     Href: require('@uirouter/react').UISref,
     LinkTile: require('./LinkTile').default,
     LoginForm: require('./LoginForm').default,

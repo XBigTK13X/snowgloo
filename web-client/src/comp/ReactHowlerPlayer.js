@@ -91,7 +91,7 @@ export default class ReactHowlerPlayer extends Component {
 
     setupPlayer = () => {
         this.destroySound()
-        const { src, format = ['wav', 'mp3', 'flac', 'aac'] } = this.props
+        const { src, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
 
         if (!src) {
             return
@@ -102,6 +102,8 @@ export default class ReactHowlerPlayer extends Component {
             autoplay: true,
             html5: true,
         })
+
+        sound.volume(this.state.volume)
 
         sound.once('load', this.readyToPlay)
 
@@ -321,7 +323,7 @@ export default class ReactHowlerPlayer extends Component {
                             <use xlinkHref={playerState === STATE.PLAYING ? '#r-howl-pause' : '#r-howl-play'}></use>
                         </svg>
                     </button>
-                    <Comp.RangeInput width={300} value={this.state.progressValue} onChange={this.seek} />
+                    <Comp.RangeInput width="100%" value={this.state.progressValue} onChange={this.seek} />
                     <div className="audio-duration">
                         {currentPos} <span className="duration">/ {duration || '...'}</span>
                     </div>
@@ -331,8 +333,9 @@ export default class ReactHowlerPlayer extends Component {
                                 <use xlinkHref={isMute ? '#r-howl-muted' : '#r-howl-volume'}></use>
                             </svg>
                         </button>
-                        <Comp.RangeInput width={100} value={isMute ? 0 : this.state.volume} onChange={this.changeVolume} />
+                        <Comp.RangeInput width="100px" value={isMute ? 0 : this.state.volume} onChange={this.changeVolume} />
                     </div>
+                    <Comp.GoogleCast />
                 </div>
             </div>
         )

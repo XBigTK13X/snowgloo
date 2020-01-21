@@ -40,5 +40,20 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+    window['__onGCastApiAvailable'] = function(isAvailable) {
+      if (isAvailable) {
+        window.cast = cast
+        window.chrome = chrome
+        cast.framework.CastContext.getInstance().setOptions({
+          receiverApplicationId:
+            chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID
+        });
+      }
+    };
+    </script>
+
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
   </body>
 </html>

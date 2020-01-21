@@ -26,6 +26,17 @@ audio:focus {
     outline-width: 0;
 }
 
+.google-cast {
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+}
+
+.google-cast:hover {
+    background-color: #cca0d8;
+    border-radius: 2px;
+}
+
 .nav-button {
     margin: 5px;
     padding: 5px;
