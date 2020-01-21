@@ -27,26 +27,23 @@ export default class App extends Component {
                 songs: null,
                 currentIndex: null,
             },
-            castSession: null,
+            isCasting: false,
+            castEnabled: null
         }
 
         this.playMedia = this.playMedia.bind(this)
         this.login = this.login.bind(this)
         this.emptyQueue = this.emptyQueue.bind(this)
         this.songFinished = this.songFinished.bind(this)
-        this.listenForGoogleCast()
-    }
+        this.googleCastChanged = this.googleCastChanged.bind(this)
 
-    listenForGoogleCast() {
-        let castSessionInterval = setInterval(() => {
-            let session = window.cast.framework.CastContext.getInstance().getCurrentSession()
-            if (session) {
-                this.setState({
-                    castSession: session,
-                })
+        service.googleCast.onChange(this.googleCastChanged)
+        let castCheckInterval = setInterval(()=>{
+            if(window.castEnabled && !this.state.castEnabled){
+              this.setState({castEnabled: true})
+              clearInterval(castCheckInterval)
             }
-            clearInterval(castSessionInterval)
-        }, 100)
+        },1000)
     }
 
     componentDidMount() {
@@ -58,6 +55,12 @@ export default class App extends Component {
                 })
             })
         })
+    }
+
+    googleCastChanged(castInfo){
+      this.setState({
+        isCasting: castInfo.isCasting
+      })
     }
 
     login(user) {
@@ -82,19 +85,12 @@ export default class App extends Component {
     playMedia(song) {
         service.musicQueue.add(song)
         service.musicQueue.serverWrite()
-        var mediaInfo = new window.chrome.cast.media.MediaInfo(song.AudioUrl)
-        var request = new window.chrome.cast.media.LoadRequest(mediaInfo)
-        this.state.castSession.loadMedia(request).then(
-            function() {
-                console.log('Load succeed')
-            },
-            function(errorCode) {
-                console.log('Error code: ' + errorCode)
-            }
-        )
-        this.setState({
-            song,
-            queue: service.musicQueue.getQueue(),
+        service.googleCast.load(song)
+        .then(()=>{
+          this.setState({
+              song,
+              queue: service.musicQueue.getQueue(),
+          })
         })
     }
 
@@ -122,6 +118,9 @@ export default class App extends Component {
         return (
             <div>
                 <UIRouter plugins={plugins} states={routes} config={configRouter}>
+                  <p>
+                    Is cast enabled? ({this.state.castEnabled === null ? 'Unknown' : (this.state.castEnabled ? 'Yes':'No')})
+                  </p>
                     <div className="page-wrapper">
                         <Comp.NavBar logout={this.logout} />
                         <UIView
@@ -130,7 +129,7 @@ export default class App extends Component {
                             }}
                         />
                     </div>
-                    <Comp.AudioControls song={this.state.song} songFinished={this.songFinished} />
+                    <Comp.AudioControls song={this.state.song} songFinished={this.songFinished} isCasting={this.state.isCasting}/>
                 </UIRouter>
             </div>
         )

@@ -20,14 +20,14 @@ export default class RangeInput extends Component {
                             ...props.style,
                             height: '36px',
                             display: 'flex',
-                            width: this.props.width,
+                            width: '100%',
                         }}
                     >
                         <div
                             ref={props.ref}
                             style={{
                                 height: '5px',
-                                width: this.props.width,
+                                width: '100%',
                                 borderRadius: '4px',
                                 background: getTrackBackground({
                                     values: [this.props.value],

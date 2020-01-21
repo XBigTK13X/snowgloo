@@ -40,9 +40,14 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <!-- Mobile Debugging
+    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+    -->
     <script>
     window['__onGCastApiAvailable'] = function(isAvailable) {
       if (isAvailable) {
+        window.castEnabled = true
         window.cast = cast
         window.chrome = chrome
         cast.framework.CastContext.getInstance().setOptions({

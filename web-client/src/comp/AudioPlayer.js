@@ -1,200 +1,269 @@
+// Modified from https://github.com/binodswain/react-howler-player
+
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { Howl } from 'howler'
 
-class ReactAudioPlayer extends Component {
+import Comp from './'
+import service from '../service'
+
+const STATE = {
+    PREPARE: 'PREPARE',
+    READY: 'READY',
+    ENDED: 'ENDED',
+    PAUSE: 'PAUSE',
+    PLAYING: 'PLAYING',
+}
+
+const STEP_MILLISECONDS = 400 //Originally 15
+
+class Prepare extends Component {
+    static propTypes = {
+        loadingText: PropTypes.string,
+        isDark: PropTypes.bool,
+    }
+
+    render() {
+        return null
+    }
+}
+
+export default class ReactHowlerPlayer extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            sound: null,
+            playerState: STATE.PREPARE,
+            src: [],
+            progressValue: 0,
+            currentPos: '0:00',
+            // TODO Save this in localStorage
+            volume: 100,
+            isMute: false,
+        }
+        this.stepInterval = null
+    }
+
     componentDidMount() {
-        const audio = this.audioEl
-
-        this.updateVolume(this.props.volume)
-
-        audio.addEventListener('error', e => {
-            this.props.onError(e)
-        })
-
-        // When enough of the file has downloaded to start playing
-        audio.addEventListener('canplay', e => {
-            this.props.onCanPlay(e)
-        })
-
-        // When enough of the file has downloaded to play the entire file
-        audio.addEventListener('canplaythrough', e => {
-            this.props.onCanPlayThrough(e)
-        })
-
-        // When audio play starts
-        audio.addEventListener('play', e => {
-            this.setListenTrack()
-            this.props.onPlay(e)
-        })
-
-        // When unloading the audio player (switching to another src)
-        audio.addEventListener('abort', e => {
-            this.clearListenTrack()
-            this.props.onAbort(e)
-        })
-
-        // When the file has finished playing to the end
-        audio.addEventListener('ended', e => {
-            this.clearListenTrack()
-            this.props.onEnded(e)
-        })
-
-        // When the user pauses playback
-        audio.addEventListener('pause', e => {
-            this.clearListenTrack()
-            this.props.onPause(e)
-        })
-
-        // When the user drags the time indicator to a new time
-        audio.addEventListener('seeked', e => {
-            this.props.onSeeked(e)
-        })
-
-        audio.addEventListener('loadedmetadata', e => {
-            this.props.onLoadedMetadata(e)
-        })
-
-        audio.addEventListener('volumechange', e => {
-            this.props.onVolumeChanged(e)
-        })
+        this.setupPlayer()
     }
 
-    componentDidUpdate() {
-        this.updateVolume(this.props.volume)
+    componentWillUnmount() {
+        this.destroySound()
     }
 
-    /**
-     * Set an interval to call props.onListen every props.listenInterval time period
-     */
-    setListenTrack() {
-        if (!this.listenTracker) {
-            const listenInterval = this.props.listenInterval
-            this.listenTracker = setInterval(() => {
-                this.props.onListen(this.audioEl.currentTime)
-            }, listenInterval)
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.src !== this.props.src) {
+            this.setupPlayer()
         }
     }
 
-    /**
-     * Set the volume on the audio element from props
-     * @param {Number} volume
-     */
-    updateVolume(volume) {
-        if (typeof volume === 'number' && volume !== this.audioEl.volume) {
-            this.audioEl.volume = volume
+    toggleMute = () => {
+        this.setState(prevState => {
+            const { volume, sound } = prevState
+
+            if (volume === 0 || !prevState.isMute) {
+                sound.mute(true)
+                return { isMute: true }
+            }
+            sound.mute(false)
+            return { isMute: !prevState.isMute }
+        })
+    }
+
+    readyToPlay = () => {
+        const { playerState, sound } = this.state
+        if (playerState === STATE.PLAYING) {
+            return
+        }
+        this.setState({
+            playerState: STATE.READY,
+            duration: this.formatTime(Math.round(sound.duration())),
+        })
+    }
+
+    setupPlayer = () => {
+        this.destroySound()
+        const { src, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
+
+        if (!src) {
+            return
+        }
+        let sound = new Howl({
+            src,
+            format,
+            autoplay: true,
+            html5: true,
+        })
+
+        sound.volume(this.props.isCasting ? 0 : this.state.volume)
+
+        sound.once('load', this.readyToPlay)
+
+        sound.on('end', () => {
+            this.playbackEnded()
+            this.props.songFinished()
+        })
+
+        sound.on('play', () => {
+            this.stepInterval = setInterval(this.step, STEP_MILLISECONDS)
+        })
+
+        this.setState({
+            sound,
+            playerState: STATE.PREPARE,
+            progressValue: 0,
+            currentPos: '0:00',
+            src,
+        })
+    }
+
+    playbackEnded = () => {
+        const { onTimeUpdate } = this.props
+        const { duration } = this.state
+        if (onTimeUpdate) {
+            let playerState = {
+                currentTime: this.state.sound.duration(),
+                progressPercent: 100,
+            }
+            onTimeUpdate(playerState)
+        }
+        clearInterval(this.stepInterval)
+        this.setState({
+            playerState: STATE.ENDED,
+            progressValue: 100,
+            currentPos: duration,
+        })
+    }
+
+    playbackPlay = () => {
+        const { sound } = this.state
+        sound.play()
+        service.googleCast.playOrPause();
+        this.setState({
+            playerState: STATE.PLAYING,
+        })
+    }
+
+    playbackPause = () => {
+        const { sound } = this.state
+        sound.pause()
+        clearInterval(this.stepInterval)
+        service.googleCast.playOrPause();
+        this.setState({
+            playerState: STATE.PAUSE,
+        })
+    }
+
+    formatTime = secs => {
+        var minutes = Math.floor(secs / 60) || 0
+        var seconds = secs - minutes * 60 || 0
+
+        return minutes + ':' + (seconds < 10 ? '0' : '') + seconds
+    }
+
+    seek = value => {
+        //Prevent scrubbing to end, triggering next song start
+        if (value === 100) {
+            value = this.state.progressValue
+        }
+        const { sound } = this.state
+        let percent = value / 100
+        let timeLocation = sound.duration() * percent
+        sound.seek(timeLocation)
+        service.googleCast.seek(timeLocation)
+        let currentSeek = sound.seek() || 0
+        this.setState({
+            progressValue: value,
+            currentPos: this.formatTime(Math.round(currentSeek)),
+        })
+    }
+
+    step = () => {
+        let { sound } = this.state
+        // If the sound is still playing, continue stepping. Unless a user is seeking.
+        if (sound.playing() && !window.isMouseDown) {
+            const { onTimeUpdate } = this.props
+
+            var seek = sound.seek() || 0
+
+            let percentage = (seek / sound.duration()) * 100 || 0
+            this.setState({
+                progressValue: percentage.toFixed(3),
+                currentPos: this.formatTime(Math.round(seek)),
+                playerState: STATE.PLAYING,
+            })
+            if (onTimeUpdate) {
+                let playerState = {
+                    currentTime: seek,
+                    progressPercent: Number(percentage.toFixed(3)),
+                }
+                onTimeUpdate(playerState)
+            }
         }
     }
 
-    /**
-     * Clear the onListen interval
-     */
-    clearListenTrack() {
-        if (this.listenTracker) {
-            clearInterval(this.listenTracker)
-            this.listenTracker = null
+    changeVolume = volume => {
+        this.state.sound.volume(Math.round(volume) / 100)
+
+        this.setState({
+            volume,
+            isMute: Number(volume) === 0,
+        })
+    }
+
+    destroySound = () => {
+        const { sound } = this.state
+        clearInterval(this.stepInterval)
+        if (sound) {
+            sound.off()
+            sound.stop()
         }
     }
 
     render() {
-        const incompatibilityMessage = this.props.children || (
-            <p>
-                Your browser does not support the <code>audio</code> element.
-            </p>
-        )
+        const { playerState, duration, currentPos, isMute } = this.state
 
-        // Set controls to be true by default unless explicity stated otherwise
-        const controls = !(this.props.controls === false)
+        const { loadingText } = this.props
 
-        // Set lockscreen / process audio title on devices
-        const title = this.props.title ? this.props.title : this.props.src
-
-        // Some props should only be added if specified
-        const conditionalProps = {}
-        if (this.props.controlsList) {
-            conditionalProps.controlsList = this.props.controlsList
+        if (playerState === STATE.PREPARE) {
+            return <Prepare loadingText={loadingText} />
         }
 
+        let playPauseAction;
+        let playPauseIcon;
+
+        if (playerState === STATE.READY || playerState === STATE.PAUSE || playerState === STATE.ENDED) {
+            playPauseAction = this.playbackPlay
+            playPauseIcon = '▶️'
+        } else if (playerState === STATE.PLAYING) {
+            playPauseAction = this.playbackPause
+            playPauseIcon = '⏸️'
+        }
+
+        let volumeIcon = isMute ? '🔇' : '🔊'
+
         return (
-            <audio
-                autoPlay={this.props.autoPlay}
-                className={`react-audio-player ${this.props.className}`}
-                controls={controls}
-                crossOrigin={this.props.crossOrigin}
-                id={this.props.id}
-                loop={this.props.loop}
-                muted={this.props.muted}
-                onPlay={this.onPlay}
-                preload={this.props.preload}
-                ref={ref => {
-                    this.audioEl = ref
-                }}
-                src={this.props.src}
-                style={this.props.style}
-                title={title}
-                {...conditionalProps}
-            >
-                {incompatibilityMessage}
-            </audio>
+            <div>
+                <div className="seek-range">
+                  <Comp.RangeInput value={this.state.progressValue} onChange={this.seek} />
+                </div>
+                <div className="audio-duration">
+                    {currentPos} <span className="duration">/ {duration || '...'}</span>
+                </div>
+                <div className="audio-buttons">
+                  <button className="no-focus" type="button" onClick={playPauseAction}>
+                      {playPauseIcon}
+                  </button>
+                  <button className="no-focus" type="button" onClick={this.toggleMute}>
+                      {volumeIcon}
+                  </button>
+                  <Comp.GoogleCastButton />
+                </div>
+                <div className="volume-range">
+                  <Comp.RangeInput value={isMute ? 0 : this.state.volume} onChange={this.changeVolume} />
+                </div>
+              </div>
         )
     }
 }
-
-ReactAudioPlayer.defaultProps = {
-    autoPlay: false,
-    children: null,
-    className: '',
-    controls: false,
-    controlsList: '',
-    crossOrigin: null,
-    id: '',
-    listenInterval: 10000,
-    loop: false,
-    muted: false,
-    onAbort: () => {},
-    onCanPlay: () => {},
-    onCanPlayThrough: () => {},
-    onEnded: () => {},
-    onError: () => {},
-    onListen: () => {},
-    onPause: () => {},
-    onPlay: () => {},
-    onSeeked: () => {},
-    onVolumeChanged: () => {},
-    onLoadedMetadata: () => {},
-    preload: 'metadata',
-    src: null,
-    style: {},
-    title: '',
-    volume: 1.0,
-}
-
-ReactAudioPlayer.propTypes = {
-    autoPlay: PropTypes.bool,
-    children: PropTypes.element,
-    className: PropTypes.string,
-    controls: PropTypes.bool,
-    controlsList: PropTypes.string,
-    crossOrigin: PropTypes.string,
-    id: PropTypes.string,
-    listenInterval: PropTypes.number,
-    loop: PropTypes.bool,
-    muted: PropTypes.bool,
-    onAbort: PropTypes.func,
-    onCanPlay: PropTypes.func,
-    onCanPlayThrough: PropTypes.func,
-    onEnded: PropTypes.func,
-    onError: PropTypes.func,
-    onListen: PropTypes.func,
-    onLoadedMetadata: PropTypes.func,
-    onPause: PropTypes.func,
-    onPlay: PropTypes.func,
-    onSeeked: PropTypes.func,
-    onVolumeChanged: PropTypes.func,
-    preload: PropTypes.oneOf(['', 'none', 'metadata', 'auto']),
-    src: PropTypes.string, // Not required b/c can use <source>
-    style: PropTypes.objectOf(PropTypes.string),
-    title: PropTypes.string,
-    volume: PropTypes.number,
-}
-
-export default ReactAudioPlayer
