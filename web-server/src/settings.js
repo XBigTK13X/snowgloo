@@ -6,6 +6,7 @@ const config = {
     ignoreDatabaseCache: process.env.SNOWGLOO_IGNORE_DATABASE_CACHE || false,
     webApiUrl: process.env.SNOWGLOO_WEB_API_URL || '"http://192.168.1.20:5051/api/"',
     userList: process.env.SNOWGLOO_USER_LIST_CSV || 'Snowman,QTFleur',
+    apiPostBodySizeLimit: '100mb',
 }
 
 config.userList = config.userList.split(',')

@@ -4,9 +4,19 @@ import Comp from './'
 
 export default class SongPickerItem extends Component {
     render() {
+        if (!this.props.song) {
+            return null
+        }
+        let style = 'list-item-text'
+        if (this.props.alternate && !this.props.nowPlaying) {
+            style += ' alternate'
+        }
+        if (this.props.nowPlaying) {
+            style += ' highlighted-row'
+        }
         return (
             <tr
-                className={this.props.alternate ? 'list-item-text alternate' : 'list-item-text'}
+                className={style}
                 onClick={() => {
                     this.props.playMedia(this.props.song)
                 }}

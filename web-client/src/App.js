@@ -23,37 +23,27 @@ export default class App extends Component {
         this.state = {
             audioUrl: null,
             user: user,
+            queue: {
+                songs: null,
+                currentIndex: null,
+            },
         }
 
         this.playMedia = this.playMedia.bind(this)
         this.login = this.login.bind(this)
         this.emptyQueue = this.emptyQueue.bind(this)
+        this.songFinished = this.songFinished.bind(this)
     }
 
     componentDidMount() {
         service.musicQueue.setApi(service.api).then(() => {
             service.musicQueue.serverRead().then(queue => {
+                queue.currentIndex = null
                 this.setState({
                     queue: queue,
                 })
             })
         })
-    }
-
-    emptyQueue() {
-        service.musicQueue.empty().then(() => {
-            this.setState({
-                queue: service.musicQueue.getQueue(),
-            })
-        })
-    }
-
-    playMedia(song) {
-        this.setState({
-            song,
-        })
-        service.musicQueue.add(song)
-        service.musicQueue.serverWrite()
     }
 
     login(user) {
@@ -75,6 +65,28 @@ export default class App extends Component {
         })
     }
 
+    playMedia(song) {
+        service.musicQueue.add(song)
+        service.musicQueue.serverWrite()
+        this.setState({
+            song,
+            queue: service.musicQueue.getQueue(),
+        })
+    }
+
+    songFinished() {
+        let nextSong = service.musicQueue.getNext()
+        this.playMedia(nextSong)
+    }
+
+    emptyQueue() {
+        service.musicQueue.empty().then(() => {
+            this.setState({
+                queue: service.musicQueue.getQueue(),
+            })
+        })
+    }
+
     render() {
         if (!this.state.user) {
             return (
@@ -90,11 +102,11 @@ export default class App extends Component {
                         <Comp.NavBar logout={this.logout} />
                         <UIView
                             render={(Component, props) => {
-                                return <Component {...props} playMedia={this.playMedia} api={service.api} user={this.state.user} musicQueue={service.musicQueue} emptyQueue={this.emptyQueue} />
+                                return <Component {...props} playMedia={this.playMedia} api={service.api} user={this.state.user} queuedSongs={this.state.queue.songs} emptyQueue={this.emptyQueue} playingIndex={this.state.queue.currentIndex} />
                             }}
                         />
                     </div>
-                    <Comp.AudioControls song={this.state.song} />
+                    <Comp.AudioControls song={this.state.song} songFinished={this.songFinished} />
                 </UIRouter>
             </div>
         )

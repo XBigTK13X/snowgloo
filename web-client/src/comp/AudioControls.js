@@ -3,26 +3,13 @@ import React, { Component } from 'react'
 import Comp from './'
 
 export default class AudioControls extends Component {
-    constructor(props) {
-        super(props)
-        this.audio = React.createRef()
-    }
-
     render() {
         if (!this.props.song) {
             return null
         }
-        if (this.audio.current) {
-            this.audio.current.setAttribute('src', this.props.song.AudioUrl)
-            this.audio.current.load()
-            this.audio.current.play()
-        }
         return (
             <div className="sticky-footer centered">
-                <audio ref={this.audio} controls autoPlay>
-                    <source src={this.props.song.AudioUrl} />
-                    Your browser does not support the audio element.
-                </audio>
+                <Comp.ReactHowlerPlayer src={[this.props.song.AudioUrl]} songFinished={this.props.songFinished} />
                 <br />
                 <div className="neighbor">
                     <Comp.CoverArt size="small" imageUrl={this.props.song.CoverArt} />

@@ -24,11 +24,14 @@ class MusicQueue {
     }
 
     add(song) {
+        if (!song) {
+            return Promise.resolve()
+        }
         return new Promise(resolve => {
             let found = false
             this.queue.songs.forEach((entry, entryIndex) => {
                 if (entry === song) {
-                    this.currentIndex = entryIndex
+                    this.queue.currentIndex = entryIndex
                     found = true
                 }
             })
@@ -39,11 +42,20 @@ class MusicQueue {
         })
     }
 
+    getNext() {
+        if (!this.queue.currentIndex) {
+            this.queue.currentIndex = 0
+        }
+        this.queue.currentIndex++
+        return this.getCurrent()
+    }
+
     getCurrent() {
         if (this.queue.currentIndex === null) {
             return null
         }
         if (this.queue.currentIndex >= this.queue.songs.length) {
+            this.currentIndex = null
             return null
         }
         return this.queue.songs[this.queue.currentIndex]
