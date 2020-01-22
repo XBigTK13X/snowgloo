@@ -41,9 +41,8 @@ const register = router => {
     })
 
     router.get('/api/queue/:username', async (request, response) => {
-        response.send({
-            queue: await musicQueue.read(request.params.username),
-        })
+      let queue = await musicQueue.read(request.params.username)
+        response.send(queue)
     })
 
     router.post('/api/queue/:username', async (request, response) => {

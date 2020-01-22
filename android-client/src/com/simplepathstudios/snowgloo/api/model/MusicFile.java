@@ -2,17 +2,26 @@ package com.simplepathstudios.snowgloo.api.model;
 
 import android.os.Bundle;
 
-import com.google.gson.Gson;
 import com.simplepathstudios.snowgloo.utils.Utils;
 
-public class MediaFile {
+public class MusicFile {
     public String Album;
     public String Artist;
     public String AudioUrl;
     public Integer Duration;
     public String CoverImageUrl;
-    public String Path;
+    public String LocalFilePath;
     public String Title;
+
+    public MusicFile(MusicFile item) {
+        this.Album = item.Album;
+        this.Artist = item.Artist;
+        this.AudioUrl = item.AudioUrl;
+        this.Duration = item.Duration;
+        this.CoverImageUrl = item.CoverImageUrl;
+        this.LocalFilePath = item.LocalFilePath;
+        this.Title = item.Title;
+    }
 
     public Bundle toBundle(){
         String json = Utils.toJSON(this);
@@ -21,12 +30,12 @@ public class MediaFile {
         return wrapper;
     }
 
-    public static final MediaFile fromBundle(Bundle wrapper){
+    public static final MusicFile fromBundle(Bundle wrapper){
         if(wrapper == null){
             return null;
         }
         String json = wrapper.getString("media-file-json");
-        MediaFile item = (MediaFile)Utils.fromJSON(json,MediaFile.class);
+        MusicFile item = (MusicFile)Utils.fromJSON(json, MusicFile.class);
         return item;
     }
 }

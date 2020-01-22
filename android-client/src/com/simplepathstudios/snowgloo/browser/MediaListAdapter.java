@@ -19,9 +19,8 @@ package com.simplepathstudios.snowgloo.browser;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.model.MediaFile;
+import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.utils.CustomVolleyRequest;
-import com.simplepathstudios.snowgloo.utils.MediaItem;
 
 import android.content.Context;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,7 +41,7 @@ public class MediaListAdapter extends RecyclerView.Adapter<MediaListAdapter.View
     private static final float mAspectRatio = 9f / 16f;
     private final ItemClickListener mClickListener;
     private final Context mAppContext;
-    private List<MediaFile> videos;
+    private List<MusicFile> videos;
 
     public MediaListAdapter(ItemClickListener clickListener, Context context) {
         mClickListener = clickListener;
@@ -58,7 +57,7 @@ public class MediaListAdapter extends RecyclerView.Adapter<MediaListAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        final MediaFile item = videos.get(position);
+        final MusicFile item = videos.get(position);
         viewHolder.setTitle(item.Title);
         //viewHolder.setDescription(item.getStudio());
         //viewHolder.setImage(item.getImage(0), mAppContext);
@@ -134,14 +133,14 @@ public class MediaListAdapter extends RecyclerView.Adapter<MediaListAdapter.View
         }
     }
 
-    public void setData(List<MediaFile> data) {
+    public void setData(List<MusicFile> data) {
         videos = data;
         notifyDataSetChanged();
     }
 
     public interface ItemClickListener {
 
-        void itemClicked(View v, MediaFile item, int position);
+        void itemClicked(View v, MusicFile item, int position);
     }
 
     @Override

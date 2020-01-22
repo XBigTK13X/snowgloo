@@ -70,8 +70,11 @@ class MusicQueue {
             throw new Error('Unable to read music queue, no api has been set')
         }
         return this.api.getQueue().then(result => {
-            if (!_.isEmpty(result.queue)) {
-                this.queue = result.queue
+            if (!_.isEmpty(result)) {
+                this.queue = {
+                  songs: result.songs,
+                  currentIndex: result.currentIndex
+                }
             }
             return this.queue
         })

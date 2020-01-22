@@ -43,10 +43,6 @@ public class VideoBrowserActivity extends AppCompatActivity {
     private IntroductoryOverlay mIntroductoryOverlay;
     private CastStateListener mCastStateListener;
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

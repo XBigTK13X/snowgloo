@@ -53,4 +53,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:2.7.1"
     implementation "com.squareup.retrofit2:converter-moshi:2.7.1"
     implementation "com.squareup.retrofit2:converter-gson:2.7.1"
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
+    implementation 'com.google.android.exoplayer:extension-cast:2.11.1'
+    implementation 'com.google.android.material:material:1.0.0'
 }

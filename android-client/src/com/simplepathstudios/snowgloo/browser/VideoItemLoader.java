@@ -17,7 +17,7 @@
 package com.simplepathstudios.snowgloo.browser;
 
 import com.simplepathstudios.snowgloo.api.ApiClient;
-import com.simplepathstudios.snowgloo.api.model.MediaFile;
+import com.simplepathstudios.snowgloo.api.model.MusicFile;
 
 import android.content.Context;
 import androidx.loader.content.AsyncTaskLoader;
@@ -25,7 +25,7 @@ import android.util.Log;
 
 import java.util.List;
 
-public class VideoItemLoader extends AsyncTaskLoader<List<MediaFile>> {
+public class VideoItemLoader extends AsyncTaskLoader<List<MusicFile>> {
 
     private static final String TAG = "VideoItemLoader";
     private final String mUrl;
@@ -36,11 +36,9 @@ public class VideoItemLoader extends AsyncTaskLoader<List<MediaFile>> {
     }
 
     @Override
-    public List<MediaFile> loadInBackground() {
+    public List<MusicFile> loadInBackground() {
         try {
-            List<MediaFile> items = ApiClient.getInstance().listFiles().execute().body();
-            int x = 0;
-            return items;
+            return ApiClient.getInstance().getQueue().songs;
         } catch (Exception e) {
             Log.e(TAG, "Failed to fetch media data", e);
             return null;

@@ -16,10 +16,11 @@
 
 package com.simplepathstudios.snowgloo.browser;
 
+import com.simplepathstudios.snowgloo.BackgroundMusicService;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.model.MediaFile;
+import com.simplepathstudios.snowgloo.VideoBrowserActivity;
+import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.mediaplayer.LocalPlayerActivity;
-import com.simplepathstudios.snowgloo.utils.MediaItem;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,6 +33,8 @@ import androidx.loader.content.Loader;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +45,7 @@ import java.util.List;
  * A fragment to host a list view of the video catalog.
  */
 public class VideoBrowserFragment extends Fragment implements MediaListAdapter.ItemClickListener,
-        LoaderManager.LoaderCallbacks<List<MediaFile>> {
+        LoaderManager.LoaderCallbacks<List<MusicFile>> {
 
     private static final String TAG = "VideoBrowserFragment";
     private static final String CATALOG_URL =
@@ -76,7 +79,12 @@ public class VideoBrowserFragment extends Fragment implements MediaListAdapter.I
     }
 
     @Override
-    public void itemClicked(View view, MediaFile item, int position) {
+    public void itemClicked(View view, MusicFile item, int position) {
+        Intent musicintent = new Intent(getActivity(), BackgroundMusicService.class);
+        musicintent.putExtra("audioUrl", item.AudioUrl);
+        Log.d("VideoBrowserFragment.itemClicked", item.AudioUrl);
+        getActivity().startService(musicintent);
+        /*
         String transitionName = getString(R.string.transition_image);
         MediaListAdapter.ViewHolder viewHolder =
                 (MediaListAdapter.ViewHolder) mRecyclerView.findViewHolderForPosition(position);
@@ -84,27 +92,27 @@ public class VideoBrowserFragment extends Fragment implements MediaListAdapter.I
                 .create((View) viewHolder.getImageView(), transitionName);
         ActivityOptionsCompat options = ActivityOptionsCompat
                 .makeSceneTransitionAnimation(getActivity(), imagePair);
-
         Intent intent = new Intent(getActivity(), LocalPlayerActivity.class);
         intent.putExtra("media", item.toBundle());
         intent.putExtra("shouldStart", false);
         ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
+        */
     }
 
     @Override
-    public Loader<List<MediaFile>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<MusicFile>> onCreateLoader(int id, Bundle args) {
         return new VideoItemLoader(getActivity(), CATALOG_URL);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<MediaFile>> loader, List<MediaFile> data) {
+    public void onLoadFinished(Loader<List<MusicFile>> loader, List<MusicFile> data) {
         mAdapter.setData(data);
         mLoadingView.setVisibility(View.GONE);
         mEmptyView.setVisibility(null == data || data.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<MediaFile>> loader) {
+    public void onLoaderReset(Loader<List<MusicFile>> loader) {
         mAdapter.setData(null);
     }
 

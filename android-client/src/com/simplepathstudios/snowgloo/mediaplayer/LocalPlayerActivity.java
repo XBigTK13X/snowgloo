@@ -28,11 +28,10 @@ import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.model.MediaFile;
+import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.expandedcontrols.ExpandedControlsActivity;
 import com.simplepathstudios.snowgloo.settings.CastPreference;
 import com.simplepathstudios.snowgloo.utils.CustomVolleyRequest;
-import com.simplepathstudios.snowgloo.utils.MediaItem;
 import com.simplepathstudios.snowgloo.utils.Utils;
 
 import android.annotation.SuppressLint;
@@ -56,10 +55,8 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -95,7 +92,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
     private PlaybackState mPlaybackState;
     private final Handler mHandler = new Handler();
     private final float mAspectRatio = 72f / 128;
-    private MediaFile mSelectedMedia;
+    private MusicFile mSelectedMedia;
     private boolean mControllersVisible;
     private int mDuration;
     private TextView mAuthorView;
@@ -135,7 +132,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             try {
-                mSelectedMedia = MediaFile.fromBundle(getIntent().getBundleExtra("media"));
+                mSelectedMedia = MusicFile.fromBundle(getIntent().getBundleExtra("media"));
 
                 setupActionBar();
                 int startPosition = bundle.getInt("startPosition", 0);
