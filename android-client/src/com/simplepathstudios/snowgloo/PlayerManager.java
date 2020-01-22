@@ -48,17 +48,19 @@ import java.util.Map;
 /* package */ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
     /** Listener for events. */
-    interface Listener {
-
-        /** Called when the currently played item of the media queue changes. */
-        void onQueuePositionChanged(int previousIndex, int newIndex);
-
+    interface AudioListener {
         /**
          * Called when a track of type {@code trackType} is not supported by the player.
          *
          * @param trackType One of the {@link C}{@code .TRACK_TYPE_*} constants.
          */
         void onUnsupportedTrack(int trackType);
+    }
+    interface QueueListener {
+
+        /** Called when the currently played item of the media queue changes. */
+        void onQueuePositionChanged(int previousIndex, int newIndex);
+
     }
 
     private static final String USER_AGENT = "SnowglooMobile";
@@ -71,7 +73,8 @@ import java.util.Map;
     private final SimpleExoPlayer exoPlayer;
     private final CastPlayer castPlayer;
     private final ArrayList<MusicFile> mediaQueue;
-    private final Listener listener;
+    private final AudioListener audioListener;
+    private final QueueListener queueListener;
     private final ConcatenatingMediaSource concatenatingMediaSource;
     private final MediaItemConverter mediaItemConverter;
 
@@ -82,19 +85,20 @@ import java.util.Map;
     /**
      * Creates a new manager for {@link SimpleExoPlayer} and {@link CastPlayer}.
      *
-     * @param listener A {@link Listener} for queue position changes.
      * @param localPlayerView The {@link PlayerView} for local playback.
      * @param castControlView The {@link PlayerControlView} to control remote playback.
      * @param context A {@link Context}.
      * @param castContext The {@link CastContext}.
      */
     public PlayerManager(
-            Listener listener,
+            AudioListener audioListener,
+            QueueListener queueListener,
             PlayerView localPlayerView,
             PlayerControlView castControlView,
             Context context,
             CastContext castContext) {
-        this.listener = listener;
+        this.audioListener = audioListener;
+        this.queueListener = queueListener;
         this.localPlayerView = localPlayerView;
         this.castControlView = castControlView;
         mediaQueue = new ArrayList<>();
@@ -278,11 +282,11 @@ import java.util.Map;
             if (mappedTrackInfo != null) {
                 if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
                         == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-                    listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
+                    audioListener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
                 }
                 if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_AUDIO)
                         == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-                    listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
+                    audioListener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
                 }
             }
             lastSeenTrackGroupArray = trackGroups;
@@ -385,7 +389,7 @@ import java.util.Map;
         if (this.currentItemIndex != currentItemIndex) {
             int oldIndex = this.currentItemIndex;
             this.currentItemIndex = currentItemIndex;
-            listener.onQueuePositionChanged(oldIndex, currentItemIndex);
+            queueListener.onQueuePositionChanged(oldIndex, currentItemIndex);
         }
     }
 

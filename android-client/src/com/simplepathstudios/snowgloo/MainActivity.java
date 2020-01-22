@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
+import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -42,18 +44,22 @@ import java.util.List;
  * Cast extension.
  */
 public class MainActivity extends AppCompatActivity
-        implements OnClickListener, PlayerManager.Listener , LoaderManager.LoaderCallbacks<List<MusicFile>> {
+        implements PlayerManager.AudioListener {
 
     private final String TAG = "MainActivity";
 
     private PlayerView localPlayerView;
     private PlayerControlView castControlView;
     private PlayerManager playerManager;
-    private RecyclerView mediaQueueList;
-    private MediaQueueListAdapter mediaQueueListAdapter;
+    private MainFragment queueFragment;
+
     private CastContext castContext;
 
     // Activity lifecycle methods.
+
+    public PlayerManager getPlayerManager(){
+        return playerManager;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,14 +87,9 @@ public class MainActivity extends AppCompatActivity
 
         castControlView = findViewById(R.id.cast_control_view);
 
-        mediaQueueList = findViewById(R.id.sample_list);
-        ItemTouchHelper helper = new ItemTouchHelper(new RecyclerViewCallback());
-        helper.attachToRecyclerView(mediaQueueList);
-        mediaQueueList.setLayoutManager(new LinearLayoutManager(this));
-        mediaQueueList.setHasFixedSize(true);
-        mediaQueueListAdapter = new MediaQueueListAdapter();
-
-        findViewById(R.id.add_sample_button).setOnClickListener(this);
+        queueFragment = new MainFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, queueFragment).commit();
     }
 
     @Override
@@ -109,11 +110,12 @@ public class MainActivity extends AppCompatActivity
         playerManager =
                 new PlayerManager(
                         /* listener= */ this,
+                        queueFragment,
                         localPlayerView,
                         castControlView,
                         /* context= */ this,
                         castContext);
-        mediaQueueList.setAdapter(mediaQueueListAdapter);
+
     }
 
     @Override
@@ -123,8 +125,6 @@ public class MainActivity extends AppCompatActivity
             // Nothing to release.
             return;
         }
-        mediaQueueListAdapter.notifyItemRangeRemoved(0, mediaQueueListAdapter.getItemCount());
-        mediaQueueList.setAdapter(null);
         playerManager.release();
         playerManager = null;
     }
@@ -137,27 +137,8 @@ public class MainActivity extends AppCompatActivity
         return super.dispatchKeyEvent(event) || playerManager.dispatchKeyEvent(event);
     }
 
-    @Override
-    public void onClick(View view) {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.add_samples)
-                .setView(buildSampleListView())
-                .setPositiveButton(android.R.string.ok, null)
-                .create()
-                .show();
-    }
 
     // PlayerManager.Listener implementation.
-
-    @Override
-    public void onQueuePositionChanged(int previousIndex, int newIndex) {
-        if (previousIndex != C.INDEX_UNSET) {
-            mediaQueueListAdapter.notifyItemChanged(previousIndex);
-        }
-        if (newIndex != C.INDEX_UNSET) {
-            mediaQueueListAdapter.notifyItemChanged(newIndex);
-        }
-    }
 
     @Override
     public void onUnsupportedTrack(int trackType) {
@@ -176,151 +157,5 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(getApplicationContext(), messageId, Toast.LENGTH_LONG).show();
     }
 
-    private View buildSampleListView() {
-        View dialogList = getLayoutInflater().inflate(R.layout.sample_list, null);
-        ListView sampleList = dialogList.findViewById(R.id.sample_list);
-        sampleList.setAdapter(new SampleListAdapter(this));
-        sampleList.setOnItemClickListener(
-                (parent, view, position, id) -> {
-                    mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
-                });
-        return dialogList;
-    }
 
-    @NonNull
-    @Override
-    public Loader<List<MusicFile>> onCreateLoader(int id, Bundle args) {
-        Log.d(TAG,"Loader created");
-        return new SnowglooLoader(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<MusicFile>> loader, List<MusicFile> data) {
-        Log.d(TAG,"Load complete");
-        for(MusicFile music : data){
-            playerManager.addItem(music);
-        }
-        mediaQueueListAdapter.notifyItemInserted(data.size() - 1);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<MusicFile>> loader) {
-        Log.d(TAG,"Loader reset");
-        playerManager.release();
-    }
-
-    // Internal classes.
-
-    private class MediaQueueListAdapter extends RecyclerView.Adapter<QueueItemViewHolder> {
-
-        @Override
-        public QueueItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
-            return new QueueItemViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(QueueItemViewHolder holder, int position) {
-            holder.item = new MusicFile(playerManager.getItem(position));
-            TextView view = holder.textView;
-            view.setText(holder.item.Title);
-            // TODO: Solve coloring using the theme's ColorStateList.
-            view.setTextColor(
-                    ColorUtils.setAlphaComponent(
-                            view.getCurrentTextColor(),
-                            position == playerManager.getCurrentItemIndex() ? 255 : 100));
-        }
-
-        @Override
-        public int getItemCount() {
-            return playerManager.getMediaQueueSize();
-        }
-
-    }
-
-    private class RecyclerViewCallback extends ItemTouchHelper.SimpleCallback {
-
-        private int draggingFromPosition;
-        private int draggingToPosition;
-
-        public RecyclerViewCallback() {
-            super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END);
-            draggingFromPosition = C.INDEX_UNSET;
-            draggingToPosition = C.INDEX_UNSET;
-        }
-
-        @Override
-        public boolean onMove(RecyclerView list, RecyclerView.ViewHolder origin,
-                              RecyclerView.ViewHolder target) {
-            int fromPosition = origin.getAdapterPosition();
-            int toPosition = target.getAdapterPosition();
-            if (draggingFromPosition == C.INDEX_UNSET) {
-                // A drag has started, but changes to the media queue will be reflected in clearView().
-                draggingFromPosition = fromPosition;
-            }
-            draggingToPosition = toPosition;
-            mediaQueueListAdapter.notifyItemMoved(fromPosition, toPosition);
-            return true;
-        }
-
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            int position = viewHolder.getAdapterPosition();
-            QueueItemViewHolder queueItemHolder = (QueueItemViewHolder) viewHolder;
-            if (playerManager.removeItem(queueItemHolder.item)) {
-                mediaQueueListAdapter.notifyItemRemoved(position);
-                // Update whichever item took its place, in case it became the new selected item.
-                mediaQueueListAdapter.notifyItemChanged(position);
-            }
-        }
-
-        @Override
-        public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
-            super.clearView(recyclerView, viewHolder);
-            if (draggingFromPosition != C.INDEX_UNSET) {
-                QueueItemViewHolder queueItemHolder = (QueueItemViewHolder) viewHolder;
-                // A drag has ended. We reflect the media queue change in the player.
-                if (!playerManager.moveItem(queueItemHolder.item, draggingToPosition)) {
-                    // The move failed. The entire sequence of onMove calls since the drag started needs to be
-                    // invalidated.
-                    mediaQueueListAdapter.notifyDataSetChanged();
-                }
-            }
-            draggingFromPosition = C.INDEX_UNSET;
-            draggingToPosition = C.INDEX_UNSET;
-        }
-    }
-
-    private class QueueItemViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
-
-        public final TextView textView;
-        public MusicFile item;
-
-        public QueueItemViewHolder(TextView textView) {
-            super(textView);
-            this.textView = textView;
-            textView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            playerManager.selectQueueItem(getAdapterPosition());
-        }
-    }
-
-    private static final class SampleListAdapter extends ArrayAdapter<MediaItem> {
-
-        public SampleListAdapter(Context context) {
-            super(context, android.R.layout.simple_list_item_1, DemoUtil.SAMPLES);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-            ((TextView) view).setText(getItem(position).title);
-            return view;
-        }
-    }
 }
