@@ -144,8 +144,7 @@ import java.util.Map;
         mediaQueue.add(item);
         concatenatingMediaSource.addMediaSource(buildMediaSource(item));
         if (currentPlayer == castPlayer) {
-            MediaItem exoItem = new MediaItem.Builder().setUri(Uri.parse(item.AudioUrl)).setTitle(item.Title).build();
-            castPlayer.addItems(mediaItemConverter.toMediaQueueItem(exoItem));
+            castPlayer.addItems(mediaItemConverter.toMediaQueueItem(musicToMedia(item)));
         }
     }
 
@@ -162,6 +161,14 @@ import java.util.Map;
      */
     public MusicFile getItem(int position) {
         return mediaQueue.get(position);
+    }
+
+    private MediaItem musicToMedia(MusicFile musicFile){
+        return new MediaItem.Builder()
+                .setMimeType("audio/mpeg")
+                .setTitle(musicFile.Title)
+                .setUri(musicFile.AudioUrl)
+                .build();
     }
 
     /**
@@ -376,7 +383,7 @@ import java.util.Map;
             MediaQueueItem[] items = new MediaQueueItem[mediaQueue.size()];
             for (int i = 0; i < items.length; i++) {
                 MusicFile item = mediaQueue.get(i);
-                items[i] = mediaItemConverter.toMediaQueueItem(new MediaItem.Builder().setUri(Uri.parse(item.AudioUrl)).setTitle(item.Title).build());
+                items[i] = mediaItemConverter.toMediaQueueItem(musicToMedia(item));
             }
             castPlayer.loadItems(items, itemIndex, positionMs, Player.REPEAT_MODE_OFF);
         } else {

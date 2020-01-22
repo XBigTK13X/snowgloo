@@ -7,6 +7,15 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
     <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/local_player_view"
         android:layout_width="match_parent"
         android:layout_gravity="top"

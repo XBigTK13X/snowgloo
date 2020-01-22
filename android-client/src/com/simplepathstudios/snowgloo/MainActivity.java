@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity
     private PlayerControlView castControlView;
     private PlayerManager playerManager;
     private MainFragment queueFragment;
+    private Toolbar toolbar;
 
     private CastContext castContext;
 
@@ -82,6 +84,10 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.main_activity);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.app_name);
+        setSupportActionBar(toolbar);
+
         localPlayerView = findViewById(R.id.local_player_view);
         localPlayerView.requestFocus();
 
@@ -95,6 +101,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+        Log.d(TAG, "Inflating chromecast menu");
         getMenuInflater().inflate(R.menu.menu, menu);
         CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         return true;

@@ -31,17 +31,11 @@ public class MainFragment extends Fragment implements PlayerManager.QueueListene
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         ItemTouchHelper helper = new ItemTouchHelper(new RecyclerViewCallback());
+        mediaQueueList = getView().findViewById(R.id.list);
         helper.attachToRecyclerView(mediaQueueList);
         mediaQueueListAdapter = new MediaQueueListAdapter();
-        Log.d(TAG,"onCreate");
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -85,8 +79,12 @@ public class MainFragment extends Fragment implements PlayerManager.QueueListene
     @Override
     public void onPause(){
         super.onPause();
-        mediaQueueListAdapter.notifyItemRangeRemoved(0, mediaQueueListAdapter.getItemCount());
-        mediaQueueList.setAdapter(null);
+        if(mediaQueueListAdapter != null){
+            mediaQueueListAdapter.notifyItemRangeRemoved(0, mediaQueueListAdapter.getItemCount());
+        }
+        if(mediaQueueList != null){
+            mediaQueueList.setAdapter(null);
+        }
     }
 
     @Override
