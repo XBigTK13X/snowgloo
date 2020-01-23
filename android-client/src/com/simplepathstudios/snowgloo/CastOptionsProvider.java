@@ -16,15 +16,16 @@
 
 package com.simplepathstudios.snowgloo;
 
+import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastOptions;
 import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
 import com.google.android.gms.cast.framework.media.CastMediaOptions;
 import com.google.android.gms.cast.framework.media.NotificationOptions;
-import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.deprecated.expandedcontrols.ExpandedControlsActivity;
+import com.google.android.gms.cast.framework.media.widget.ExpandedControllerActivity;
 
 import android.content.Context;
+import android.view.Menu;
 
 import java.util.List;
 
@@ -49,5 +50,16 @@ public class CastOptionsProvider implements OptionsProvider {
     @Override
     public List<SessionProvider> getAdditionalSessionProviders(Context context) {
         return null;
+    }
+
+    private class ExpandedControlsActivity extends ExpandedControllerActivity {
+
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            super.onCreateOptionsMenu(menu);
+            getMenuInflater().inflate(R.menu.expanded_controller, menu);
+            CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
+            return true;
+        }
     }
 }
