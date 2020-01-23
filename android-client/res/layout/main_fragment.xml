@@ -4,16 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:gravity="center"
-        android:text="Queue"
-        android:textAlignment="viewStart"
-        android:textAllCaps="true"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/music_queue"
         android:layout_width="fill_parent"

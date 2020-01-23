@@ -1,50 +1,32 @@
 package com.simplepathstudios.snowgloo;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.ColorUtils;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
+import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
-import com.simplepathstudios.snowgloo.browser.VideoItemLoader;
-
-import java.util.List;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
@@ -58,9 +40,10 @@ public class MainActivity extends AppCompatActivity
     private PlayerView localPlayerView;
     private PlayerControlView castControlView;
     private PlayerManager playerManager;
-    private MainFragment queueFragment;
     private Toolbar toolbar;
     private TextView trackMetadataView;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     private CastContext castContext;
 
@@ -103,9 +86,23 @@ public class MainActivity extends AppCompatActivity
 
         castControlView = findViewById(R.id.cast_control_view);
 
-        queueFragment = new MainFragment();
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, queueFragment).commit();
+        if(playerManager == null) {
+            playerManager = new PlayerManager(
+                    this,
+                    localPlayerView,
+                    castControlView,
+                    this,
+                    castContext);
+        }
+
+        NavController navController = Navigation.findNavController(this,R.id.nav_host_fragment);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
+                .setDrawerLayout(drawerLayout)
+                .build();
+        navigationView = findViewById(R.id.nav_view);
+        NavigationUI.setupWithNavController(toolbar, navController,appBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
     }
 
     @Override
@@ -127,7 +124,6 @@ public class MainActivity extends AppCompatActivity
         if(playerManager == null) {
             playerManager = new PlayerManager(
                     this,
-                    queueFragment,
                     localPlayerView,
                     castControlView,
                     this,

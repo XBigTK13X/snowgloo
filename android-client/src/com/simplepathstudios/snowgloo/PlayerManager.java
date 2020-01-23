@@ -41,6 +41,7 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class PlayerManager implements EventListener, SessionAvailabilityListener {
 
@@ -54,6 +55,11 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
     interface QueueListener {
         void onQueuePositionChanged(int previousIndex, int newIndex);
     }
+    private class NullQueueListener implements QueueListener {
+        public void onQueuePositionChanged(int previousIndex, int newIndex){
+
+        }
+    }
 
     private static final String USER_AGENT = "SnowglooMobile";
     private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
@@ -66,10 +72,11 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
     private final SimpleExoPlayer exoPlayer;
     private final CastPlayer castPlayer;
     private final ArrayList<MusicFile> mediaQueue;
+    private final HashMap<String,MusicFile> mediaLookup;
     private final AudioListener audioListener;
-    private final QueueListener queueListener;
     private final ConcatenatingMediaSource concatenatingMediaSource;
     private final MediaItemConverter mediaItemConverter;
+    private QueueListener queueListener;
     private PlayerNotificationManager playerNotificationManager;
 
     private TrackGroupArray lastSeenTrackGroupArray;
@@ -86,17 +93,17 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
      */
     public PlayerManager(
             AudioListener audioListener,
-            QueueListener queueListener,
             PlayerView localPlayerView,
             PlayerControlView castControlView,
             Context context,
             CastContext castContext) {
         this.context = context;
         this.audioListener = audioListener;
-        this.queueListener = queueListener;
+        this.queueListener = new NullQueueListener();
         this.localPlayerView = localPlayerView;
         this.castControlView = castControlView;
         mediaQueue = new ArrayList<>();
+        mediaLookup = new HashMap<>();
         currentItemIndex = C.INDEX_UNSET;
         concatenatingMediaSource = new ConcatenatingMediaSource();
         mediaItemConverter = new DefaultMediaItemConverter();
@@ -138,6 +145,10 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
         setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
     }
 
+    public void addQueueListener(QueueListener listener){
+        this.queueListener = listener;
+    }
+
     // Queue manipulation methods.
 
     /**
@@ -160,10 +171,13 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
      * @param item The {@link MediaItem} to append.
      */
     public void addItem(MusicFile item) {
-        mediaQueue.add(item);
-        concatenatingMediaSource.addMediaSource(buildMediaSource(item));
-        if (currentPlayer == castPlayer) {
-            castPlayer.addItems(mediaItemConverter.toMediaQueueItem(musicToMedia(item)));
+        if(!mediaLookup.containsKey(item.LocalFilePath)){
+            mediaLookup.put(item.LocalFilePath,item);
+            mediaQueue.add(item);
+            concatenatingMediaSource.addMediaSource(buildMediaSource(item));
+            if (currentPlayer == castPlayer) {
+                castPlayer.addItems(mediaItemConverter.toMediaQueueItem(musicToMedia(item)));
+            }
         }
     }
 
@@ -419,6 +433,7 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
     private void maybeSetCurrentItemAndNotify(int currentItemIndex) {
         if (this.currentItemIndex != currentItemIndex) {
+            Log.d(TAG, "Updating queue item");
             int oldIndex = this.currentItemIndex;
             this.currentItemIndex = currentItemIndex;
             queueListener.onQueuePositionChanged(oldIndex, currentItemIndex);

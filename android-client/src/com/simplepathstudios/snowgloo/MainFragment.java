@@ -36,6 +36,7 @@ public class MainFragment extends Fragment implements PlayerManager.QueueListene
         mediaQueueList = getView().findViewById(R.id.music_queue);
         helper.attachToRecyclerView(mediaQueueList);
         layoutManager = new LinearLayoutManager(getActivity());
+        ((MainActivity)getActivity()).getPlayerManager().addQueueListener(this);
         mediaQueueList.setLayoutManager(layoutManager);
         mediaQueueListAdapter = new MediaQueueListAdapter();
         mediaQueueList.setAdapter(mediaQueueListAdapter);
@@ -65,6 +66,7 @@ public class MainFragment extends Fragment implements PlayerManager.QueueListene
     @Override
     public void onLoadFinished(Loader<List<MusicFile>> loader, List<MusicFile> data) {
         Log.d(TAG,"Load complete");
+
         for(MusicFile music : data){
             Log.d(TAG, music.LocalFilePath);
             ((MainActivity)getActivity()).getPlayerManager().addItem(music);
@@ -101,6 +103,7 @@ public class MainFragment extends Fragment implements PlayerManager.QueueListene
 
     @Override
     public void onQueuePositionChanged(int previousIndex, int newIndex) {
+        Log.d(TAG, "Queue position changed");
         if (previousIndex != C.INDEX_UNSET) {
             mediaQueueListAdapter.notifyItemChanged(previousIndex);
         }
