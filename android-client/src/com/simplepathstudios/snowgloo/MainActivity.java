@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -27,13 +29,14 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.model.MusicQueueViewModel;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
  * Cast extension.
  */
-public class MainActivity extends AppCompatActivity
-        implements PlayerManager.AudioListener {
+public class MainActivity extends AppCompatActivity{
 
     private final String TAG = "MainActivity";
 
@@ -44,10 +47,10 @@ public class MainActivity extends AppCompatActivity
     private TextView trackMetadataView;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private MusicQueueViewModel musicQueueViewModel;
 
     private CastContext castContext;
 
-    // Activity lifecycle methods.
 
     public PlayerManager getPlayerManager(){
         return playerManager;
@@ -73,9 +76,17 @@ public class MainActivity extends AppCompatActivity
             throw e;
         }
 
+        this.musicQueueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
+        musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                trackMetadataView.setText(musicQueue.getCurrent().getMetadata());
+            }
+        });
+
         setContentView(R.layout.main_activity);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
 
@@ -103,6 +114,8 @@ public class MainActivity extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         NavigationUI.setupWithNavController(toolbar, navController,appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        this.musicQueueViewModel.load();
     }
 
     @Override
@@ -148,27 +161,6 @@ public class MainActivity extends AppCompatActivity
         // If the event was not handled then see if the player view can handle it.
         return super.dispatchKeyEvent(event) || playerManager.dispatchKeyEvent(event);
     }
-
-
-    // PlayerManager.Listener implementation.
-
-    @Override
-    public void onUnsupportedTrack(int trackType) {
-        if (trackType == C.TRACK_TYPE_AUDIO) {
-            showToast(R.string.error_unsupported_audio);
-        } else if (trackType == C.TRACK_TYPE_VIDEO) {
-            showToast(R.string.error_unsupported_video);
-        } else {
-            // Do nothing.
-        }
-    }
-
-    @Override
-    public void onTrackMetadataChange(MusicFile musicFile){
-        trackMetadataView.setText(musicFile.getMetadata());
-    }
-
-    // Internal methods.
 
     private void showToast(int messageId) {
         Toast.makeText(getApplicationContext(), messageId, Toast.LENGTH_LONG).show();

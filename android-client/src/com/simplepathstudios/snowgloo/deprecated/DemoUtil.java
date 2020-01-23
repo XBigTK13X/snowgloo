@@ -1,4 +1,4 @@
-package com.simplepathstudios.snowgloo;
+package com.simplepathstudios.snowgloo.deprecated;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;

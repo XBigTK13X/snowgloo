@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo;
+package com.simplepathstudios.snowgloo.deprecated;
 
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.cast.framework.CastStateListener;
 import com.google.android.gms.cast.framework.IntroductoryOverlay;
-import com.simplepathstudios.snowgloo.settings.CastPreference;
+import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.deprecated.settings.CastPreference;
 
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.util.Log;

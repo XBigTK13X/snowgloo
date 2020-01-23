@@ -7,11 +7,11 @@
 
     <fragment
         android:id="@+id/queue_fragment"
-        android:name="com.simplepathstudios.snowgloo.MainFragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.QueueFragment"
         android:label="Queue"
-        tools:layout="@layout/main_fragment" />
+        tools:layout="@layout/queue_fragment" />
     <fragment
         android:id="@+id/artist_list_fragment"
-        android:name="com.simplepathstudios.snowgloo.ArtistListFragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.ArtistListFragment"
         android:label="Artists" />
 </navigation>

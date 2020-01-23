@@ -1,4 +1,4 @@
-package com.simplepathstudios.snowgloo;
+package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.simplepathstudios.snowgloo.R;
 
 public class ArtistListFragment extends Fragment {
     private final String TAG = "ArtistListFragment";

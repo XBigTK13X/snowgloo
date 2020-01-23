@@ -2,7 +2,7 @@ package com.simplepathstudios.snowgloo.api.model;
 
 import android.os.Bundle;
 
-import com.simplepathstudios.snowgloo.utils.Utils;
+import com.simplepathstudios.snowgloo.Utils;
 
 public class MusicFile {
     public static final MusicFile fromBundle(Bundle wrapper){
@@ -14,7 +14,11 @@ public class MusicFile {
         return item;
     }
 
-    public static final MusicFile EMPTY = new MusicFile();
+    public static final MusicFile EMPTY = new MusicFile(){{
+        DisplayAlbum = "";
+        DisplayArtist = "";
+        Title = "No music playing";
+    }};
 
     public String Album;
     public String DisplayAlbum;

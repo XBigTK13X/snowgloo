@@ -11,6 +11,8 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
@@ -39,31 +41,22 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.model.MusicQueueViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class PlayerManager implements EventListener, SessionAvailabilityListener {
+public class PlayerManager implements EventListener, SessionAvailabilityListener {
 
     private final String TAG = "PlayerManager";
     private final Integer NOTIFICATION_ID = 776677;
 
-    interface AudioListener {
-        void onUnsupportedTrack(int trackType);
-        void onTrackMetadataChange(MusicFile musicFile);
-    }
-    interface QueueListener {
-        void onQueuePositionChanged(int previousIndex, int newIndex);
-    }
-    private class NullQueueListener implements QueueListener {
-        public void onQueuePositionChanged(int previousIndex, int newIndex){
-
-        }
-    }
-
     private static final String USER_AGENT = "SnowglooMobile";
     private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
             new DefaultHttpDataSourceFactory(USER_AGENT);
+
+    private final boolean PLAY_WHEN_READY = false;
 
     private final Context context;
     private final PlayerView localPlayerView;
@@ -71,42 +64,61 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
     private final DefaultTrackSelector trackSelector;
     private final SimpleExoPlayer exoPlayer;
     private final CastPlayer castPlayer;
-    private final ArrayList<MusicFile> mediaQueue;
-    private final HashMap<String,MusicFile> mediaLookup;
-    private final AudioListener audioListener;
-    private final ConcatenatingMediaSource concatenatingMediaSource;
+    private final MainActivity mainActivity;
     private final MediaItemConverter mediaItemConverter;
-    private QueueListener queueListener;
-    private PlayerNotificationManager playerNotificationManager;
 
+    private ArrayList<MusicFile> mediaQueue;
+    private ConcatenatingMediaSource concatenatingMediaSource;
+    private PlayerNotificationManager playerNotificationManager;
+    private MusicQueueViewModel musicQueueViewModel;
     private TrackGroupArray lastSeenTrackGroupArray;
-    private int currentItemIndex;
+    private Integer currentItemIndex;
     private Player currentPlayer;
 
-    /**
-     * Creates a new manager for {@link SimpleExoPlayer} and {@link CastPlayer}.
-     *
-     * @param localPlayerView The {@link PlayerView} for local playback.
-     * @param castControlView The {@link PlayerControlView} to control remote playback.
-     * @param context A {@link Context}.
-     * @param castContext The {@link CastContext}.
-     */
+
     public PlayerManager(
-            AudioListener audioListener,
+            MainActivity mainActivity,
             PlayerView localPlayerView,
             PlayerControlView castControlView,
             Context context,
             CastContext castContext) {
         this.context = context;
-        this.audioListener = audioListener;
-        this.queueListener = new NullQueueListener();
+        this.mainActivity = mainActivity;
         this.localPlayerView = localPlayerView;
         this.castControlView = castControlView;
         mediaQueue = new ArrayList<>();
-        mediaLookup = new HashMap<>();
-        currentItemIndex = C.INDEX_UNSET;
+        currentItemIndex = -1;
         concatenatingMediaSource = new ConcatenatingMediaSource();
         mediaItemConverter = new DefaultMediaItemConverter();
+        musicQueueViewModel = new ViewModelProvider(mainActivity).get(MusicQueueViewModel.class);
+        musicQueueViewModel.Data.observe(mainActivity, new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                Log.d(TAG,"Music files have changed");
+                mediaQueue = musicQueue.songs;
+                currentItemIndex = musicQueue.currentIndex == null ? -1 : musicQueue.currentIndex;
+                concatenatingMediaSource = new ConcatenatingMediaSource();
+                for(MusicFile musicFile : mediaQueue){
+                    concatenatingMediaSource.addMediaSource(buildMediaSource(musicFile));
+                }
+                if(currentPlayer == exoPlayer){
+                    exoPlayer.prepare(concatenatingMediaSource);
+                }
+                if(currentItemIndex >= 0){
+                    if (currentPlayer == castPlayer && castPlayer.getCurrentTimeline().isEmpty()) {
+                        MediaQueueItem[] items = new MediaQueueItem[mediaQueue.size()];
+                        for (int i = 0; i < items.length; i++) {
+                            MusicFile item = mediaQueue.get(i);
+                            items[i] = mediaItemConverter.toMediaQueueItem(musicToMedia(item));
+                        }
+                        castPlayer.loadItems(items, currentItemIndex, 0, Player.REPEAT_MODE_OFF);
+                    } else {
+                        currentPlayer.seekTo(currentItemIndex, 0);
+                        currentPlayer.setPlayWhenReady(PLAY_WHEN_READY);
+                    }
+                }
+            }
+        });
 
         trackSelector = new DefaultTrackSelector(context);
         exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
@@ -145,32 +157,7 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
         setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
     }
 
-    public void addQueueListener(QueueListener listener){
-        this.queueListener = listener;
-    }
-
-    // Queue manipulation methods.
-
-    /**
-     * Plays a specified queue item in the current player.
-     *
-     * @param itemIndex The index of the item to play.
-     */
-    public void selectQueueItem(int itemIndex) {
-        setCurrentItem(itemIndex, C.TIME_UNSET, true);
-    }
-
-    /** Returns the index of the currently played item. */
-    public int getCurrentItemIndex() {
-        return currentItemIndex;
-    }
-
-    /**
-     * Appends {@code item} to the media queue.
-     *
-     * @param item The {@link MediaItem} to append.
-     */
-    public void addItem(MusicFile item) {
+/*    public void addItem(MusicFile item) {
         if(!mediaLookup.containsKey(item.LocalFilePath)){
             mediaLookup.put(item.LocalFilePath,item);
             mediaQueue.add(item);
@@ -179,22 +166,7 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
                 castPlayer.addItems(mediaItemConverter.toMediaQueueItem(musicToMedia(item)));
             }
         }
-    }
-
-    /** Returns the size of the media queue. */
-    public int getMediaQueueSize() {
-        return mediaQueue.size();
-    }
-
-    /**
-     * Returns the item at the given index in the media queue.
-     *
-     * @param position The index of the item.
-     * @return The item at the given index in the media queue.
-     */
-    public MusicFile getItem(int position) {
-        return mediaQueue.get(position);
-    }
+    }*/
 
     private MediaItem musicToMedia(MusicFile musicFile){
         return new MediaItem.Builder()
@@ -204,13 +176,7 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
                 .build();
     }
 
-    /**
-     * Removes the item at the given index from the media queue.
-     *
-     * @param item The item to remove.
-     * @return Whether the removal was successful.
-     */
-    public boolean removeItem(MusicFile item) {
+/*    public boolean removeItem(MusicFile item) {
         int itemIndex = mediaQueue.indexOf(item);
         if (itemIndex == -1) {
             return false;
@@ -227,21 +193,14 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
         }
         mediaQueue.remove(itemIndex);
         if (itemIndex == currentItemIndex && itemIndex == mediaQueue.size()) {
-            maybeSetCurrentItemAndNotify(C.INDEX_UNSET);
+            //maybeSetCurrentItemAndNotify(C.INDEX_UNSET);
         } else if (itemIndex < currentItemIndex) {
-            maybeSetCurrentItemAndNotify(currentItemIndex - 1);
+            //maybeSetCurrentItemAndNotify(currentItemIndex - 1);
         }
         return true;
-    }
+    }*/
 
-    /**
-     * Moves an item within the queue.
-     *
-     * @param item The item to move.
-     * @param toIndex The target index of the item in the queue.
-     * @return Whether the item move was successful.
-     */
-    public boolean moveItem(MusicFile item, int toIndex) {
+/*    public boolean moveItem(MusicFile item, int toIndex) {
         int fromIndex = mediaQueue.indexOf(item);
         if (fromIndex == -1) {
             return false;
@@ -262,15 +221,15 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
         // Index update.
         if (fromIndex == currentItemIndex) {
-            maybeSetCurrentItemAndNotify(toIndex);
+            //maybeSetCurrentItemAndNotify(toIndex);
         } else if (fromIndex < currentItemIndex && toIndex >= currentItemIndex) {
-            maybeSetCurrentItemAndNotify(currentItemIndex - 1);
+            //maybeSetCurrentItemAndNotify(currentItemIndex - 1);
         } else if (fromIndex > currentItemIndex && toIndex <= currentItemIndex) {
-            maybeSetCurrentItemAndNotify(currentItemIndex + 1);
+            //maybeSetCurrentItemAndNotify(currentItemIndex + 1);
         }
 
         return true;
-    }
+    }*/
 
     /**
      * Dispatches a given {@link KeyEvent} to the corresponding view of the current player.
@@ -279,6 +238,7 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
      * @return Whether the event was handled by the target view.
      */
     public boolean dispatchKeyEvent(KeyEvent event) {
+        Log.d(TAG,"dispatchKeyEvent");
         if (currentPlayer == exoPlayer) {
             return localPlayerView.dispatchKeyEvent(event);
         } else /* currentPlayer == castPlayer */ {
@@ -322,17 +282,18 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+        Log.d(TAG,"Tracks changed");
         if (currentPlayer == exoPlayer && trackGroups != lastSeenTrackGroupArray) {
             MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
                     trackSelector.getCurrentMappedTrackInfo();
             if (mappedTrackInfo != null) {
                 if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
                         == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-                    audioListener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
+                    //mainActivity.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
                 }
                 if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_AUDIO)
                         == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-                    audioListener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
+                    //mainActivity.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
                 }
             }
             lastSeenTrackGroupArray = trackGroups;
@@ -355,34 +316,33 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
     private void updateCurrentItemIndex() {
         int playbackState = currentPlayer.getPlaybackState();
-        maybeSetCurrentItemAndNotify(
-                playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED
-                        ? currentPlayer.getCurrentWindowIndex()
-                        : C.INDEX_UNSET);
+        if(playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED){
+            musicQueueViewModel.setCurrentIndex(currentPlayer.getCurrentWindowIndex());
+        } else {
+            musicQueueViewModel.setCurrentIndex(-1);
+        }
     }
 
     private void setCurrentPlayer(Player currentPlayer) {
+        Log.d(TAG,"setCurrentPlayer");
         if (this.currentPlayer == currentPlayer) {
             return;
         }
 
-        // View management.
         if (currentPlayer == exoPlayer) {
             localPlayerView.setVisibility(View.VISIBLE);
             castControlView.hide();
-        } else /* currentPlayer == castPlayer */ {
+        } else  {
             localPlayerView.setVisibility(View.GONE);
             castControlView.show();
         }
 
-        // Player state management.
         long playbackPositionMs = C.TIME_UNSET;
         int windowIndex = C.INDEX_UNSET;
         boolean playWhenReady = false;
 
         Player previousPlayer = this.currentPlayer;
         if (previousPlayer != null) {
-            // Save state from the previous player.
             int playbackState = previousPlayer.getPlaybackState();
             if (playbackState != Player.STATE_ENDED) {
                 playbackPositionMs = previousPlayer.getCurrentPosition();
@@ -398,54 +358,18 @@ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
         this.currentPlayer = currentPlayer;
 
-        // Media queue management.
         if (currentPlayer == exoPlayer) {
             exoPlayer.prepare(concatenatingMediaSource);
         }
 
-        // Playback transition.
         if (windowIndex != C.INDEX_UNSET) {
-            setCurrentItem(windowIndex, playbackPositionMs, playWhenReady);
+            //setCurrentItem(windowIndex, playbackPositionMs, playWhenReady);
         }
     }
 
-    /**
-     * Starts playback of the item at the given position.
-     *
-     * @param itemIndex The index of the item to play.
-     * @param positionMs The position at which playback should start.
-     * @param playWhenReady Whether the player should proceed when ready to do so.
-     */
-    private void setCurrentItem(int itemIndex, long positionMs, boolean playWhenReady) {
-        maybeSetCurrentItemAndNotify(itemIndex);
-        if (currentPlayer == castPlayer && castPlayer.getCurrentTimeline().isEmpty()) {
-            MediaQueueItem[] items = new MediaQueueItem[mediaQueue.size()];
-            for (int i = 0; i < items.length; i++) {
-                MusicFile item = mediaQueue.get(i);
-                items[i] = mediaItemConverter.toMediaQueueItem(musicToMedia(item));
-            }
-            castPlayer.loadItems(items, itemIndex, positionMs, Player.REPEAT_MODE_OFF);
-        } else {
-            currentPlayer.seekTo(itemIndex, positionMs);
-            currentPlayer.setPlayWhenReady(playWhenReady);
-        }
-    }
-
-    private void maybeSetCurrentItemAndNotify(int currentItemIndex) {
-        if (this.currentItemIndex != currentItemIndex) {
-            Log.d(TAG, "Updating queue item");
-            int oldIndex = this.currentItemIndex;
-            this.currentItemIndex = currentItemIndex;
-            queueListener.onQueuePositionChanged(oldIndex, currentItemIndex);
-            audioListener.onTrackMetadataChange(getCurrentMusic());
-        }
-    }
 
     public MusicFile getCurrentMusic(){
-        if(mediaQueue.size() > currentItemIndex && currentItemIndex > -1){
-            return mediaQueue.get(currentItemIndex);
-        }
-        return MusicFile.EMPTY;
+        return musicQueueViewModel.getCurrent();
     }
 
     private MediaSource buildMediaSource(MusicFile item) {

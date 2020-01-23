@@ -35,7 +35,7 @@
             android:layout_below="@+id/toolbar"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="8dp"
-            class="com.simplepathstudios.snowgloo.browser.VideoBrowserFragment"/>
+            class="com.simplepathstudios.snowgloo.deprecated.browser.VideoBrowserFragment"/>
 
     <fragment
             android:id="@+id/castMiniController"

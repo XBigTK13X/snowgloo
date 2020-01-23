@@ -1,12 +1,8 @@
 package com.simplepathstudios.snowgloo.api;
 
-import android.content.Context;
-import android.provider.Settings;
-import android.util.Log;
-
 import com.simplepathstudios.snowgloo.SnowglooSettings;
-import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -29,12 +25,7 @@ public class ApiClient {
         this.httpClient = retrofit.create(ApiService.class);
     }
 
-    public MusicQueue getQueue(){
-        try{
-            return this.httpClient.getQueue(this.username).execute().body();
-        } catch(Exception e){
-            Log.e("ApiClient.getQueue","Unable to retrieve queue", e);
-        }
-        return MusicQueue.EMPTY;
+    public Call getQueue(){
+        return this.httpClient.getQueue(this.username);
     }
 }

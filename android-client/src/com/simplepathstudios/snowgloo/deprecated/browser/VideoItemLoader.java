@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo.browser;
+package com.simplepathstudios.snowgloo.deprecated.browser;
 
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
@@ -38,7 +38,7 @@ public class VideoItemLoader extends AsyncTaskLoader<List<MusicFile>> {
     @Override
     public List<MusicFile> loadInBackground() {
         try {
-            return ApiClient.getInstance().getQueue().songs;
+            return null;//ApiClient.getInstance().getQueue().songs;
         } catch (Exception e) {
             Log.e(TAG, "Failed to fetch media data", e);
             return null;

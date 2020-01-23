@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo.browser;
+package com.simplepathstudios.snowgloo.deprecated.browser;
 
-import com.simplepathstudios.snowgloo.BackgroundMusicService;
+import com.simplepathstudios.snowgloo.deprecated.BackgroundMusicService;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
-import com.simplepathstudios.snowgloo.mediaplayer.LocalPlayerActivity;
+import com.simplepathstudios.snowgloo.deprecated.mediaplayer.LocalPlayerActivity;
 
 import android.content.Intent;
 import android.os.Bundle;

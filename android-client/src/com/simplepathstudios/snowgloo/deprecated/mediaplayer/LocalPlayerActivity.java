@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo.mediaplayer;
+package com.simplepathstudios.snowgloo.deprecated.mediaplayer;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
@@ -29,10 +29,10 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
-import com.simplepathstudios.snowgloo.expandedcontrols.ExpandedControlsActivity;
-import com.simplepathstudios.snowgloo.settings.CastPreference;
-import com.simplepathstudios.snowgloo.utils.CustomVolleyRequest;
-import com.simplepathstudios.snowgloo.utils.Utils;
+import com.simplepathstudios.snowgloo.deprecated.expandedcontrols.ExpandedControlsActivity;
+import com.simplepathstudios.snowgloo.deprecated.settings.CastPreference;
+import com.simplepathstudios.snowgloo.deprecated.utils.CustomVolleyRequest;
+import com.simplepathstudios.snowgloo.Utils;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -510,7 +510,7 @@ public class LocalPlayerActivity extends AppCompatActivity {
                 } else {
                     msg = getString(R.string.video_error_unknown_error);
                 }
-                Utils.showErrorDialog(LocalPlayerActivity.this, msg);
+                //Utils.showErrorDialog(LocalPlayerActivity.this, msg);
                 mMediaPlayer.stop();
                 mPlaybackState = PlaybackState.IDLE;
                 updatePlayButton(mPlaybackState);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo.utils;
+package com.simplepathstudios.snowgloo.deprecated.utils;
 
 import android.os.Bundle;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo.expandedcontrols;
+package com.simplepathstudios.snowgloo.deprecated.expandedcontrols;
 
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.media.widget.ExpandedControllerActivity;

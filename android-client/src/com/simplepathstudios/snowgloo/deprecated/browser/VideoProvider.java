@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo.browser;
+package com.simplepathstudios.snowgloo.deprecated.browser;
 
-import com.simplepathstudios.snowgloo.utils.MediaItem;
+import com.simplepathstudios.snowgloo.deprecated.utils.MediaItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -1,4 +1,4 @@
-package com.simplepathstudios.snowgloo.utils;
+package com.simplepathstudios.snowgloo.deprecated.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

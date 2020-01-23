@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.simplepathstudios.snowgloo.browser;
+package com.simplepathstudios.snowgloo.deprecated.browser;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
-import com.simplepathstudios.snowgloo.utils.CustomVolleyRequest;
+import com.simplepathstudios.snowgloo.deprecated.utils.CustomVolleyRequest;
 
 import android.content.Context;
 import androidx.recyclerview.widget.RecyclerView;

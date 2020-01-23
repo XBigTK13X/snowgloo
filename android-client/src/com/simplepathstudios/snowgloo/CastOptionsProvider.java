@@ -21,7 +21,8 @@ import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
 import com.google.android.gms.cast.framework.media.CastMediaOptions;
 import com.google.android.gms.cast.framework.media.NotificationOptions;
-import com.simplepathstudios.snowgloo.expandedcontrols.ExpandedControlsActivity;
+import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.deprecated.expandedcontrols.ExpandedControlsActivity;
 
 import android.content.Context;
 
