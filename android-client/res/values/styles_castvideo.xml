@@ -37,67 +37,15 @@
     </style>
 
     <!-- Customize Cast Button -->
-    <style name="CustomMediaRouterTheme" parent="Theme.MediaRouter">
-        <item name="mediaRouteButtonStyle">@style/CustomMediaRouteButtonStyle</item>
-    </style>
-    <style name="CustomMediaRouteButtonStyle" parent="Widget.MediaRouter.Light.MediaRouteButton">
-        <item name="mediaRouteButtonTint">#EEFF41</item>
-    </style>
 
     <!-- Customize Introductory Overlay -->
-    <style name="CustomCastIntroOverlay" parent="CastIntroOverlay">
-        <item name="castButtonTextAppearance">@style/TextAppearance.CustomCastIntroOverlay.Button</item>
-        <item name="castTitleTextAppearance">@style/TextAppearance.CustomCastIntroOverlay.Title</item>
-    </style>
-    <style name="TextAppearance.CustomCastIntroOverlay.Button" parent="android:style/TextAppearance">
-        <item name="android:textColor">#FFFFFF</item>
-    </style>
-    <style name="TextAppearance.CustomCastIntroOverlay.Title" parent="android:style/TextAppearance.Large">
-        <item name="android:textColor">#FFFFFF</item>
-    </style>
 
     <!-- Customize Mini Controller -->
-    <style name="CustomCastMiniController" parent="CastMiniController">
-        <item name="castShowImageThumbnail">true</item>
-        <item name="castTitleTextAppearance">@style/TextAppearance.AppCompat.Subhead</item>
-        <item name="castSubtitleTextAppearance">@style/TextAppearance.AppCompat.Caption</item>
-        <item name="castBackground">@color/accent</item>
-        <item name="castProgressBarColor">@color/orange</item>
-    </style>
 
     <!-- Customize Expanded Controller -->
-    <style name="CustomCastExpandedController" parent="CastExpandedController">
-        <item name="castButtonColor">#FFFFFF</item>
-        <item name="castPlayButtonDrawable">@drawable/cast_ic_expanded_controller_play</item>
-        <item name="castPauseButtonDrawable">@drawable/cast_ic_expanded_controller_pause</item>
-        <item name="castStopButtonDrawable">@drawable/cast_ic_expanded_controller_stop</item>
-    </style>
 
     <style name="Theme.CastVideosDark" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimaryDark">@color/black</item>
-    </style>
-
-    <style name="YellowSeekBar" parent="android:Widget.SeekBar">
-        <item name="android:progressDrawable">@drawable/apptheme_scrubber_progress_horizontal_holo_light</item>
-        <item name="android:indeterminateDrawable">@drawable/apptheme_scrubber_progress_horizontal_holo_light</item>
-        <item name="android:minHeight">13dip</item>
-        <item name="android:maxHeight">13dip</item>
-        <item name="android:thumb">@drawable/apptheme_scrubber_control_selector_holo_light</item>
-        <item name="android:thumbOffset">16dip</item>
-        <item name="android:paddingLeft">16dip</item>
-        <item name="android:paddingRight">16dip</item>
-    </style>
-
-    <style name="myRecyclerViewStyle">
-        <!-- NOTE: clipChildren should be true on API level 10 -->
-        <item name="android:clipChildren">true</item>
-        <item name="android:clipToPadding">false</item>
-        <item name="android:paddingBottom">@dimen/activity_vertical_margin</item>
-        <item name="android:paddingLeft">@dimen/activity_horizontal_margin</item>
-        <item name="android:paddingRight">@dimen/activity_horizontal_margin</item>
-        <item name="android:paddingTop">@dimen/activity_vertical_margin</item>
-        <item name="android:scrollbarStyle">outsideOverlay</item>
-        <item name="android:scrollbars">vertical</item>
     </style>
 
 </resources>

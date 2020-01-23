@@ -28,4 +28,8 @@ public class ApiClient {
     public Call getQueue(){
         return this.httpClient.getQueue(this.username);
     }
+
+    public Call getArtistList(){
+        return this.httpClient.getArtistList();
+    }
 }

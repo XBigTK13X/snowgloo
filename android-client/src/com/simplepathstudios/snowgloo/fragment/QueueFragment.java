@@ -11,18 +11,18 @@ import androidx.fragment.app.Fragment;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.adapter.MediaQueueAdapter;
+import com.simplepathstudios.snowgloo.component.SongListComponent;
 
 public class QueueFragment extends Fragment {
     static final String TAG = "QueueFragment";
 
-    private MediaQueueAdapter musicQueueAdapter;
+    private SongListComponent songListComponent;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        musicQueueAdapter = new MediaQueueAdapter((MainActivity)getActivity(),this);
+        songListComponent = new SongListComponent((MainActivity)getActivity(),this);
     }
 
     @Override
@@ -42,13 +42,13 @@ public class QueueFragment extends Fragment {
 
     public void onResume(){
         super.onResume();
-        musicQueueAdapter.refresh();
+        songListComponent.refresh();
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        musicQueueAdapter.clear();
+        songListComponent.clear();
     }
 
 }
