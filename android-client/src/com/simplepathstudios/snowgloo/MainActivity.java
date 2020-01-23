@@ -1,7 +1,13 @@
 package com.simplepathstudios.snowgloo;
 
+import android.app.Activity;
 import android.app.FragmentManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -54,6 +60,7 @@ public class MainActivity extends AppCompatActivity
     private PlayerManager playerManager;
     private MainFragment queueFragment;
     private Toolbar toolbar;
+    private TextView trackMetadataView;
 
     private CastContext castContext;
 
@@ -66,6 +73,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // Getting the cast context later than onStart can cause device discovery not to take place.
         try {
             castContext = CastContext.getSharedInstance(this);
@@ -91,6 +99,8 @@ public class MainActivity extends AppCompatActivity
         localPlayerView = findViewById(R.id.local_player_view);
         localPlayerView.requestFocus();
 
+        trackMetadataView = findViewById(R.id.track_metadata);
+
         castControlView = findViewById(R.id.cast_control_view);
 
         queueFragment = new MainFragment();
@@ -111,17 +121,18 @@ public class MainActivity extends AppCompatActivity
     public void onResume() {
         super.onResume();
         if (castContext == null) {
-            // There is no Cast context to work with. Do nothing.
-            return;
+         // There is no Cast context to work with. Do nothing.
+           return;
         }
-        playerManager =
-                new PlayerManager(
-                        /* listener= */ this,
-                        queueFragment,
-                        localPlayerView,
-                        castControlView,
-                        /* context= */ this,
-                        castContext);
+        if(playerManager == null) {
+            playerManager = new PlayerManager(
+                    this,
+                    queueFragment,
+                    localPlayerView,
+                    castControlView,
+                    this,
+                    castContext);
+        }
 
     }
 
@@ -129,11 +140,9 @@ public class MainActivity extends AppCompatActivity
     public void onPause() {
         super.onPause();
         if (castContext == null) {
-            // Nothing to release.
+            //Nothing to release.
             return;
         }
-        playerManager.release();
-        playerManager = null;
     }
 
     // Activity input.
@@ -156,6 +165,11 @@ public class MainActivity extends AppCompatActivity
         } else {
             // Do nothing.
         }
+    }
+
+    @Override
+    public void onTrackMetadataChange(MusicFile musicFile){
+        trackMetadataView.setText(musicFile.getMetadata());
     }
 
     // Internal methods.

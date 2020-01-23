@@ -35,6 +35,6 @@ public class ApiClient {
         } catch(Exception e){
             Log.e("ApiClient.getQueue","Unable to retrieve queue", e);
         }
-        return null;
+        return MusicQueue.EMPTY;
     }
 }

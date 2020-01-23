@@ -18,7 +18,6 @@ package com.simplepathstudios.snowgloo.browser;
 
 import com.simplepathstudios.snowgloo.BackgroundMusicService;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.VideoBrowserActivity;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.mediaplayer.LocalPlayerActivity;
 
@@ -67,7 +66,7 @@ public class VideoBrowserFragment extends Fragment implements MediaListAdapter.I
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) getView().findViewById(R.id.list);
+        mRecyclerView = (RecyclerView) getView().findViewById(R.id.music_queue);
         mEmptyView = getView().findViewById(R.id.empty_view);
         mLoadingView = getView().findViewById(R.id.progress_indicator);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -80,11 +79,11 @@ public class VideoBrowserFragment extends Fragment implements MediaListAdapter.I
 
     @Override
     public void itemClicked(View view, MusicFile item, int position) {
+        Log.d("VideoBrowserFragment.itemClicked", item.AudioUrl);
         Intent musicintent = new Intent(getActivity(), BackgroundMusicService.class);
         musicintent.putExtra("audioUrl", item.AudioUrl);
-        Log.d("VideoBrowserFragment.itemClicked", item.AudioUrl);
         getActivity().startService(musicintent);
-        /*
+
         String transitionName = getString(R.string.transition_image);
         MediaListAdapter.ViewHolder viewHolder =
                 (MediaListAdapter.ViewHolder) mRecyclerView.findViewHolderForPosition(position);
@@ -96,7 +95,7 @@ public class VideoBrowserFragment extends Fragment implements MediaListAdapter.I
         intent.putExtra("media", item.toBundle());
         intent.putExtra("shouldStart", false);
         ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
-        */
+
     }
 
     @Override

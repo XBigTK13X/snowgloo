@@ -5,13 +5,28 @@ import android.os.Bundle;
 import com.simplepathstudios.snowgloo.utils.Utils;
 
 public class MusicFile {
+    public static final MusicFile fromBundle(Bundle wrapper){
+        if(wrapper == null){
+            return null;
+        }
+        String json = wrapper.getString("media-file-json");
+        MusicFile item = (MusicFile)Utils.fromJSON(json, MusicFile.class);
+        return item;
+    }
+
+    public static final MusicFile EMPTY = new MusicFile();
+
     public String Album;
+    public String DisplayAlbum;
     public String Artist;
+    public String DisplayArtist;
     public String AudioUrl;
     public Integer Duration;
     public String CoverImageUrl;
     public String LocalFilePath;
     public String Title;
+
+    public MusicFile(){}
 
     public MusicFile(MusicFile item) {
         this.Album = item.Album;
@@ -30,12 +45,7 @@ public class MusicFile {
         return wrapper;
     }
 
-    public static final MusicFile fromBundle(Bundle wrapper){
-        if(wrapper == null){
-            return null;
-        }
-        String json = wrapper.getString("media-file-json");
-        MusicFile item = (MusicFile)Utils.fromJSON(json, MusicFile.class);
-        return item;
+    public String getMetadata(){
+        return String.format("%s\n%s\n%s", this.Title, this.DisplayAlbum, this.DisplayArtist);
     }
 }

@@ -1,10 +1,17 @@
 package com.simplepathstudios.snowgloo;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+
+import androidx.core.app.NotificationCompat;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -13,11 +20,6 @@ import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
-import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.DefaultMediaItemConverter;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
@@ -27,46 +29,37 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-/** Manages players and an internal media queue for the demo app. */
-/* package */ class PlayerManager implements EventListener, SessionAvailabilityListener {
+class PlayerManager implements EventListener, SessionAvailabilityListener {
 
-    /** Listener for events. */
+    private final String TAG = "PlayerManager";
+    private final Integer NOTIFICATION_ID = 776677;
+
     interface AudioListener {
-        /**
-         * Called when a track of type {@code trackType} is not supported by the player.
-         *
-         * @param trackType One of the {@link C}{@code .TRACK_TYPE_*} constants.
-         */
         void onUnsupportedTrack(int trackType);
+        void onTrackMetadataChange(MusicFile musicFile);
     }
     interface QueueListener {
-
-        /** Called when the currently played item of the media queue changes. */
         void onQueuePositionChanged(int previousIndex, int newIndex);
-
     }
 
     private static final String USER_AGENT = "SnowglooMobile";
     private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
             new DefaultHttpDataSourceFactory(USER_AGENT);
 
+    private final Context context;
     private final PlayerView localPlayerView;
     private final PlayerControlView castControlView;
     private final DefaultTrackSelector trackSelector;
@@ -77,6 +70,7 @@ import java.util.Map;
     private final QueueListener queueListener;
     private final ConcatenatingMediaSource concatenatingMediaSource;
     private final MediaItemConverter mediaItemConverter;
+    private PlayerNotificationManager playerNotificationManager;
 
     private TrackGroupArray lastSeenTrackGroupArray;
     private int currentItemIndex;
@@ -97,6 +91,7 @@ import java.util.Map;
             PlayerControlView castControlView,
             Context context,
             CastContext castContext) {
+        this.context = context;
         this.audioListener = audioListener;
         this.queueListener = queueListener;
         this.localPlayerView = localPlayerView;
@@ -109,7 +104,31 @@ import java.util.Map;
         trackSelector = new DefaultTrackSelector(context);
         exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
         exoPlayer.addListener(this);
+
+        playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
+                context,
+                "com.simplepathstudios.snowgloo",
+                R.string.notification_channel_name,
+                R.string.notification_channel_description,
+                NOTIFICATION_ID,
+                new SnowglooNotificationAdapter(this),
+                new PlayerNotificationManager.NotificationListener() {
+            @Override
+            public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
+            }
+
+            @Override
+            public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+
+            }
+        });
+        playerNotificationManager.setUseNavigationActionsInCompactView(true);
+        playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        playerNotificationManager.setPlayer(exoPlayer);
+
         localPlayerView.setPlayer(exoPlayer);
+        localPlayerView.setControllerShowTimeoutMs(0);
+        localPlayerView.setControllerHideOnTouch(false);
 
         castPlayer = new CastPlayer(castContext);
         castPlayer.addListener(this);
@@ -255,6 +274,7 @@ import java.util.Map;
 
     /** Releases the manager and the players that it holds. */
     public void release() {
+        Log.d(TAG, "Released the PlayerManager");
         currentItemIndex = C.INDEX_UNSET;
         mediaQueue.clear();
         concatenatingMediaSource.clear();
@@ -262,6 +282,11 @@ import java.util.Map;
         castPlayer.release();
         localPlayerView.setPlayer(null);
         exoPlayer.release();
+        playerNotificationManager.setPlayer(null);
+        playerNotificationManager = null;
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nMgr = (NotificationManager) this.context.getSystemService(ns);
+        nMgr.cancel(NOTIFICATION_ID);
     }
 
     // Player.EventListener implementation.
@@ -397,7 +422,15 @@ import java.util.Map;
             int oldIndex = this.currentItemIndex;
             this.currentItemIndex = currentItemIndex;
             queueListener.onQueuePositionChanged(oldIndex, currentItemIndex);
+            audioListener.onTrackMetadataChange(getCurrentMusic());
         }
+    }
+
+    public MusicFile getCurrentMusic(){
+        if(mediaQueue.size() > currentItemIndex && currentItemIndex > -1){
+            return mediaQueue.get(currentItemIndex);
+        }
+        return MusicFile.EMPTY;
     }
 
     private MediaSource buildMediaSource(MusicFile item) {
@@ -406,5 +439,40 @@ import java.util.Map;
                         .createMediaSource(uri);
         return createdMediaSource;
     }
+
+    private class SnowglooNotificationAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
+
+        private final PlayerManager playerManager;
+
+        public SnowglooNotificationAdapter(PlayerManager playerManager){
+            this.playerManager = playerManager;
+        }
+
+        @Override
+        public String getCurrentSubText(Player player) {
+            return null;
+        }
+
+        @Override
+        public String getCurrentContentTitle(Player player) {
+            return playerManager.getCurrentMusic().Title;
+        }
+
+        @Override
+        public PendingIntent createCurrentContentIntent(Player player) {
+            return null;
+        }
+
+        @Override
+        public String getCurrentContentText(Player player) {
+            return null;
+        }
+
+        @Override
+        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+
+            return null;
+        }
+    };
 }
 

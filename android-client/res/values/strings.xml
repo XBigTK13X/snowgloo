@@ -91,4 +91,7 @@
     <string name="error_unsupported_video">Media includes video tracks, but none are playable by this device</string>
 
     <string name="error_unsupported_audio">Media includes audio tracks, but none are playable by this device</string>
+
+    <string name="notification_channel_name">Snowgloo</string>
+    <string name="notification_channel_description">Play audio from Snowgloo in the background</string>
 </resources>

@@ -20,8 +20,7 @@ public class SnowglooLoader extends AsyncTaskLoader<List<MusicFile>> {
     @Override
     public List<MusicFile> loadInBackground() {
         try {
-            List<MusicFile> items = ApiClient.getInstance().getQueue().songs;
-            return items;
+            return ApiClient.getInstance().getQueue().songs;
         } catch (Exception e) {
             Log.e(TAG, "Failed to fetch media data", e);
             return null;

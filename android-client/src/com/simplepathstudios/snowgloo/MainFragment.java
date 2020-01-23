@@ -1,6 +1,5 @@
 package com.simplepathstudios.snowgloo;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.exoplayer2.C;
@@ -27,14 +27,18 @@ public class MainFragment extends Fragment implements PlayerManager.QueueListene
 
     private RecyclerView mediaQueueList;
     private MediaQueueListAdapter mediaQueueListAdapter;
+    private LinearLayoutManager layoutManager;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ItemTouchHelper helper = new ItemTouchHelper(new RecyclerViewCallback());
-        mediaQueueList = getView().findViewById(R.id.list);
+        mediaQueueList = getView().findViewById(R.id.music_queue);
         helper.attachToRecyclerView(mediaQueueList);
+        layoutManager = new LinearLayoutManager(getActivity());
+        mediaQueueList.setLayoutManager(layoutManager);
         mediaQueueListAdapter = new MediaQueueListAdapter();
+        mediaQueueList.setAdapter(mediaQueueListAdapter);
         getLoaderManager().initLoader(0, null, this);
     }
 

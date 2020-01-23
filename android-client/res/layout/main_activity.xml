@@ -9,34 +9,49 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:minHeight="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-
-    <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/local_player_view"
-        android:layout_width="match_parent"
-        android:layout_gravity="top"
-        android:layout_height="0dp"
-        android:layout_weight=".5"
-        android:background="@android:color/black"
-        app:repeat_toggle_modes="all|one"/>
+        android:minHeight="?attr/actionBarSize"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <RelativeLayout
         android:id="@+id/fragment_container"
-        android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.5"
-        ></RelativeLayout>
+        android:layout_gravity="bottom"
+        android:layout_weight=".6">
 
-    <com.google.android.exoplayer2.ui.PlayerControlView android:id="@+id/cast_control_view"
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/track_metadata"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Nothing is playing"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <com.google.android.exoplayer2.ui.PlayerControlView
+        android:id="@+id/cast_control_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:repeat_toggle_modes="all|one"
-        app:show_timeout="-1"/>
+        app:show_timeout="-1">
+
+    </com.google.android.exoplayer2.ui.PlayerControlView>
+
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/local_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="top"
+        android:layout_weight=".10"
+        android:background="@android:color/black"
+        app:repeat_toggle_modes="all|one" />
 
 </LinearLayout>
