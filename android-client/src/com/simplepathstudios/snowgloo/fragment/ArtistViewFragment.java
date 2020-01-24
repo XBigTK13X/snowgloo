@@ -91,7 +91,7 @@ public class ArtistViewFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString("AlbumSlug", album.AlbumSlug);
             bundle.putString("AlbumDisplay", album.Album + "("+album.ReleaseYear+")");
-            navController.navigate(R.id.selectAlbumAction, bundle);
+            navController.navigate(R.id.album_view_fragment, bundle);
         }
     }
     private class Adapter extends RecyclerView.Adapter<ArtistViewFragment.ViewHolder> {

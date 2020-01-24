@@ -68,7 +68,7 @@ public class ArtistListFragment extends Fragment {
             NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
             Bundle bundle = new Bundle();
             bundle.putString("Artist", musicArtist.Artist);
-            navController.navigate(R.id.selectArtistAction, bundle);
+            navController.navigate(R.id.artist_view_fragment, bundle);
         }
     }
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {

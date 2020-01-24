@@ -1,5 +1,7 @@
 package com.simplepathstudios.snowgloo.api.model;
 
+import android.os.Bundle;
+
 import java.util.ArrayList;
 
 public class MusicAlbum {

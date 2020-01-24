@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -20,6 +21,8 @@ import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,14 +72,6 @@ public class QueueFragment extends Fragment {
             }
         });
         this.viewModel.load();
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        Log.d(TAG, "Opening context menu");
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.song_context_menu, menu);
     }
 
     public void onResume(){
@@ -140,7 +135,7 @@ public class QueueFragment extends Fragment {
             viewHolder.itemView.setAlpha(1.0f);
             if (draggingFromPosition != C.INDEX_UNSET) {
                 ViewHolder holder = (ViewHolder) viewHolder;
-                viewModel.moveItem(holder.item, draggingToPosition);
+                viewModel.moveItem(holder.musicFile, draggingToPosition);
             }
             draggingFromPosition = C.INDEX_UNSET;
             draggingToPosition = C.INDEX_UNSET;
@@ -153,14 +148,14 @@ public class QueueFragment extends Fragment {
     }
 
 
-    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnClickListener,
-            MenuItem.OnMenuItemClickListener {
+    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnClickListener {
 
         public final TextView textView;
         public final ImageView dragHandle;
-        public MusicFile item;
+        public MusicFile musicFile;
         public ViewHolder self;
 
+        @SuppressLint("ClickableViewAccessibility")
         public ViewHolder(LinearLayout layout) {
             super(layout);
             this.textView = (TextView)layout.getChildAt(0);
@@ -183,13 +178,29 @@ public class QueueFragment extends Fragment {
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v,
                                         ContextMenu.ContextMenuInfo menuInfo) {
-            MenuItem myActionItem = menu.add("Some menu item");
-            myActionItem.setOnMenuItemClickListener(this);
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-            return true;
+            MenuItem viewAlbumAction = menu.add("View Album");
+            viewAlbumAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("AlbumSlug", musicFile.AlbumSlug);
+                    bundle.putString("AlbumDisplay", musicFile.Album + "("+musicFile.ReleaseYear+")");
+                    navController.navigate(R.id.album_view_fragment, bundle);
+                    return false;
+                }
+            });
+            MenuItem viewArtistAction = menu.add("View Artist");
+            viewArtistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Artist", musicFile.Artist);
+                    navController.navigate(R.id.artist_view_fragment, bundle);
+                    return false;
+                }
+            });
         }
 
         @Override
@@ -217,9 +228,9 @@ public class QueueFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.item = this.data.songs.get(position);
+            holder.musicFile = this.data.songs.get(position);
             TextView view = holder.textView;
-            view.setText(String.format("%s - %s - %s",holder.item.Title,holder.item.DisplayAlbum,holder.item.DisplayArtist));
+            view.setText(String.format("%s - %s - %s",holder.musicFile.Title,holder.musicFile.DisplayAlbum,holder.musicFile.DisplayArtist));
             if(data.currentIndex != null){
                 view.setTextColor(
                         ColorUtils.setAlphaComponent(

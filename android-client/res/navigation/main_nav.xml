@@ -9,25 +9,32 @@
         android:id="@+id/queue_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.QueueFragment"
         android:label="Queue"
-        tools:layout="@layout/queue_fragment" />
+        tools:layout="@layout/queue_fragment" >
+        <action
+            android:id="@+id/action_queue_fragment_to_album_view_fragment"
+            app:destination="@id/album_view_fragment" />
+        <action
+            android:id="@+id/action_queue_fragment_to_artist_view_fragment"
+            app:destination="@id/artist_view_fragment" />
+        <action
+            android:id="@+id/action_queue_fragment_to_artist_list_fragment"
+            app:destination="@id/artist_list_fragment" />
+    </fragment>
     <fragment
         android:id="@+id/artist_list_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.ArtistListFragment"
         android:label="Artists" >
         <action
-            android:id="@+id/selectArtistAction"
-            app:destination="@id/artistViewFragment" />
+            android:id="@+id/action_artist_list_fragment_to_artist_view_fragment"
+            app:destination="@id/artist_view_fragment" />
     </fragment>
     <fragment
-        android:id="@+id/artistViewFragment"
+        android:id="@+id/artist_view_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.ArtistViewFragment"
         tools:layout="@layout/artist_view_fragment" >
-        <action
-            android:id="@+id/selectAlbumAction"
-            app:destination="@id/albumViewFragment" />
     </fragment>
     <fragment
-        android:id="@+id/albumViewFragment"
+        android:id="@+id/album_view_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.AlbumViewFragment"
         tools:layout="@layout/album_view_fragment" />
 </navigation>

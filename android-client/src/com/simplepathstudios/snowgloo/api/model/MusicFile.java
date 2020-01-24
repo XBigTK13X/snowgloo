@@ -1,9 +1,5 @@
 package com.simplepathstudios.snowgloo.api.model;
 
-import android.os.Bundle;
-
-import com.simplepathstudios.snowgloo.Utils;
-
 public class MusicFile {
     public static final MusicFile EMPTY = new MusicFile(){{
         DisplayAlbum = "";
@@ -12,10 +8,12 @@ public class MusicFile {
     }};
 
     public String Album;
+    public String AlbumSlug;
     public String DisplayAlbum;
     public String Artist;
     public String DisplayArtist;
     public String AudioUrl;
+    public String ReleaseYear;
     public Integer Duration;
     public String CoverImageUrl;
     public String LocalFilePath;
