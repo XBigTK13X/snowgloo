@@ -1,6 +1,8 @@
 package com.simplepathstudios.snowgloo.api;
 
 import com.simplepathstudios.snowgloo.SnowglooSettings;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -27,6 +29,12 @@ public class ApiClient {
 
     public Call getQueue(){
         return this.httpClient.getQueue(this.username);
+    }
+
+    public Call setQueue(MusicQueue queue){
+        MusicQueuePayload payload = new MusicQueuePayload();
+        payload.queue = queue;
+        return this.httpClient.setQueue(this.username, payload);
     }
 
     public Call getArtistList(){

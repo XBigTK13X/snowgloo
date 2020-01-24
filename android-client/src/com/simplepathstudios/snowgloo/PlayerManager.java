@@ -83,6 +83,7 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
         this.context = context;
         this.mainActivity = mainActivity;
         this.localPlayerView = localPlayerView;
+        localPlayerView.setUseArtwork(false);
         this.castControlView = castControlView;
         mediaQueue = new ArrayList<>();
         currentItemIndex = -1;

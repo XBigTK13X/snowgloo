@@ -43,22 +43,24 @@ public class ArtistViewFragment extends Fragment {
             public void onChanged(ArtistView artistView) {
                 LinearLayout container = getView().findViewById(R.id.lists_container);
                 for(String listKind : artistView.albums.listKinds){
-                    ArrayList<MusicAlbum> albums = new ArrayList<>();
-                    for(String albumName : artistView.albums.lists.get(listKind)){
-                        albums.add(artistView.albums.lookup.get(albumName));
+                    if(artistView.albums.lists.get(listKind).size() > 0){
+                        ArrayList<MusicAlbum> albums = new ArrayList<>();
+                        for(String albumName : artistView.albums.lists.get(listKind)){
+                            albums.add(artistView.albums.lookup.get(albumName));
+                        }
+                        View listView = getLayoutInflater().inflate(R.layout.album_list,container,false);
+                        TextView listKindText = listView.findViewById(R.id.list_kind);
+                        listKindText.setText(listKind);
+                        RecyclerView listElement = listView.findViewById(R.id.album_list);
+                        ArtistViewFragment.Adapter adapter = new ArtistViewFragment.Adapter();
+                        listElement.setAdapter(adapter);
+                        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                        listElement.setLayoutManager(layoutManager);
+                        adapter.setData(albums);
+                        adapter.notifyDataSetChanged();
+                        container.addView(listView);
+                        Log.d(TAG, "Populated "+artistName + " "+listKind+" with "+albums.size()+" albums");
                     }
-                    View listView = getLayoutInflater().inflate(R.layout.album_list,container,false);
-                    TextView listKindText = listView.findViewById(R.id.list_kind);
-                    listKindText.setText(listKind);
-                    RecyclerView listElement = listView.findViewById(R.id.album_list);
-                    ArtistViewFragment.Adapter adapter = new ArtistViewFragment.Adapter();
-                    listElement.setAdapter(adapter);
-                    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-                    listElement.setLayoutManager(layoutManager);
-                    adapter.setData(albums);
-                    adapter.notifyDataSetChanged();
-                    container.addView(listView);
-                    Log.d(TAG, "Populated "+artistName + " "+listKind+" with "+albums.size()+" albums");
                 }
             }
         });

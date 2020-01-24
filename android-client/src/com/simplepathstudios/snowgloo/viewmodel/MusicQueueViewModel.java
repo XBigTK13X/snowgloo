@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -69,5 +70,22 @@ public class MusicQueueViewModel extends ViewModel {
         musicQueue.songs.remove(position);
         musicQueue.songs.add(position,item);
         Data.setValue(musicQueue);
+    }
+
+    public void addItem(MusicFile item){
+        MusicQueue data = Data.getValue();
+        data.songs.add(item);
+        ApiClient.getInstance().setQueue(data).enqueue(new Callback<MusicQueuePayload>(){
+            @Override
+            public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
+                Log.d("MusicQueueViewModel.addItem","done " + data.songs.size());
+                Data.setValue(data);
+            }
+
+            @Override
+            public void onFailure(Call<MusicQueuePayload> call, Throwable t) {
+                Log.e("MusicQueueViewModel.addItem","Failed",t);
+            }
+        });
     }
 }

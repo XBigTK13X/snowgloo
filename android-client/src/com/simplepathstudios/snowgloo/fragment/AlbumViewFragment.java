@@ -20,10 +20,13 @@ import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.viewmodel.AlbumViewViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 
 public class AlbumViewFragment extends Fragment {
     private final String TAG = "AlbumViewFragment";
-    private AlbumViewViewModel viewModel;
+
+    private MusicQueueViewModel queueViewModel;
+    private AlbumViewViewModel albumViewModel;
     private String albumSlug;
     private String albumDisplay;
     private RecyclerView listElement;
@@ -43,13 +46,14 @@ public class AlbumViewFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        queueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
         listElement = view.findViewById(R.id.album_songs);
         adapter = new AlbumViewFragment.Adapter();
         listElement.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity());
         listElement.setLayoutManager(layoutManager);
-        viewModel = new ViewModelProvider(this).get(AlbumViewViewModel.class);
-        viewModel.Data.observe(getViewLifecycleOwner(), new Observer<AlbumView>() {
+        albumViewModel = new ViewModelProvider(this).get(AlbumViewViewModel.class);
+        albumViewModel.Data.observe(getViewLifecycleOwner(), new Observer<AlbumView>() {
             @Override
             public void onChanged(AlbumView album) {
                 Log.d(TAG,"Loaded album");
@@ -60,7 +64,7 @@ public class AlbumViewFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         });
-        viewModel.load(albumSlug);
+        albumViewModel.load(albumSlug);
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -76,7 +80,8 @@ public class AlbumViewFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-
+            Log.d(TAG, "Adding "+musicFile.Title + " to queue");
+            queueViewModel.addItem(musicFile);
         }
     }
     private class Adapter extends RecyclerView.Adapter<AlbumViewFragment.ViewHolder> {

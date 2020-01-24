@@ -3,6 +3,7 @@ package com.simplepathstudios.snowgloo.api;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -15,6 +16,7 @@ import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 import com.simplepathstudios.snowgloo.api.model.SnowglooUser;
 
 
@@ -41,5 +43,5 @@ public interface ApiService {
     Call<MusicQueue> getQueue(@Path("username") String username);
 
     @POST("/api/queue/{username}")
-    Call<MusicQueue> setQueue(@Path("username") String username);
+    Call<MusicQueuePayload> setQueue(@Path("username") String username, @Body MusicQueuePayload queue);
 }
