@@ -8,7 +8,9 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
+import com.simplepathstudios.snowgloo.api.model.ArtistView;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
@@ -27,10 +29,10 @@ public interface ApiService {
     Call<ArtistList> getArtistList();
 
     @GET("api/artist/view")
-    Call<MusicArtist> getArtist(@Query("album") String album);
+    Call<ArtistView> getArtist(@Query("artist") String artist);
 
     @GET("api/album/view")
-    Call<MusicArtist> getAlbum(@Query("albumSlug") String albumSlug);
+    Call<AlbumView> getAlbum(@Query("albumSlug") String albumSlug);
 
     @GET("api/user/list")
     Call<SnowglooUser> getUserList();

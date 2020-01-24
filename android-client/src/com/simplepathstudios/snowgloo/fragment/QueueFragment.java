@@ -19,6 +19,13 @@ public class QueueFragment extends Fragment {
     private SongListComponent songListComponent;
 
     @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "QueueFragment initiated");
+        return inflater.inflate(R.layout.queue_fragment, container, false);
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -28,17 +35,8 @@ public class QueueFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG,"onStart");
+        Log.d(TAG, "onStart");
     }
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "QueueFragment initiated");
-        return inflater.inflate(R.layout.queue_fragment, container, false);
-    }
-
 
     public void onResume(){
         super.onResume();

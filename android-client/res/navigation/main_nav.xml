@@ -13,5 +13,21 @@
     <fragment
         android:id="@+id/artist_list_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.ArtistListFragment"
-        android:label="Artists" />
+        android:label="Artists" >
+        <action
+            android:id="@+id/selectArtistAction"
+            app:destination="@id/artistViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/artistViewFragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.ArtistViewFragment"
+        tools:layout="@layout/artist_view_fragment" >
+        <action
+            android:id="@+id/selectAlbumAction"
+            app:destination="@id/albumViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/albumViewFragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.AlbumViewFragment"
+        tools:layout="@layout/album_view_fragment" />
 </navigation>

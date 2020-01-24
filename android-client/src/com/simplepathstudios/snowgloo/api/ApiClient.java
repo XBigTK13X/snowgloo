@@ -32,4 +32,12 @@ public class ApiClient {
     public Call getArtistList(){
         return this.httpClient.getArtistList();
     }
+
+    public Call getArtistView(String artist){
+        return this.httpClient.getArtist(artist);
+    }
+
+    public Call getAlbumView(String albumSlug){
+        return this.httpClient.getAlbum(albumSlug);
+    }
 }

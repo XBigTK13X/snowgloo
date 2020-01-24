@@ -19,7 +19,7 @@ import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.model.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 
 
 public class SongListComponent {
@@ -54,6 +54,7 @@ public class SongListComponent {
                 mediaQueueListAdapter.notifyDataSetChanged();
             }
         });
+        this.musicQueueViewModel.load();
     }
 
     public void refresh(){

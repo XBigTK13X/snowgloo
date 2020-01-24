@@ -1,4 +1,4 @@
-package com.simplepathstudios.snowgloo.model;
+package com.simplepathstudios.snowgloo.viewmodel;
 
 import android.util.Log;
 

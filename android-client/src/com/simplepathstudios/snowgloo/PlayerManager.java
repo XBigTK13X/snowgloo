@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.DefaultMediaItemConverter;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
@@ -42,10 +41,9 @@ import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.model.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class PlayerManager implements EventListener, SessionAvailabilityListener {
 

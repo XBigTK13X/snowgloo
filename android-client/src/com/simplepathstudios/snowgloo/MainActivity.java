@@ -7,20 +7,16 @@ import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -28,9 +24,9 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
-import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.model.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.InterDestinationViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
@@ -48,6 +44,7 @@ public class MainActivity extends AppCompatActivity{
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private MusicQueueViewModel musicQueueViewModel;
+    private InterDestinationViewModel interDestinationViewModel;
 
     private CastContext castContext;
 
@@ -84,6 +81,8 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+        this.interDestinationViewModel = new ViewModelProvider(this).get(InterDestinationViewModel.class);
+
         setContentView(R.layout.main_activity);
 
         toolbar = findViewById(R.id.toolbar);
@@ -114,8 +113,6 @@ public class MainActivity extends AppCompatActivity{
         navigationView = findViewById(R.id.nav_view);
         NavigationUI.setupWithNavController(toolbar, navController,appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
-        this.musicQueueViewModel.load();
     }
 
     @Override
