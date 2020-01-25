@@ -7,31 +7,31 @@ import androidx.lifecycle.ViewModel;
 
 import com.simplepathstudios.snowgloo.LoadingIndicator;
 import com.simplepathstudios.snowgloo.api.ApiClient;
-import com.simplepathstudios.snowgloo.api.model.AlbumView;
+import com.simplepathstudios.snowgloo.api.model.AlbumList;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
-import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AlbumViewViewModel extends ViewModel {
-    public MutableLiveData<AlbumView> Data;
-    public AlbumViewViewModel(){
-        Data = new MutableLiveData<AlbumView>();
+public class AlbumListViewModel extends ViewModel {
+    public MutableLiveData<AlbumList> Data;
+    public AlbumListViewModel(){
+        Data = new MutableLiveData<AlbumList>();
     }
 
-    public void load(String albumSlug){
-        ApiClient.getInstance().getAlbumView(albumSlug).enqueue(new Callback< AlbumView >(){
+    public void load(){
+        ApiClient.getInstance().getAlbumList().enqueue(new Callback< AlbumList >(){
+
             @Override
-            public void onResponse(Call<AlbumView> call, Response<AlbumView> response) {
+            public void onResponse(Call<AlbumList> call, Response<AlbumList> response) {
                 LoadingIndicator.setLoading(false);
                 Data.setValue(response.body());
             }
 
             @Override
-            public void onFailure(Call<AlbumView> call, Throwable t) {
-                Log.e("ArtistListViewModel","Failed",t);
+            public void onFailure(Call<AlbumList> call, Throwable t) {
+                Log.e("AlbumListViewModel.load","Failed",t);
                 LoadingIndicator.setLoading(false);
             }
         });

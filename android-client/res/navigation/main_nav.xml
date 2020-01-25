@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_queue_fragment_to_artist_list_fragment"
             app:destination="@id/artist_list_fragment" />
+        <action
+            android:id="@+id/action_queue_fragment_to_albumListFragment"
+            app:destination="@id/album_list_fragment" />
     </fragment>
     <fragment
         android:id="@+id/artist_list_fragment"
@@ -37,4 +40,13 @@
         android:id="@+id/album_view_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.AlbumViewFragment"
         tools:layout="@layout/album_view_fragment" />
+    <fragment
+        android:id="@+id/album_list_fragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.AlbumListFragment"
+        android:label="Albums"
+        tools:layout="@layout/album_list_fragment">
+        <action
+            android:id="@+id/action_albumListFragment_to_album_view_fragment"
+            app:destination="@id/album_view_fragment" />
+    </fragment>
 </navigation>

@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo.api;
 
+import com.simplepathstudios.snowgloo.LoadingIndicator;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
@@ -28,24 +29,34 @@ public class ApiClient {
     }
 
     public Call getQueue(){
+        LoadingIndicator.setLoading(true);
         return this.httpClient.getQueue(this.username);
     }
 
     public Call setQueue(MusicQueue queue){
+        LoadingIndicator.setLoading(true);
         MusicQueuePayload payload = new MusicQueuePayload();
         payload.queue = queue;
         return this.httpClient.setQueue(this.username, payload);
     }
 
     public Call getArtistList(){
+        LoadingIndicator.setLoading(true);
         return this.httpClient.getArtistList();
     }
 
     public Call getArtistView(String artist){
+        LoadingIndicator.setLoading(true);
         return this.httpClient.getArtist(artist);
     }
 
     public Call getAlbumView(String albumSlug){
+        LoadingIndicator.setLoading(true);
         return this.httpClient.getAlbum(albumSlug);
+    }
+
+    public Call getAlbumList(){
+        LoadingIndicator.setLoading(true);
+        return this.httpClient.getAlbumList();
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.simplepathstudios.snowgloo.LoadingIndicator;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -22,18 +23,20 @@ public class MusicQueueViewModel extends ViewModel {
     }
 
     public void load(){
-        Log.d("MusicQueueViewModel","Loading");
+        Log.d("MusicQueueViewModel","LoadingIndicator");
         ApiClient.getInstance().getQueue().enqueue(new Callback< MusicQueue >(){
 
             @Override
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
                 Log.d("MusicQueueViewModel","Successful load");
+                LoadingIndicator.setLoading(false);
                 Data.setValue(response.body());
             }
 
             @Override
             public void onFailure(Call<MusicQueue> call, Throwable t) {
                 Log.e("MusicQueueViewModel","Failed",t);
+                LoadingIndicator.setLoading(false);
             }
         });
     }
@@ -79,11 +82,14 @@ public class MusicQueueViewModel extends ViewModel {
             @Override
             public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
                 Log.d("MusicQueueViewModel.addItem","done " + data.songs.size());
+                LoadingIndicator.setLoading(false);
                 Data.setValue(data);
+
             }
 
             @Override
             public void onFailure(Call<MusicQueuePayload> call, Throwable t) {
+                LoadingIndicator.setLoading(false);
                 Log.e("MusicQueueViewModel.addItem","Failed",t);
             }
         });

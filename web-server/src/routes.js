@@ -7,7 +7,10 @@ const register = router => {
         response.send(await catalog.getSongs())
     })
     router.get('/api/album/list', async (request, response) => {
-        response.send(await catalog.getAlbums())
+        let result = {
+          albums: await catalog.getAlbums()
+        }
+        response.send(result)
     })
     router.get('/api/artist/list', async (request, response) => {
         response.send(await catalog.getArtists())

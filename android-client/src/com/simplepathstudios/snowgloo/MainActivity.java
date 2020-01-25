@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity{
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private MusicQueueViewModel musicQueueViewModel;
-    private InterDestinationViewModel interDestinationViewModel;
+    private ProgressBar loadingView;
 
     private CastContext castContext;
 
@@ -83,13 +84,14 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        this.interDestinationViewModel = new ViewModelProvider(this).get(InterDestinationViewModel.class);
-
         setContentView(R.layout.main_activity);
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
+
+        loadingView = findViewById(R.id.loading_indicator);
+        LoadingIndicator.setProgressBar(loadingView);
 
         localPlayerView = findViewById(R.id.local_player_view);
         localPlayerView.requestFocus();
