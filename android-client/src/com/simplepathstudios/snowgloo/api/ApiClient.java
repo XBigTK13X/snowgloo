@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo.api;
 
+import com.google.android.exoplayer2.util.Log;
 import com.simplepathstudios.snowgloo.LoadingIndicator;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -13,18 +14,23 @@ public class ApiClient {
     private static ApiClient __instance;
     public static ApiClient getInstance(){
         if(__instance == null){
-            __instance = new ApiClient();
+            Log.e("ApiClient", "ApiClient is not ready");
         }
         return __instance;
     }
 
+    public static void retarget(String serverUrl, String username){
+        __instance = new ApiClient(serverUrl, username);
+    }
+
     private ApiService httpClient;
-    private String username = "Snowman";
-    private ApiClient(){
+    private String username;
+    private ApiClient(String serverUrl, String username){
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(SnowglooSettings.ServerUrl())
+                .baseUrl(serverUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+        this.username = username;
         this.httpClient = retrofit.create(ApiService.class);
     }
 

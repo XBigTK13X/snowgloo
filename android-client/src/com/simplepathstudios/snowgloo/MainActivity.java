@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,9 +26,11 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
+import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.InterDestinationViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity{
 
     private PlayerView localPlayerView;
     private PlayerControlView castControlView;
+    private SettingsViewModel settingsViewModel;
     private PlayerManager playerManager;
     private Toolbar toolbar;
     private TextView trackMetadataView;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity{
     private NavigationView navigationView;
     private MusicQueueViewModel musicQueueViewModel;
     private ProgressBar loadingView;
+
 
     private CastContext castContext;
 
@@ -75,6 +80,20 @@ public class MainActivity extends AppCompatActivity{
             // Unknown error. We propagate it.
             throw e;
         }
+
+        this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {
+            @Override
+            public void onChanged(SettingsViewModel.Settings settings) {
+                Log.d(TAG, "Setting up ApiCLient "+settings.Username + " - "+settings.ServerUrl);
+                ApiClient.retarget(settings.ServerUrl, settings.Username);
+            }
+        });
+        this.settingsViewModel.initialize(this.getPreferences(Context.MODE_PRIVATE));
+        SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();
+        ApiClient.retarget(settings.ServerUrl, settings.Username);
+
+        //TODO Show the user picker
 
         this.musicQueueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
         musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
