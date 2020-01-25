@@ -6,5 +6,5 @@
     <item android:id="@+id/artist_list_fragment"
         android:title="Artists" />
     <item android:id="@+id/album_list_fragment"
-        android:title="Albums" />
+        android:title="Artists" />
 </menu>
