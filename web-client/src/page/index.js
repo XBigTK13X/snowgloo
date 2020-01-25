@@ -4,6 +4,6 @@ export default {
     ArtistView: require('./ArtistView').default,
     AlbumList: require('./AlbumList').default,
     ArtistList: require('./ArtistList').default,
-    Home: require('./Home').default,
+    Queue: require('./Queue').default,
     SongList: require('./SongList').default,
 }

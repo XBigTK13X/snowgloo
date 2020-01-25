@@ -1,5 +1,5 @@
 const catalog = require('./catalog')
-catalog.build().catch(err => {
+catalog.build(false).catch(err => {
     console.err('Unable to build the catalog', { err })
 })
 
@@ -29,6 +29,8 @@ if (fs.existsSync(webRoot)) {
         console.log(`Swapping tokens in ${settingsPath}`)
         fileSystem.tokenSwap(settingsPath, {
             WEB_API_URL: settings.webApiUrl,
+            CAST_POLL_INTERVAL: 300,
+            DEBOUNCE_MILLISECONDS: 300
         })
     }
     console.log(`Hosting static files`)

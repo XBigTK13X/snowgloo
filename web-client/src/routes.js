@@ -7,9 +7,9 @@ export default [
         component: pages.Admin,
     },
     {
-        name: 'home',
+        name: 'queue',
         url: '/',
-        component: pages.Home,
+        component: pages.Queue,
     },
     {
         name: 'artist-list',

@@ -12,6 +12,23 @@ body {
     overflow-x: hidden;
 }
 
+.page-wrapper {
+  margin-bottom: 350px;
+}
+
+.sticky-footer {
+    background-color: #fff;
+    border: 5px solid black;
+    padding: 20px;
+    width: 400px;
+    height: 300px;
+    z-index: 1000;
+    position: -webkit-sticky;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
 a {
     text-decoration: none;
     color: #171717;
@@ -33,31 +50,28 @@ input[type='range']:focus {
     background-color: #cca0d8;
 }
 
-audio {
-    width: 500px;
-}
-
-audio:focus {
-    outline-width: 0;
-}
-
 .seek-range {
   width: 100%;
   height: 40px;
 }
 
 .volume-range {
-  width: 150px;
+  width: 50px;
   height: 40px;
+  display: inline-block;
+  margin-left: 30px;
+  margin-right: 30px;
 }
 
-.audio-buttons {
-  width: 400px;
-  height: 40px;
+.audio-button {
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+  color: #cca0d8;
 }
 
 .audio-duration {
-  width: 200px;
+  width: 100%;
   height: 40px;
 }
 
@@ -90,18 +104,6 @@ audio:focus {
     width: 150px;
     height: 50px;
     text-align: center;
-}
-
-.sticky-footer {
-    align-self: flex-start;
-    background-color: #fff;
-    border: 5px solid black;
-    padding: 20px;
-    width: 70%;
-    position: -webkit-sticky;
-    position: sticky;
-    bottom: 10px;
-    z-index: 1000;
 }
 
 .neighbor {
@@ -159,8 +161,8 @@ audio:focus {
 }
 
 .cover-art-small {
-    width: 250px;
-    height: 250px;
+    width: 100px;
+    height: 100px;
     border: 1px solid #606060;
 }
 

@@ -7,6 +7,8 @@ const database = require('./database')
 
 const MusicFile = require('./music-file')
 
+const BUILD_PASSES = 2
+
 const alphabetize = (items, property) => {
     if (property) {
         return items.sort((a, b) => {
@@ -36,7 +38,10 @@ class Catalog {
         }
     }
 
-    build(force) {
+    build(force, pass) {
+      if(!pass){
+        pass = 1
+      }
         console.log('Reading catalog into memory')
         return new Promise((resolve, reject) => {
             this.database.read().then(workingSet => {
@@ -50,7 +55,7 @@ class Catalog {
                 this.building = true
                 this.rebuildCount = 0
                 this.totalCount = 0
-                console.log(`Rebuilding cache from files`)
+                console.log(`Rebuilding cache from files - Pass #${pass} out of ${BUILD_PASSES}`)
                 let coverArts = []
                 let albumCoverArts = {}
                 recurse(this.mediaRoot, (err, files) => {
@@ -61,11 +66,13 @@ class Catalog {
                     files = files
                         .filter(x => {
                             if (x.includes('.jpg') || x.includes('.png') || x.includes('.jpeg')) {
-                                coverArts.push(x)
+                                if(!x.toLowerCase().includes("small")){
+                                  coverArts.push(x)
+                                }
                                 return false
                             }
-                            if (x.includes('.txt')) {
-                                return false
+                            if(!x.includes('.mp3')){
+                              return false
                             }
                             return true
                         })
@@ -84,25 +91,30 @@ class Catalog {
                             }
                             return a.Track > b.Track ? 1 : -1
                         })
-                    const batchSize = 300
-                    let promiseBatches = []
-                    for (let ii = 0; ii < files.length; ii += batchSize) {
-                        promiseBatches.push(() => {
-                            if (ii % batchSize === 0 || ii >= files.length - 1) {
-                                console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
-                                this.rebuildCount = ii
-                                this.totalCount = files.length
-                            }
-                            let internalPromises = []
-                            for (let jj = 0; jj < batchSize; jj++) {
-                                if (ii + jj < files.length) {
-                                    internalPromises.push(files[ii + jj].readInfo())
-                                }
-                            }
-                            return Promise.all(internalPromises)
-                        })
+
+                    let serialReads = Promise.resolve()
+                    if(pass === 2){
+                      const batchSize = 300
+                      let promiseBatches = []
+                      for (let ii = 0; ii < files.length; ii += batchSize) {
+                          promiseBatches.push(() => {
+                              if (ii % batchSize === 0 || ii >= files.length - 1) {
+                                  console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
+                                  this.rebuildCount = ii
+                                  this.totalCount = files.length
+                              }
+                              let internalPromises = []
+                              for (let jj = 0; jj < batchSize; jj++) {
+                                  if (ii + jj < files.length) {
+                                      internalPromises.push(files[ii + jj].readInfo())
+                                  }
+                              }
+                              return Promise.all(internalPromises)
+                          })
+                      }
+                      serialReads = promiseBatches.reduce((m, p) => m.then(v => Promise.all([...v, p()])), Promise.resolve([]))
                     }
-                    const serialReads = promiseBatches.reduce((m, p) => m.then(v => Promise.all([...v, p()])), Promise.resolve([]))
+
                     serialReads
                         .then(() => {
                             return new Promise(resolve => {
@@ -174,9 +186,12 @@ class Catalog {
                         .then(() => {
                             let timeSpent = (new Date().getTime() - startTime) / 1000
                             this.building = false
-                            console.log(`Finished building catalog in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
+                            console.log(`Finished pass #${pass} out of ${BUILD_PASSES} for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
                             this.workingSet = workingSet
                             resolve(this.workingSet)
+                            if(pass < BUILD_PASSES){
+                              this.build(force, pass + 1)
+                            }
                         })
                 })
             })
@@ -214,12 +229,15 @@ class Catalog {
                 })
                 .sort((a, b) => {
                     if (albums.lookup[a].ReleaseYear === albums.lookup[b].ReleaseYear) {
-                        return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
+                      if(albums.lookup[a].ReleaseYearSort === albums.lookup[b].ReleaseYearSort){
+                        return albums.lookup[a].Album > albums.lookup[b].Album ? 1 : -1
+                      }
+                      return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
                     }
                     return albums.lookup[a].ReleaseYear > albums.lookup[b].ReleaseYear ? 1 : -1
                 })
             let lists = {
-                Main: [],
+                Album: [],
                 Special: [],
                 Single: [],
                 Collab: [],
@@ -228,7 +246,7 @@ class Catalog {
                 if (_.has(lists, albums.lookup[next].SubKind)) {
                     lists[albums.lookup[next].SubKind].push(next)
                 } else {
-                    lists.Main.push(next)
+                    lists.Album.push(next)
                 }
                 result[next] = albums.lookup[next]
                 return result
@@ -237,7 +255,7 @@ class Catalog {
             return resolve({
                 lists: lists,
                 lookup: albumLookup,
-                listKinds: ['Main', 'Single', 'Special', 'Collab'],
+                listKinds: ['Album', 'Single', 'Special', 'Collab'],
             })
         })
     }

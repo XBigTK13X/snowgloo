@@ -4,8 +4,8 @@ import Comp from './'
 
 const links = [
     {
-        to: 'home',
-        text: 'Home',
+        to: 'queue',
+        text: 'Queue',
     },
     {
         to: 'artist-list',

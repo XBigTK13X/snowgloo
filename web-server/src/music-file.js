@@ -19,10 +19,10 @@ class MusicFile {
         this.ReleaseYear = 9999
         if (this.Album.includes('(') && this.Album.includes(')')) {
             let albumParts = this.Album.split('(')
-            this.Album = albumParts[0]
-            let year = albumParts[1].split(')')[0]
+            let year = albumParts.pop().split(')')[0]
             this.ReleaseYear = parseInt(year.split('.')[0], 10)
             this.ReleaseYearSort = parseFloat(year)
+            this.Album = albumParts.join('(')
         }
         this.DisplayAlbum = this.Album
         this.Artist = parts[parts.length - 3]
@@ -43,13 +43,15 @@ class MusicFile {
             let titleParts = trackAndTitle.split(' - ')
             if (titleParts[0].includes('D')) {
                 let discAndTrackParts = titleParts[0].split('D')[1].split('T')
-                this.Disc = parseInt(discAndTrackParts[0], 10)
-                this.Track = parseInt(discAndTrackParts[1], 10)
-                this.Title = titleParts[1]
+                this.Disc = parseInt(discAndTrackParts.shift(), 10)
+                this.Track = parseInt(discAndTrackParts.shift(), 10)
+                this.Title = discAndTrackParts.join(' - ')
             } else {
                 this.Disc = 1
                 this.Track = parseInt(titleParts[0], 10)
-                this.Title = titleParts[1]
+                let parts2 = trackAndTitle.split(' - ')
+                parts2.shift()
+                this.Title = parts2.join(' - ')
             }
             if (this.Kind === 'Compilation') {
                 this.Title = titleParts[1]

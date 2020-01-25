@@ -118,9 +118,12 @@ export default class App extends Component {
         return (
             <div>
                 <UIRouter plugins={plugins} states={routes} config={configRouter}>
-                  <p>
+                  {
+                    /*<p>
                     Is cast enabled? ({this.state.castEnabled === null ? 'Unknown' : (this.state.castEnabled ? 'Yes':'No')})
                   </p>
+                  */
+                  }
                     <div className="page-wrapper">
                         <Comp.NavBar logout={this.logout} />
                         <UIView

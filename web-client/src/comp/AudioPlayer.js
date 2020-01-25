@@ -3,6 +3,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Howl } from 'howler'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlay, faPause, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from './'
 import service from '../service'
@@ -235,13 +237,13 @@ export default class ReactHowlerPlayer extends Component {
 
         if (playerState === STATE.READY || playerState === STATE.PAUSE || playerState === STATE.ENDED) {
             playPauseAction = this.playbackPlay
-            playPauseIcon = '▶️'
+            playPauseIcon = <FontAwesomeIcon icon={faPlay} />
         } else if (playerState === STATE.PLAYING) {
             playPauseAction = this.playbackPause
-            playPauseIcon = '⏸️'
+            playPauseIcon = <FontAwesomeIcon icon={faPause} />
         }
 
-        let volumeIcon = isMute ? '🔇' : '🔊'
+        let volumeIcon = isMute ? <FontAwesomeIcon icon={faVolumeMute} /> : <FontAwesomeIcon icon={faVolumeUp} />
 
         return (
             <div>
@@ -251,18 +253,15 @@ export default class ReactHowlerPlayer extends Component {
                 <div className="audio-duration">
                     {currentPos} <span className="duration">/ {duration || '...'}</span>
                 </div>
-                <div className="audio-buttons">
-                  <button className="no-focus" type="button" onClick={playPauseAction}>
-                      {playPauseIcon}
-                  </button>
-                  <button className="no-focus" type="button" onClick={this.toggleMute}>
-                      {volumeIcon}
-                  </button>
-                  <Comp.GoogleCastButton />
-                </div>
+                <button className="audio-button no-focus" onClick={playPauseAction}>
+                    {playPauseIcon}
+                </button>
                 <div className="volume-range">
                   <Comp.RangeInput value={isMute ? 0 : this.state.volume} onChange={this.changeVolume} />
                 </div>
+                <button className="audio-button no-focus" onClick={this.toggleMute}>
+                    {volumeIcon}
+                </button>
               </div>
         )
     }
