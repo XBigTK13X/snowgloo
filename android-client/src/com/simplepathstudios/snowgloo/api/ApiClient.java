@@ -65,4 +65,8 @@ public class ApiClient {
         LoadingIndicator.setLoading(true);
         return this.httpClient.getAlbumList();
     }
+
+    public Call getUserList(){
+        return this.httpClient.getUserList();
+    }
 }

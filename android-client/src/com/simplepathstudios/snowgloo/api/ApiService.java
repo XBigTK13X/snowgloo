@@ -13,12 +13,10 @@ import com.simplepathstudios.snowgloo.api.model.AlbumList;
 import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
-import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
-import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
-import com.simplepathstudios.snowgloo.api.model.SnowglooUser;
+import com.simplepathstudios.snowgloo.api.model.UserList;
 
 
 public interface ApiService {
@@ -38,7 +36,7 @@ public interface ApiService {
     Call<AlbumView> getAlbum(@Query("albumSlug") String albumSlug);
 
     @GET("api/user/list")
-    Call<SnowglooUser> getUserList();
+    Call<UserList> getUserList();
 
     @GET("api/queue/{username}")
     Call<MusicQueue> getQueue(@Path("username") String username);

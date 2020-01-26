@@ -1,10 +1,12 @@
 package com.simplepathstudios.snowgloo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,14 +30,10 @@ import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.InterDestinationViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.UserListViewModel;
 
-/**
- * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
- * Cast extension.
- */
 public class MainActivity extends AppCompatActivity{
 
     private final String TAG = "MainActivity";
@@ -48,18 +46,11 @@ public class MainActivity extends AppCompatActivity{
     private TextView trackMetadataView;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-    private MusicQueueViewModel musicQueueViewModel;
     private ProgressBar loadingView;
+    private MusicQueueViewModel musicQueueViewModel;
 
 
     private CastContext castContext;
-
-
-    public PlayerManager getPlayerManager(){
-        return playerManager;
-    }
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,26 +73,23 @@ public class MainActivity extends AppCompatActivity{
         }
 
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {
             @Override
             public void onChanged(SettingsViewModel.Settings settings) {
-                Log.d(TAG, "Setting up ApiCLient "+settings.Username + " - "+settings.ServerUrl);
-                ApiClient.retarget(settings.ServerUrl, settings.Username);
+                if(settings.Username == null){
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(intent);
+                }
+                else {
+                    ApiClient.retarget(settings.ServerUrl, settings.Username);
+                }
             }
         });
-        this.settingsViewModel.initialize(this.getPreferences(Context.MODE_PRIVATE));
         SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();
         ApiClient.retarget(settings.ServerUrl, settings.Username);
 
-        //TODO Show the user picker
-
         this.musicQueueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
-        musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
-            @Override
-            public void onChanged(MusicQueue musicQueue) {
-                trackMetadataView.setText(musicQueue.getCurrent().getMetadata());
-            }
-        });
 
         setContentView(R.layout.main_activity);
 
@@ -118,6 +106,13 @@ public class MainActivity extends AppCompatActivity{
         trackMetadataView = findViewById(R.id.track_metadata);
 
         castControlView = findViewById(R.id.cast_control_view);
+
+        musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                trackMetadataView.setText(musicQueue.getCurrent().getMetadata());
+            }
+        });
 
         if(playerManager == null) {
             playerManager = new PlayerManager(
@@ -137,6 +132,9 @@ public class MainActivity extends AppCompatActivity{
         NavigationUI.setupWithNavController(toolbar, navController,appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
     }
+    private void loadMainAppUi(){
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -154,7 +152,7 @@ public class MainActivity extends AppCompatActivity{
          // There is no Cast context to work with. Do nothing.
            return;
         }
-        if(playerManager == null) {
+        if(playerManager == null && localPlayerView != null && castControlView != null) {
             playerManager = new PlayerManager(
                     this,
                     localPlayerView,
