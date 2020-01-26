@@ -3,7 +3,6 @@ package com.simplepathstudios.snowgloo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -41,7 +40,7 @@ public class LoginActivity extends AppCompatActivity{
         ApiClient.retarget(settings.ServerUrl, settings.Username);
         this.userListViewModel = new ViewModelProvider(this).get(UserListViewModel.class);
         this.userListViewModel.load();
-        setContentView(R.layout.userless_main_activity);
+        setContentView(R.layout.login_activity);
     }
 
 

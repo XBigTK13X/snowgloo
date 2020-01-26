@@ -55,7 +55,7 @@
     <fragment
         android:id="@+id/options_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.OptionsFragment"
-        android:label="options_fragment"
+        android:label="Options"
         tools:layout="@layout/options_fragment" >
         <action
             android:id="@+id/action_options_fragment_to_queue_fragment"

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -18,19 +17,23 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
+import com.simplepathstudios.snowgloo.api.model.ServerInfo;
+import com.simplepathstudios.snowgloo.viewmodel.ServerInfoViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 public class OptionsFragment extends Fragment {
     private static final String TAG = "OptionsFragment";
-    private SettingsViewModel viewModel;
+    private SettingsViewModel settingsViewModel;
+    private ServerInfoViewModel serverInfoViewModel;
     private RadioButton prodRadio;
     private RadioButton devRadio;
     private RadioGroup serverUrlRadios;
+    private TextView versionText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "AlbumListFragment initiated");
+        Log.d(TAG, "OptionsFragment initiated");
         return inflater.inflate(R.layout.options_fragment, container, false);
     }
 
@@ -41,26 +44,46 @@ public class OptionsFragment extends Fragment {
         prodRadio = view.findViewById(R.id.prod_server_radio);
         devRadio = view.findViewById(R.id.dev_server_radio);
 
-        viewModel = new ViewModelProvider(getActivity()).get(SettingsViewModel.class);
-        viewModel.Data.observe(getViewLifecycleOwner(), new Observer<SettingsViewModel.Settings>() {
+        settingsViewModel = new ViewModelProvider(getActivity()).get(SettingsViewModel.class);
+        settingsViewModel.Data.observe(getViewLifecycleOwner(), new Observer<SettingsViewModel.Settings>() {
             @Override
             public void onChanged(SettingsViewModel.Settings settings) {
-                if(settings.ServerUrl.equalsIgnoreCase("http://192.168.1.20:5051")){
-                    Log.d(TAG, "Dev server selected");
+                if(settings.ServerUrl.equalsIgnoreCase(SnowglooSettings.DevServerUrl)){
                     prodRadio.setChecked(false);
                     devRadio.setChecked(true);
                 } else if(settings.ServerUrl != null){
-                    Log.d(TAG, "Prod server selected");
                     prodRadio.setChecked(true);
                     devRadio.setChecked(false);
                 }
             }
         });
+
+        serverInfoViewModel = new ViewModelProvider(getActivity()).get(ServerInfoViewModel.class);
+        serverInfoViewModel.Data.observe(getViewLifecycleOwner(), new Observer<ServerInfo>() {
+            @Override
+            public void onChanged(ServerInfo serverInfo) {
+                Log.d(TAG, "Loaded serverInfo");
+                versionText.setText(String.format(
+                        "Client Version: %s\nServer Version: %s\nClient Built: %s\nServer Built: %s",
+                        SnowglooSettings.ClientVersion,
+                        serverInfo.version,
+                        SnowglooSettings.BuildDate,
+                        serverInfo.buildDate
+                ));
+            }
+        });
+
+        String versionInfo = String.format("Client Version: %s\nServer Version: %s\nClient Built: %s\nServer Built: %s",SnowglooSettings.ClientVersion, "???",SnowglooSettings.BuildDate,"???");
+        versionText = view.findViewById(R.id.version_text);
+        versionText.setText(versionInfo);
+
+        serverInfoViewModel.load();
+
         Button logoutButton = view.findViewById(R.id.logout_button);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewModel.setUsername(null);
+                settingsViewModel.setUsername(null);
             }
         });
 
@@ -70,10 +93,11 @@ public class OptionsFragment extends Fragment {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if(checkedId == R.id.dev_server_radio){
-                    viewModel.setServerUrl(SnowglooSettings.DevServerUrl());
+                    settingsViewModel.setServerUrl(SnowglooSettings.DevServerUrl);
                 }
                 if(checkedId == R.id.prod_server_radio){
-                    viewModel.setServerUrl(SnowglooSettings.ProdServerUrl());
+
+                    settingsViewModel.setServerUrl(SnowglooSettings.ProdServerUrl);
                 }
             }
         });

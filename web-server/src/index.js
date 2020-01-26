@@ -30,7 +30,7 @@ if (fs.existsSync(webRoot)) {
         fileSystem.tokenSwap(settingsPath, {
             WEB_API_URL: settings.webApiUrl,
             CAST_POLL_INTERVAL: 300,
-            DEBOUNCE_MILLISECONDS: 300
+            DEBOUNCE_MILLISECONDS: 300,
         })
     }
     console.log(`Hosting static files`)

@@ -1,11 +1,14 @@
 import React, { Component } from 'react'
 
+import settings from '../settings'
+
 export default class Admin extends Component {
     constructor(props) {
         super(props)
         this.rebuildCatalog = this.rebuildCatalog.bind(this)
         this.state = {
             catalogStatus: null,
+            systemInfo: null,
         }
     }
 
@@ -14,9 +17,10 @@ export default class Admin extends Component {
     }
 
     componentDidMount() {
-        this.props.api.catalogStatus().then(result => {
+        Promise.all([this.props.api.catalogStatus(), this.props.api.systemInfo()]).then(results => {
             this.setState({
-                catalogStatus: result,
+                catalogStatus: results[0],
+                systemInfo: results[1],
             })
         })
     }
@@ -34,6 +38,31 @@ export default class Admin extends Component {
                 status = <p>The catalog is finished building.</p>
             }
         }
+        let systemInfo = null
+        if (this.state.systemInfo) {
+            systemInfo = (
+                <table className="compact-table">
+                    <tbody>
+                        <tr>
+                            <td>Client Version</td>
+                            <td>{settings.clientVersion}</td>
+                        </tr>
+                        <tr>
+                            <td>Server Version</td>
+                            <td>{this.state.systemInfo.version}</td>
+                        </tr>
+                        <tr>
+                            <td>Client Built</td>
+                            <td>{settings.buildDate}</td>
+                        </tr>
+                        <tr>
+                            <td>Server Built</td>
+                            <td>{this.state.systemInfo.buildDate}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            )
+        }
         return (
             <div>
                 <button className="action-button" onClick={this.rebuildCatalog}>
@@ -41,6 +70,7 @@ export default class Admin extends Component {
                 </button>
                 <br />
                 {status}
+                {systemInfo}
             </div>
         )
     }

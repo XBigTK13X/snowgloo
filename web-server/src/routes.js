@@ -8,7 +8,7 @@ const register = router => {
     })
     router.get('/api/album/list', async (request, response) => {
         let result = {
-          albums: await catalog.getAlbums()
+            albums: await catalog.getAlbums(),
         }
         response.send(result)
     })
@@ -44,13 +44,20 @@ const register = router => {
     })
 
     router.get('/api/queue/:username', async (request, response) => {
-      let queue = await musicQueue.read(request.params.username)
+        let queue = await musicQueue.read(request.params.username)
         response.send(queue)
     })
 
     router.post('/api/queue/:username', async (request, response) => {
         response.send({
             queue: await musicQueue.write(request.params.username, request.body.queue),
+        })
+    })
+
+    router.get('/api/system/info', async (request, response) => {
+        response.send({
+            version: settings.serverVersion,
+            buildDate: settings.buildDate,
         })
     })
 }

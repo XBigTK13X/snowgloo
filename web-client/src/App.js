@@ -28,7 +28,7 @@ export default class App extends Component {
                 currentIndex: null,
             },
             isCasting: false,
-            castEnabled: null
+            castEnabled: null,
         }
 
         this.playMedia = this.playMedia.bind(this)
@@ -38,12 +38,12 @@ export default class App extends Component {
         this.googleCastChanged = this.googleCastChanged.bind(this)
 
         service.googleCast.onChange(this.googleCastChanged)
-        let castCheckInterval = setInterval(()=>{
-            if(window.castEnabled && !this.state.castEnabled){
-              this.setState({castEnabled: true})
-              clearInterval(castCheckInterval)
+        let castCheckInterval = setInterval(() => {
+            if (window.castEnabled && !this.state.castEnabled) {
+                this.setState({ castEnabled: true })
+                clearInterval(castCheckInterval)
             }
-        },1000)
+        }, 1000)
     }
 
     componentDidMount() {
@@ -57,10 +57,10 @@ export default class App extends Component {
         })
     }
 
-    googleCastChanged(castInfo){
-      this.setState({
-        isCasting: castInfo.isCasting
-      })
+    googleCastChanged(castInfo) {
+        this.setState({
+            isCasting: castInfo.isCasting,
+        })
     }
 
     login(user) {
@@ -85,12 +85,11 @@ export default class App extends Component {
     playMedia(song) {
         service.musicQueue.add(song)
         service.musicQueue.serverWrite()
-        service.googleCast.load(song)
-        .then(()=>{
-          this.setState({
-              song,
-              queue: service.musicQueue.getQueue(),
-          })
+        service.googleCast.load(song).then(() => {
+            this.setState({
+                song,
+                queue: service.musicQueue.getQueue(),
+            })
         })
     }
 
@@ -118,12 +117,10 @@ export default class App extends Component {
         return (
             <div>
                 <UIRouter plugins={plugins} states={routes} config={configRouter}>
-                  {
-                    /*<p>
+                    {/*<p>
                     Is cast enabled? ({this.state.castEnabled === null ? 'Unknown' : (this.state.castEnabled ? 'Yes':'No')})
                   </p>
-                  */
-                  }
+                  */}
                     <div className="page-wrapper">
                         <Comp.NavBar logout={this.logout} />
                         <UIView
@@ -132,7 +129,7 @@ export default class App extends Component {
                             }}
                         />
                     </div>
-                    <Comp.AudioControls song={this.state.song} songFinished={this.songFinished} isCasting={this.state.isCasting}/>
+                    <Comp.AudioControls song={this.state.song} songFinished={this.songFinished} isCasting={this.state.isCasting} />
                 </UIRouter>
             </div>
         )

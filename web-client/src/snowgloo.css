@@ -4,7 +4,7 @@ html {
 }
 
 body {
-  margin: 10px;
+    margin: 10px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -13,7 +13,7 @@ body {
 }
 
 .page-wrapper {
-  margin-bottom: 350px;
+    margin-bottom: 350px;
 }
 
 .sticky-footer {
@@ -38,6 +38,10 @@ table {
     width: 90%;
 }
 
+.compact-table {
+    width: 25%;
+}
+
 .no-focus:focus {
     outline-width: 0;
 }
@@ -51,28 +55,28 @@ input[type='range']:focus {
 }
 
 .seek-range {
-  width: 100%;
-  height: 40px;
+    width: 100%;
+    height: 40px;
 }
 
 .volume-range {
-  width: 50px;
-  height: 40px;
-  display: inline-block;
-  margin-left: 30px;
-  margin-right: 30px;
+    width: 50px;
+    height: 40px;
+    display: inline-block;
+    margin-left: 30px;
+    margin-right: 30px;
 }
 
 .audio-button {
-  width: 50px;
-  height: 50px;
-  font-size: 30px;
-  color: #cca0d8;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    color: #cca0d8;
 }
 
 .audio-duration {
-  width: 100%;
-  height: 40px;
+    width: 100%;
+    height: 40px;
 }
 
 .google-cast {

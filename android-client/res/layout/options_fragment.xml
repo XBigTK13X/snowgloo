@@ -28,7 +28,7 @@
     </RadioGroup>
 
     <TextView
-        android:id="@+id/about_text"
+        android:id="@+id/version_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Snowgloo" />

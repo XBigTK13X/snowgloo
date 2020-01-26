@@ -72,8 +72,8 @@ class MusicQueue {
         return this.api.getQueue().then(result => {
             if (!_.isEmpty(result)) {
                 this.queue = {
-                  songs: result.songs,
-                  currentIndex: result.currentIndex
+                    songs: result.songs,
+                    currentIndex: result.currentIndex,
                 }
             }
             return this.queue

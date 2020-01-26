@@ -9,7 +9,7 @@ export default class AudioControls extends Component {
         }
         return (
             <div className="sticky-footer centered">
-                <Comp.AudioPlayer src={[this.props.song.AudioUrl]} songFinished={this.props.songFinished} isCasting={this.props.isCasting}/>
+                <Comp.AudioPlayer src={[this.props.song.AudioUrl]} songFinished={this.props.songFinished} isCasting={this.props.isCasting} />
                 <br />
                 <div className="neighbor">
                     <Comp.CoverArt size="small" imageUrl={this.props.song.CoverArt} />

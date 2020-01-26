@@ -17,7 +17,7 @@ public class SettingsViewModel extends ViewModel {
         Settings settings = new Settings();
         settings.Preferences = preferences;
         settings.Username = settings.Preferences.getString("Username",null);
-        settings.ServerUrl = settings.Preferences.getString("ServerUrl", SnowglooSettings.ProdServerUrl());
+        settings.ServerUrl = settings.Preferences.getString("ServerUrl", SnowglooSettings.ProdServerUrl);
         Data.setValue(settings);
     }
 

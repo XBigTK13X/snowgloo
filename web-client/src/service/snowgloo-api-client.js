@@ -70,6 +70,10 @@ class ApiClient {
                 return response.data
             })
     }
+
+    systemInfo() {
+        return this.get('/system/info')
+    }
 }
 
 let instance

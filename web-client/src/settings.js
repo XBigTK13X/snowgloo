@@ -1,8 +1,10 @@
 /* eslint no-undef: 0 */
 
-let webApiUrl;
-let castPollMilliseconds;
-let debounceMilliseconds;
+let webApiUrl
+let castPollMilliseconds
+let debounceMilliseconds
+let clientVersion = '0.5.0'
+let buildDate = 'January 26, 2020'
 
 try {
     webApiUrl = WEB_API_URL
@@ -14,7 +16,9 @@ try {
     debounceMilliseconds = 300
 }
 module.exports = {
-  castPollMilliseconds,
-  debounceMilliseconds,
-  webApiUrl,
+    castPollMilliseconds,
+    debounceMilliseconds,
+    webApiUrl,
+    clientVersion,
+    buildDate,
 }

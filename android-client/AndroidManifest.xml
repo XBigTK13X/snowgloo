@@ -16,7 +16,7 @@
 
         <activity
             android:name="com.simplepathstudios.snowgloo.LoginActivity"
-            android:label="Login - Snowgloo"
+            android:label="Snowgloo"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -16,6 +16,7 @@ import com.simplepathstudios.snowgloo.api.model.ArtistView;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
+import com.simplepathstudios.snowgloo.api.model.ServerInfo;
 import com.simplepathstudios.snowgloo.api.model.UserList;
 
 
@@ -43,4 +44,7 @@ public interface ApiService {
 
     @POST("/api/queue/{username}")
     Call<MusicQueuePayload> setQueue(@Path("username") String username, @Body MusicQueuePayload queue);
+
+    @GET("/api/system/info")
+    Call<ServerInfo> getServerInfo();
 }

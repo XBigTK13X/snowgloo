@@ -39,9 +39,9 @@ class Catalog {
     }
 
     build(force, pass) {
-      if(!pass){
-        pass = 1
-      }
+        if (!pass) {
+            pass = 1
+        }
         console.log('Reading catalog into memory')
         return new Promise((resolve, reject) => {
             this.database.read().then(workingSet => {
@@ -66,13 +66,13 @@ class Catalog {
                     files = files
                         .filter(x => {
                             if (x.includes('.jpg') || x.includes('.png') || x.includes('.jpeg')) {
-                                if(!x.toLowerCase().includes("small")){
-                                  coverArts.push(x)
+                                if (!x.toLowerCase().includes('small')) {
+                                    coverArts.push(x)
                                 }
                                 return false
                             }
-                            if(!x.includes('.mp3')){
-                              return false
+                            if (!x.includes('.mp3')) {
+                                return false
                             }
                             return true
                         })
@@ -93,26 +93,26 @@ class Catalog {
                         })
 
                     let serialReads = Promise.resolve()
-                    if(pass === 2){
-                      const batchSize = 300
-                      let promiseBatches = []
-                      for (let ii = 0; ii < files.length; ii += batchSize) {
-                          promiseBatches.push(() => {
-                              if (ii % batchSize === 0 || ii >= files.length - 1) {
-                                  console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
-                                  this.rebuildCount = ii
-                                  this.totalCount = files.length
-                              }
-                              let internalPromises = []
-                              for (let jj = 0; jj < batchSize; jj++) {
-                                  if (ii + jj < files.length) {
-                                      internalPromises.push(files[ii + jj].readInfo())
-                                  }
-                              }
-                              return Promise.all(internalPromises)
-                          })
-                      }
-                      serialReads = promiseBatches.reduce((m, p) => m.then(v => Promise.all([...v, p()])), Promise.resolve([]))
+                    if (pass === 2) {
+                        const batchSize = 300
+                        let promiseBatches = []
+                        for (let ii = 0; ii < files.length; ii += batchSize) {
+                            promiseBatches.push(() => {
+                                if (ii % batchSize === 0 || ii >= files.length - 1) {
+                                    console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
+                                    this.rebuildCount = ii
+                                    this.totalCount = files.length
+                                }
+                                let internalPromises = []
+                                for (let jj = 0; jj < batchSize; jj++) {
+                                    if (ii + jj < files.length) {
+                                        internalPromises.push(files[ii + jj].readInfo())
+                                    }
+                                }
+                                return Promise.all(internalPromises)
+                            })
+                        }
+                        serialReads = promiseBatches.reduce((m, p) => m.then(v => Promise.all([...v, p()])), Promise.resolve([]))
                     }
 
                     serialReads
@@ -189,8 +189,8 @@ class Catalog {
                             console.log(`Finished pass #${pass} out of ${BUILD_PASSES} for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
                             this.workingSet = workingSet
                             resolve(this.workingSet)
-                            if(pass < BUILD_PASSES){
-                              this.build(force, pass + 1)
+                            if (pass < BUILD_PASSES) {
+                                this.build(force, pass + 1)
                             }
                         })
                 })
@@ -229,10 +229,10 @@ class Catalog {
                 })
                 .sort((a, b) => {
                     if (albums.lookup[a].ReleaseYear === albums.lookup[b].ReleaseYear) {
-                      if(albums.lookup[a].ReleaseYearSort === albums.lookup[b].ReleaseYearSort){
-                        return albums.lookup[a].Album > albums.lookup[b].Album ? 1 : -1
-                      }
-                      return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
+                        if (albums.lookup[a].ReleaseYearSort === albums.lookup[b].ReleaseYearSort) {
+                            return albums.lookup[a].Album > albums.lookup[b].Album ? 1 : -1
+                        }
+                        return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
                     }
                     return albums.lookup[a].ReleaseYear > albums.lookup[b].ReleaseYear ? 1 : -1
                 })

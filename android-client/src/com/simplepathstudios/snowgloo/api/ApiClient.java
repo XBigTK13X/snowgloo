@@ -69,4 +69,8 @@ public class ApiClient {
     public Call getUserList(){
         return this.httpClient.getUserList();
     }
+
+    public Call getServerInfo(){
+        return this.httpClient.getServerInfo();
+    }
 }
