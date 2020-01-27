@@ -198,6 +198,37 @@ class Catalog {
         })
     }
 
+    search(query){
+      query = query.toLowerCase().replace(/\s/g,'')
+      return new Promise(resolve=>{
+        let results = {
+          Songs: [],
+          Artists: [],
+          Albums: [],
+          ItemCount: 0
+        };
+        this.workingSet.files.forEach(file=>{
+          if(file.Title.toLowerCase().replace(/\s/g,'').includes(query)){
+            results.Songs.push(file)
+            results.ItemCount ++
+          }
+        })
+        this.workingSet.albums.list.forEach(albumSlug=>{
+          if(this.workingSet.albums.lookup[albumSlug].Album.toLowerCase().replace(/\s/g,'').includes(query)){
+            results.Albums.push(this.workingSet.albums.lookup[albumSlug])
+            results.ItemCount ++
+          }
+        })
+        this.workingSet.artists.list.forEach(artist=>{
+          if(artist.toLowerCase().replace(/\s/g,'').includes(query)){
+            results.Artists.push(this.workingSet.artists.lookup[artist])
+            results.ItemCount ++
+          }
+        })
+        resolve(results)
+      })
+    }
+
     getSongs() {
         return new Promise(resolve => {
             resolve(this.workingSet.files)

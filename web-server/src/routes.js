@@ -60,6 +60,10 @@ const register = router => {
             buildDate: settings.buildDate,
         })
     })
+
+    router.get('/api/search', async (request, response) =>{
+      response.send(await catalog.search(request.query.query))
+    })
 }
 
 module.exports = {

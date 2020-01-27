@@ -16,8 +16,8 @@ const links = [
         text: 'Albums',
     },
     {
-        to: 'song-list',
-        text: 'Songs',
+        to: 'search',
+        text: 'Search',
     },
     {
         text: 'Logout',

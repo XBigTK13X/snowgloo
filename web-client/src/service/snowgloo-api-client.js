@@ -74,6 +74,12 @@ class ApiClient {
     systemInfo() {
         return this.get('/system/info')
     }
+
+    search(query){
+      return this.httpClient.get('/search',{params: {query}}).then(response=>{
+        return response.data
+      })
+    }
 }
 
 let instance
