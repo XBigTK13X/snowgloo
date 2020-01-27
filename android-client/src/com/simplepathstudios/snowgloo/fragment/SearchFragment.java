@@ -2,11 +2,14 @@ package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -24,30 +28,30 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.model.ArtistList;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.SearchResults;
+import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SearchResultsViewModel;
 
 import java.util.ArrayList;
 
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
+    private static final int TAB_COUNT = 3;
     private ViewPagerAdapter viewPagerAdapter;
     private SongResultsFragment songResultsFragment;
     private ArtistResultsFragment artistResultsFragment;
     private AlbumResultsFragment albumResultsFragment;
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    private SearchResultsViewModel viewModel;
+    private SearchResultsViewModel searchResultsViewModel;
     private Button searchButton;
     private EditText searchQuery;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "Fragment initiated");
         return inflater.inflate(R.layout.search_fragment, container, false);
     }
@@ -55,13 +59,15 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(SearchResultsViewModel.class);
-        viewModel.Data.observe(getViewLifecycleOwner(), new Observer<SearchResults>() {
+        searchResultsViewModel = new ViewModelProvider(this).get(SearchResultsViewModel.class);
+        searchResultsViewModel.Data.observe(getViewLifecycleOwner(), new Observer<SearchResults>() {
             @Override
             public void onChanged(SearchResults searchResults) {
                 songResultsFragment.setResults(searchResults.Songs);
                 artistResultsFragment.setResults(searchResults.Artists);
                 albumResultsFragment.setResults(searchResults.Albums);
+                viewPager.setAdapter(viewPagerAdapter);
+                viewPagerAdapter.notifyDataSetChanged();
             }
         });
         searchButton = view.findViewById(R.id.search_button);
@@ -70,14 +76,15 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String query = searchQuery.getText().toString();
-                viewModel.load(query);
+                searchResultsViewModel.load(query);
             }
         });
         songResultsFragment = new SongResultsFragment();
         albumResultsFragment = new AlbumResultsFragment();
         artistResultsFragment = new ArtistResultsFragment();
-        viewPagerAdapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager(),FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        viewPagerAdapter = new ViewPagerAdapter(getChildFragmentManager(),FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager = view.findViewById(R.id.search_result_tab_views);
+        viewPager.setOffscreenPageLimit(TAB_COUNT);
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout = view.findViewById(R.id.search_result_tab_container);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -101,7 +108,16 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    private class ViewPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public void onResume(){
+        super.onResume();
+        String query = searchQuery.getText().toString();
+        if(!query.isEmpty()){
+            searchResultsViewModel.load(query);
+        }
+    }
+
+    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
         public ViewPagerAdapter(@NonNull FragmentManager fm, int behavior) {
             super(fm, behavior);
         }
@@ -123,13 +139,14 @@ public class SearchFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 3;
+            return TAB_COUNT;
         }
     }
     public static class SongResultsFragment extends Fragment {
         private RecyclerView listElement;
         private Adapter adapter;
         private RecyclerView.LayoutManager layoutManager;
+        private MusicQueueViewModel queueViewModel;
 
         public SongResultsFragment(){
             super();
@@ -145,6 +162,7 @@ public class SearchFragment extends Fragment {
 
         @Override
         public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+            queueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
             super.onViewCreated(view, savedInstanceState);
             listElement = view.findViewById(R.id.song_list);
             listElement.setAdapter(adapter);
@@ -157,24 +175,49 @@ public class SearchFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
 
-        private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnClickListener {
 
             public final TextView textView;
-            public MusicFile item;
+            public MusicFile musicFile;
 
             public ViewHolder(TextView textView) {
                 super(textView);
                 this.textView = textView;
-                textView.setOnClickListener(this);
+                itemView.setOnClickListener(this);
+                itemView.setOnCreateContextMenuListener(this);
+            }
+
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, View v,
+                                            ContextMenu.ContextMenuInfo menuInfo) {
+                MenuItem viewAlbumAction = menu.add("View Album");
+                viewAlbumAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("AlbumSlug", musicFile.AlbumSlug);
+                        bundle.putString("AlbumDisplay", musicFile.Album + "("+musicFile.ReleaseYear+")");
+                        navController.navigate(R.id.album_view_fragment, bundle);
+                        return false;
+                    }
+                });
+                MenuItem viewArtistAction = menu.add("View Artist");
+                viewArtistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("Artist", musicFile.Artist);
+                        navController.navigate(R.id.artist_view_fragment, bundle);
+                        return false;
+                    }
+                });
             }
 
             @Override
             public void onClick(View v) {
-                //TODO Reuse the song handler from QueueFragment
-                /*NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
-                Bundle bundle = new Bundle();
-                bundle.putString("Artist", item.Artist);
-                navController.navigate(R.id.artist_view_fragment, bundle);*/
+                queueViewModel.addItem(musicFile);
             }
         }
 
@@ -195,9 +238,9 @@ public class SearchFragment extends Fragment {
             @Override
             public void onBindViewHolder(ViewHolder holder, int position) {
                 MusicFile item = this.data.get(position);
-                holder.item = item;
+                holder.musicFile = item;
                 TextView view = holder.textView;
-                view.setText(String.format("%s - %s - %s",holder.item.Title,holder.item.DisplayAlbum,holder.item.DisplayArtist));
+                view.setText(String.format("%s - %s - %s",holder.musicFile.Title,holder.musicFile.DisplayAlbum,holder.musicFile.DisplayArtist));
             }
 
             @Override
