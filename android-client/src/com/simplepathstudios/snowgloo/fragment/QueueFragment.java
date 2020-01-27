@@ -5,15 +5,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +46,28 @@ public class QueueFragment extends Fragment {
     private LinearLayoutManager layoutManager;
     private RecyclerView listView;
     private ItemTouchHelper itemTouchHelper;
+    private MenuItem clearQueueButton;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu items for use in the action bar
+        inflater.inflate(R.menu.queue_action_menu, menu);
+        clearQueueButton = menu.findItem(R.id.clear_queue_button);
+        clearQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                viewModel.clear();
+                return false;
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,7 +79,7 @@ public class QueueFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listView = getView().findViewById(R.id.music_queue);
+        listView = view.findViewById(R.id.music_queue);
         itemTouchHelper= new ItemTouchHelper(new RecyclerViewCallback());
         itemTouchHelper.attachToRecyclerView(listView);
 
@@ -71,6 +96,7 @@ public class QueueFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         });
+
         this.viewModel.load();
     }
 

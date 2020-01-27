@@ -96,4 +96,21 @@ public class MusicQueueViewModel extends ViewModel {
             }
         });
     }
+
+    public void clear(){
+        LoadingIndicator.setLoading(true);
+        ApiClient.getInstance().clearQueue().enqueue(new Callback<MusicQueue>(){
+            @Override
+            public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
+                Data.setValue(response.body());
+                LoadingIndicator.setLoading(false);
+            }
+
+            @Override
+            public void onFailure(Call<MusicQueue> call, Throwable t) {
+                LoadingIndicator.setLoading(false);
+                Log.e("MusicQueueViewModel.clear","Failed",t);
+            }
+        });
+    }
 }

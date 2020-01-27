@@ -4,6 +4,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -46,9 +47,13 @@ public interface ApiService {
     @POST("/api/queue/{username}")
     Call<MusicQueuePayload> setQueue(@Path("username") String username, @Body MusicQueuePayload queue);
 
+    @DELETE("/api/queue/{username}")
+    Call<MusicQueue> clearQueue(@Path("username") String username);
+
     @GET("/api/system/info")
     Call<ServerInfo> getServerInfo();
 
     @GET("/api/search")
     Call<SearchResults> search(@Query("query") String query);
+
 }

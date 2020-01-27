@@ -54,6 +54,10 @@ const register = router => {
         })
     })
 
+    router.delete('/api/queue/:username', async (request, response) => {      
+      response.send(await musicQueue.clear(request.params.username))
+    })
+
     router.get('/api/system/info', async (request, response) => {
         response.send({
             version: settings.serverVersion,

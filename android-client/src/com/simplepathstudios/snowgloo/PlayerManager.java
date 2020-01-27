@@ -93,7 +93,7 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
         musicQueueViewModel.Data.observe(mainActivity, new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                Log.d(TAG,"Music files have changed");
+                Log.d(TAG,"Music files have changed "+musicQueue.songs.size());
                 mediaQueue = musicQueue.songs;
                 currentItemIndex = musicQueue.currentIndex == null ? -1 : musicQueue.currentIndex;
                 concatenatingMediaSource = new ConcatenatingMediaSource();
@@ -314,6 +314,9 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
     // Internal methods.
 
     private void updateCurrentItemIndex() {
+        if(mediaQueue.isEmpty()){
+            return;
+        }
         int playbackState = currentPlayer.getPlaybackState();
         if(playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED){
             musicQueueViewModel.setCurrentIndex(currentPlayer.getCurrentWindowIndex());

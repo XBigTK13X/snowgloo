@@ -71,4 +71,8 @@ public class ApiClient {
     public Call search(String query){
         return this.httpClient.search(query);
     }
+
+    public Call clearQueue(){
+        return this.httpClient.clearQueue(this.username);
+    }
 }
