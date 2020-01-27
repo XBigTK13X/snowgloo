@@ -35,34 +35,28 @@ public class ApiClient {
     }
 
     public Call getQueue(){
-        LoadingIndicator.setLoading(true);
         return this.httpClient.getQueue(this.username);
     }
 
     public Call setQueue(MusicQueue queue){
-        LoadingIndicator.setLoading(true);
         MusicQueuePayload payload = new MusicQueuePayload();
         payload.queue = queue;
         return this.httpClient.setQueue(this.username, payload);
     }
 
     public Call getArtistList(){
-        LoadingIndicator.setLoading(true);
         return this.httpClient.getArtistList();
     }
 
     public Call getArtistView(String artist){
-        LoadingIndicator.setLoading(true);
         return this.httpClient.getArtist(artist);
     }
 
     public Call getAlbumView(String albumSlug){
-        LoadingIndicator.setLoading(true);
         return this.httpClient.getAlbum(albumSlug);
     }
 
     public Call getAlbumList(){
-        LoadingIndicator.setLoading(true);
         return this.httpClient.getAlbumList();
     }
 
@@ -72,5 +66,9 @@ public class ApiClient {
 
     public Call getServerInfo(){
         return this.httpClient.getServerInfo();
+    }
+
+    public Call search(String query){
+        return this.httpClient.search(query);
     }
 }

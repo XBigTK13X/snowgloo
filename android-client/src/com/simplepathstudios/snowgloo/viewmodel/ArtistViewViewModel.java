@@ -21,6 +21,7 @@ public class ArtistViewViewModel extends ViewModel {
 
 
     public void load(String artist){
+        LoadingIndicator.setLoading(true);
         ApiClient.getInstance().getArtistView(artist).enqueue(new Callback< ArtistView >(){
 
             @Override

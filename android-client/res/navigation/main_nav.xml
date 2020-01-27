@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_queue_fragment_to_optionsFragment"
             app:destination="@id/options_fragment" />
+        <action
+            android:id="@+id/action_queue_fragment_to_search_fragment"
+            app:destination="@id/search_fragment" />
     </fragment>
     <fragment
         android:id="@+id/artist_list_fragment"
@@ -61,4 +64,9 @@
             android:id="@+id/action_options_fragment_to_queue_fragment"
             app:destination="@id/queue_fragment" />
     </fragment>
+    <fragment
+        android:id="@+id/search_fragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.SearchFragment"
+        android:label="Search"
+        tools:layout="@layout/search_fragment" />
 </navigation>

@@ -21,6 +21,7 @@ public class AlbumListViewModel extends ViewModel {
     }
 
     public void load(){
+        LoadingIndicator.setLoading(true);
         ApiClient.getInstance().getAlbumList().enqueue(new Callback< AlbumList >(){
 
             @Override

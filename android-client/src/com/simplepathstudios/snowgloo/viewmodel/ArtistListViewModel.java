@@ -20,6 +20,7 @@ public class ArtistListViewModel extends ViewModel {
     }
 
     public void load(){
+        LoadingIndicator.setLoading(true);
         ApiClient.getInstance().getArtistList().enqueue(new Callback< ArtistList >(){
 
             @Override
