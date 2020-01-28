@@ -37,6 +37,7 @@ export default class App extends Component {
         this.songFinished = this.songFinished.bind(this)
         this.googleCastChanged = this.googleCastChanged.bind(this)
         this.addToQueue = this.addToQueue.bind(this)
+        this.shuffleQueue = this.shuffleQueue.bind(this)
 
         service.googleCast.onChange(this.googleCastChanged)
         let castCheckInterval = setInterval(() => {
@@ -112,11 +113,20 @@ export default class App extends Component {
     }
 
     emptyQueue() {
-        service.musicQueue.empty().then(() => {
+        service.musicQueue.empty().then((queue) => {
             this.setState({
-                queue: service.musicQueue.getQueue(),
+                queue
             })
         })
+    }
+
+    shuffleQueue(){
+      service.musicQueue.shuffle()
+      .then((queue)=>{
+        this.setState({
+          queue
+        })
+      })
     }
 
     render() {
@@ -145,7 +155,8 @@ export default class App extends Component {
                                 queuedSongs={this.state.queue.songs}
                                 emptyQueue={this.emptyQueue}
                                 playingIndex={this.state.queue.currentIndex}
-                                addToQueue={this.addToQueue}/>
+                                addToQueue={this.addToQueue}
+                                shuffleQueue={this.shuffleQueue}/>
                             }}
                         />
                     </div>

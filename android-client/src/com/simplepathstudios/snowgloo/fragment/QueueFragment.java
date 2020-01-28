@@ -47,6 +47,7 @@ public class QueueFragment extends Fragment {
     private RecyclerView listView;
     private ItemTouchHelper itemTouchHelper;
     private MenuItem clearQueueButton;
+    private MenuItem shuffleQueueButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,14 @@ public class QueueFragment extends Fragment {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 viewModel.clear();
+                return false;
+            }
+        });
+        shuffleQueueButton = menu.findItem(R.id.shuffle_queue_button);
+        shuffleQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                viewModel.shuffle();
                 return false;
             }
         });

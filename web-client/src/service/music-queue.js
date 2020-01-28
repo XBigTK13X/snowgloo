@@ -8,6 +8,13 @@ class MusicQueue {
         }
     }
 
+    setApi(api) {
+        return new Promise(resolve => {
+            this.api = api
+            resolve()
+        })
+    }
+
     empty() {
         this.queue = {
             songs: [],
@@ -16,11 +23,8 @@ class MusicQueue {
         return this.serverWrite()
     }
 
-    setApi(api) {
-        return new Promise(resolve => {
-            this.api = api
-            resolve()
-        })
+    getQueue() {
+        return this.queue
     }
 
     add(song) {
@@ -42,14 +46,6 @@ class MusicQueue {
         })
     }
 
-    getNext() {
-        if (!this.queue.currentIndex) {
-            this.queue.currentIndex = 0
-        }
-        this.queue.currentIndex++
-        return this.getCurrent()
-    }
-
     getCurrent() {
         if (this.queue.currentIndex === null) {
             return null
@@ -63,6 +59,20 @@ class MusicQueue {
 
     setCurrent(index) {
         this.queue.currentIndex = index
+    }
+
+    getNext() {
+        if (!this.queue.currentIndex) {
+            this.queue.currentIndex = 0
+        }
+        this.queue.currentIndex++
+        return this.getCurrent()
+    }
+
+    shuffle(){
+      this.queue.currentIndex = null
+      this.queue.songs = _.shuffle(this.queue.songs)
+      return this.serverWrite()
     }
 
     serverRead() {
@@ -87,10 +97,6 @@ class MusicQueue {
         return this.api.setQueue(this.queue).then(result => {
             return this.queue
         })
-    }
-
-    getQueue() {
-        return this.queue
     }
 }
 

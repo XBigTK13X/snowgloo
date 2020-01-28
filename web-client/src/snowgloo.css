@@ -123,10 +123,18 @@ input[type='range']:focus {
     height: 20px;
 }
 
+.icon-button {
+  margin: 10px;
+  width: 50px;
+  height: 50px;
+  font-size: 35px;
+}
+
 .large-button {
+  margin: 10px;
   width: 200px;
   height: 100px;
-  font-size: 20px;
+  font-size: 40px;
 }
 
 .large-text-input {
@@ -199,4 +207,14 @@ input[type='range']:focus {
     overflow: hidden;
     text-align: center;
     border-radius: 10px;
+}
+
+.dialog-checklist > label{
+  width: 50%;
+  font-size: 40px;
+  display: inline-block;
+}
+.dialog-checklist > label > input {
+  transform: scale(2);
+  margin: 10px;
 }

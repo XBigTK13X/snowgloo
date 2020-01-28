@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRandom, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from '../comp'
 
@@ -9,13 +11,18 @@ export default class Home extends Component {
         }
         return (
             <div>
-                <button className="large-button" onClick={this.props.emptyQueue}>Empty Queue</button>
+                <button className="icon-button" onClick={this.props.shuffleQueue} title="Shuffle the queue">
+                  <FontAwesomeIcon icon={faRandom} />
+                </button>
+                <button className="icon-button" onClick={this.props.emptyQueue} title="Empty the queue">
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                </button>
                 <Comp.SongPicker
                   hideQueueButton
                   songs={this.props.queuedSongs}
                   playMedia={this.props.playMedia}
                   playingIndex={this.props.playingIndex}
-                  showNowPlaying={true} 
+                  showNowPlaying={true}
                   />
             </div>
         )

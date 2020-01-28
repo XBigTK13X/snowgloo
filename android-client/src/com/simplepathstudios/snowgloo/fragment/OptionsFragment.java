@@ -29,6 +29,7 @@ public class OptionsFragment extends Fragment {
     private RadioButton devRadio;
     private RadioGroup serverUrlRadios;
     private TextView versionText;
+    private TextView errorText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -72,10 +73,18 @@ public class OptionsFragment extends Fragment {
                 ));
             }
         });
+        serverInfoViewModel.Error.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String error) {
+                Log.d(TAG, "An error occurred whie loading");
+                errorText.setText(error);
+            }
+        });
 
         String versionInfo = String.format("Client Version: %s\nServer Version: %s\nClient Built: %s\nServer Built: %s",SnowglooSettings.ClientVersion, "???",SnowglooSettings.BuildDate,"???");
         versionText = view.findViewById(R.id.version_text);
         versionText.setText(versionInfo);
+        errorText = view.findViewById(R.id.error_text);
 
         serverInfoViewModel.load();
 

@@ -12,6 +12,7 @@ import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -135,5 +136,14 @@ public class MusicQueueViewModel extends ViewModel {
                 Log.e("MusicQueueViewModel.clear","Failed",t);
             }
         });
+    }
+
+    public void shuffle(){
+        LoadingIndicator.setLoading(true);
+        MusicQueue queue = Data.getValue();
+        queue.currentIndex = null;
+        Collections.shuffle(queue.songs);
+        Data.setValue(queue);
+        LoadingIndicator.setLoading(false);
     }
 }

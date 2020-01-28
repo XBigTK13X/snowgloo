@@ -1,11 +1,16 @@
 import React, { Component } from 'react'
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFolderPlus } from '@fortawesome/free-solid-svg-icons'
+
 import Comp from './'
 
 export default class SongPicker extends Component {
     render() {
       let queueButton = !this.props.hideQueueButton ? (
-        <button className="large-button" onClick={()=>{this.props.addToQueue(this.props.songs)}}>Add to Queue</button>
+        <button className="icon-button" onClick={()=>{this.props.addToQueue(this.props.songs)}} title="Add to queue">
+          <FontAwesomeIcon icon={faFolderPlus} />
+        </button>
       ) : null
         return (
             <div>

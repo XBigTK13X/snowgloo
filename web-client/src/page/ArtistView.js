@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-
 import MicroModal from 'react-micro-modal'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFolderPlus } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from '../comp'
 
@@ -75,18 +76,20 @@ export default class ArtistView extends Component {
             <div>
             <MicroModal
                 trigger={handleOpen => (
-                  <button className="large-button" onClick={handleOpen}>Add to Queue</button>
+                  <button className="icon-button" onClick={handleOpen} title="Add to queue">
+                    <FontAwesomeIcon icon={faFolderPlus} />
+                  </button>
                 )}
                 children={handleClose => (
                   <div>
-                    <form onSubmit={(e)=>{e.preventDefault()}}>
+                    <form className="dialog-checklist" onSubmit={(e)=>{e.preventDefault()}}>
                       <label>Album<input name="Album" type="checkbox" checked={this.state.queueOptions.Album} onChange={this.setQueueOption}/></label>
                       <label>Single<input name="Single" type="checkbox" checked={this.state.queueOptions.Single} onChange={this.setQueueOption}/></label>
                       <label>Special<input name="Special" type="checkbox" checked={this.state.queueOptions.Special} onChange={this.setQueueOption}/></label>
                       <label>Collab<input name="Collab" type="checkbox" checked={this.state.queueOptions.Collab} onChange={this.setQueueOption}/></label>
                     </form>
-                    <button onClick={()=>{this.addToQueue(handleClose)}}>Confirm</button>
-                    <button onClick={handleClose}>Cancel</button>
+                    <button className="large-button" onClick={()=>{this.addToQueue(handleClose)}}>Confirm</button>
+                    <button className="large-button" onClick={handleClose}>Cancel</button>
                   </div>
                 )}
               />

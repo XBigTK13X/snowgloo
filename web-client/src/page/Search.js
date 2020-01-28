@@ -73,7 +73,7 @@ export default class Search extends Component {
     (
       <div>
       <h3>{this.state.results.Songs.length} Song{this.state.results.Songs.length > 1 ? 's':''}</h3>
-      <Comp.SongPicker songs={this.state.results.Songs} playMedia={this.props.playMedia}/>
+      <Comp.SongPicker songs={this.state.results.Songs} playMedia={this.props.playMedia} addToQueue={this.props.addToQueue}/>
       </div>
     ) : null
     let results = this.state.searching ? 'Loading...' : this.state.results && this.state.results.ItemCount > 0?

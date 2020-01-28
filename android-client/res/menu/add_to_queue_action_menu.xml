@@ -4,6 +4,7 @@
 
     <item
         android:id="@+id/add_to_queue_button"
-        android:title="ADD TO QUEUE"
+        android:icon="@drawable/ic_add_to_queue_white_24dp"
+        android:title="Add to queue"
         app:showAsAction="always" />
 </menu>
