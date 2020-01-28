@@ -11,6 +11,8 @@ import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 
+import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -74,6 +76,27 @@ public class MusicQueueViewModel extends ViewModel {
         musicQueue.songs.remove(position);
         musicQueue.songs.add(position,item);
         Data.setValue(musicQueue);
+    }
+
+    public void addItems(ArrayList<MusicFile> items){
+        MusicQueue data = Data.getValue();
+        data.songs.addAll(items);
+        LoadingIndicator.setLoading(true);
+        ApiClient.getInstance().setQueue(data).enqueue(new Callback<MusicQueuePayload>(){
+            @Override
+            public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
+                Log.d("MusicQueueViewModel.addItems","done " + data.songs.size());
+                LoadingIndicator.setLoading(false);
+                Data.setValue(data);
+
+            }
+
+            @Override
+            public void onFailure(Call<MusicQueuePayload> call, Throwable t) {
+                LoadingIndicator.setLoading(false);
+                Log.e("MusicQueueViewModel.addItems","Failed",t);
+            }
+        });
     }
 
     public void addItem(MusicFile item){

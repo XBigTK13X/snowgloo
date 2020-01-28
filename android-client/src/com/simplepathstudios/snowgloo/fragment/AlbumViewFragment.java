@@ -3,6 +3,9 @@ package com.simplepathstudios.snowgloo.fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -32,6 +35,27 @@ public class AlbumViewFragment extends Fragment {
     private RecyclerView listElement;
     private AlbumViewFragment.Adapter adapter;
     private LinearLayoutManager layoutManager;
+    private MenuItem addToQueueButton;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.add_to_queue_action_menu, menu);
+        addToQueueButton = menu.findItem(R.id.add_to_queue_button);
+        addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                queueViewModel.addItems(albumViewModel.Data.getValue().album.Songs);
+                return false;
+            }
+        });
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,

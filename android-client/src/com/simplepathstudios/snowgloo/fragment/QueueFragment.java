@@ -56,7 +56,7 @@ public class QueueFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu items for use in the action bar
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.queue_action_menu, menu);
         clearQueueButton = menu.findItem(R.id.clear_queue_button);
         clearQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -66,7 +66,6 @@ public class QueueFragment extends Fragment {
                 return false;
             }
         });
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override

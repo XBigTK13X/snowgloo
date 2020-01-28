@@ -11,12 +11,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -55,7 +58,6 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Getting the cast context later than onStart can cause device discovery not to take place.
         try {
             castContext = CastContext.getSharedInstance(this);
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity{
         musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
+                Log.d(TAG, "Updating main activity track metadata");
                 trackMetadataView.setText(musicQueue.getCurrent().getMetadata());
             }
         });
@@ -125,15 +128,25 @@ public class MainActivity extends AppCompatActivity{
 
         NavController navController = Navigation.findNavController(this,R.id.nav_host_fragment);
         drawerLayout = findViewById(R.id.drawer_layout);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.queue_fragment,
+                R.id.album_list_fragment,
+                R.id.artist_list_fragment,
+                R.id.search_fragment,
+                R.id.options_fragment,
+                R.id.artist_view_fragment,
+                R.id.album_view_fragment)
                 .setDrawerLayout(drawerLayout)
                 .build();
         navigationView = findViewById(R.id.nav_view);
-        NavigationUI.setupWithNavController(toolbar, navController,appBarConfiguration);
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                toolbar.setTitle(destination.getLabel());
+            }
+        });
+        NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-    }
-    private void loadMainAppUi(){
-
     }
 
     @Override

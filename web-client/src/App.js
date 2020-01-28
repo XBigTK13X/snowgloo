@@ -36,6 +36,7 @@ export default class App extends Component {
         this.emptyQueue = this.emptyQueue.bind(this)
         this.songFinished = this.songFinished.bind(this)
         this.googleCastChanged = this.googleCastChanged.bind(this)
+        this.addToQueue = this.addToQueue.bind(this)
 
         service.googleCast.onChange(this.googleCastChanged)
         let castCheckInterval = setInterval(() => {
@@ -84,13 +85,25 @@ export default class App extends Component {
 
     playMedia(song) {
         service.musicQueue.add(song)
-        service.musicQueue.serverWrite()
-        service.googleCast.load(song).then(() => {
-            this.setState({
-                song,
-                queue: service.musicQueue.getQueue(),
-            })
+        service.musicQueue.serverWrite().then((queue=>{
+          service.googleCast.load(song).then(() => {
+              this.setState({
+                  song,
+                  queue,
+              })
+          })
+        }))
+    }
+
+    addToQueue(songs){
+      songs.forEach(song=>{
+        service.musicQueue.add(song)
+      })
+      service.musicQueue.serverWrite().then((queue=>{
+        this.setState({
+          queue
         })
+      }))
     }
 
     songFinished() {
@@ -125,7 +138,14 @@ export default class App extends Component {
                         <Comp.NavBar logout={this.logout} />
                         <UIView
                             render={(Component, props) => {
-                                return <Component {...props} playMedia={this.playMedia} api={service.api} user={this.state.user} queuedSongs={this.state.queue.songs} emptyQueue={this.emptyQueue} playingIndex={this.state.queue.currentIndex} />
+                                return <Component {...props}
+                                playMedia={this.playMedia}
+                                api={service.api}
+                                user={this.state.user}
+                                queuedSongs={this.state.queue.songs}
+                                emptyQueue={this.emptyQueue}
+                                playingIndex={this.state.queue.currentIndex}
+                                addToQueue={this.addToQueue}/>
                             }}
                         />
                     </div>

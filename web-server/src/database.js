@@ -9,6 +9,10 @@ class Database {
         this.workingSet = {}
     }
 
+    isEmpty() {
+        return _.isEmpty(this.workingSet)
+    }
+
     read() {
         return new Promise((resolve, reject) => {
             if (settings.ignoreDatabaseCache) {
@@ -27,10 +31,6 @@ class Database {
                 })
             })
         })
-    }
-
-    isEmpty() {
-        return _.isEmpty(this.workingSet)
     }
 
     write(updates) {

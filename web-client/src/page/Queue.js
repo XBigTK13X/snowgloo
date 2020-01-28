@@ -10,7 +10,13 @@ export default class Home extends Component {
         return (
             <div>
                 <button className="large-button" onClick={this.props.emptyQueue}>Empty Queue</button>
-                <Comp.SongPicker songs={this.props.queuedSongs} playMedia={this.props.playMedia} playingIndex={this.props.playingIndex} showNowPlaying={true} />
+                <Comp.SongPicker
+                  hideQueueButton
+                  songs={this.props.queuedSongs}
+                  playMedia={this.props.playMedia}
+                  playingIndex={this.props.playingIndex}
+                  showNowPlaying={true} 
+                  />
             </div>
         )
     }

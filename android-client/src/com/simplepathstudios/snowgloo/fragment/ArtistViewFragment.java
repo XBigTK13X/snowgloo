@@ -3,6 +3,9 @@ package com.simplepathstudios.snowgloo.fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -16,20 +19,45 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.viewmodel.ArtistViewViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 
 import java.util.ArrayList;
 
 public class ArtistViewFragment extends Fragment {
     private final String TAG = "ArtistViewFragment";
-    private ArtistViewViewModel viewModel;
+    private ArtistViewViewModel artistViewViewModel;
+    private MusicQueueViewModel musicQueueViewModel;
+
     private String artistName;
+    private MenuItem addToQueueButton;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.add_to_queue_action_menu, menu);
+        addToQueueButton = menu.findItem(R.id.add_to_queue_button);
+        addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                AddArtistToQueueDialogFragment dialogFragment = new AddArtistToQueueDialogFragment(artistViewViewModel, musicQueueViewModel);
+                dialogFragment.show(getChildFragmentManager(),"add-artist-to-queue-dialog");
+                return false;
+            }
+        });
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -37,8 +65,9 @@ public class ArtistViewFragment extends Fragment {
         artistName = getArguments().getString("Artist");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(artistName);
 
-        viewModel = new ViewModelProvider(this).get(ArtistViewViewModel.class);
-        viewModel.Data.observe(getViewLifecycleOwner(), new Observer<ArtistView>() {
+        artistViewViewModel = new ViewModelProvider(this).get(ArtistViewViewModel.class);
+        musicQueueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
+        artistViewViewModel.Data.observe(getViewLifecycleOwner(), new Observer<ArtistView>() {
             @Override
             public void onChanged(ArtistView artistView) {
                 LinearLayout container = getView().findViewById(R.id.lists_container);
@@ -71,7 +100,7 @@ public class ArtistViewFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel.load(artistName);
+        artistViewViewModel.load(artistName);
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

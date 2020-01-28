@@ -4,11 +4,12 @@ import Comp from './'
 
 export default class SongPicker extends Component {
     render() {
+      let queueButton = !this.props.hideQueueButton ? (
+        <button className="large-button" onClick={()=>{this.props.addToQueue(this.props.songs)}}>Add to Queue</button>
+      ) : null
         return (
             <div>
-                {
-                    //<button>Play</button><button>Queue</button><button>Shuffle</button>
-                }
+                {queueButton}
                 <table>
                     <thead>
                         <tr>

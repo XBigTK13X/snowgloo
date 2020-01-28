@@ -17,6 +17,7 @@
     "query-string": "^6.10.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-micro-modal": "^1.7.1",
     "react-range": "^1.4.9",
     "react-scripts": "3.3.0"
   },
