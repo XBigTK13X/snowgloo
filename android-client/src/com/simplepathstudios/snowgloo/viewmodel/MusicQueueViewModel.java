@@ -25,6 +25,17 @@ public class MusicQueueViewModel extends ViewModel {
         Data.setValue(MusicQueue.EMPTY);
     }
 
+    public MusicFile getCurrent(){
+        MusicQueue queue = Data.getValue();
+        if(queue.songs == null || queue.currentIndex == null){
+            return MusicFile.EMPTY;
+        }
+        if(queue.currentIndex != null && queue.songs.size() > queue.currentIndex){
+            return queue.songs.get(queue.currentIndex);
+        }
+        return MusicFile.EMPTY;
+    }
+
     public void load(){
         Log.d("MusicQueueViewModel","LoadingIndicator");
         LoadingIndicator.setLoading(true);
@@ -34,7 +45,9 @@ public class MusicQueueViewModel extends ViewModel {
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
                 Log.d("MusicQueueViewModel","Successful load");
                 LoadingIndicator.setLoading(false);
-                Data.setValue(response.body());
+                MusicQueue musicQueue = response.body();
+                musicQueue.updateReason = MusicQueue.UpdateReason.INITIALIZE;
+                Data.setValue(musicQueue);
             }
 
             @Override
@@ -45,38 +58,52 @@ public class MusicQueueViewModel extends ViewModel {
         });
     }
 
-    public MusicFile getCurrent(){
-        MusicQueue queue = Data.getValue();
-        if(queue.songs == null || queue.currentIndex == null){
-            return MusicFile.EMPTY;
-        }
-        if(queue.songs.size() > queue.currentIndex && queue.currentIndex > -1){
-            return queue.songs.get(queue.currentIndex);
-        }
-        return MusicFile.EMPTY;
-    }
-
-    public void setCurrentIndex(int currentIndex){
+    public void setCurrentIndex(Integer currentIndex){
         MusicQueue musicQueue = Data.getValue();
         if(musicQueue.currentIndex != null && musicQueue.currentIndex == currentIndex){
             return;
         }
         musicQueue.currentIndex = currentIndex;
+        musicQueue.updateReason = MusicQueue.UpdateReason.CURRENT_INDEX_CHANGED;
         Data.setValue(musicQueue);
     }
 
     public void removeItem(int position){
         MusicQueue musicQueue = Data.getValue();
         musicQueue.songs.remove(position);
-        musicQueue.currentIndex --;
+        if(position < musicQueue.currentIndex){
+            musicQueue.currentIndex --;
+        }else {
+            if(position == musicQueue.currentIndex){
+                musicQueue.currentIndex = null;
+            }
+        }
+        musicQueue.updateReason = MusicQueue.UpdateReason.ITEM_REMOVED;
         Data.setValue(musicQueue);
     }
 
-    public void moveItem(MusicFile item, int position) {
-        MusicQueue musicQueue = Data.getValue();
-        musicQueue.songs.remove(position);
-        musicQueue.songs.add(position,item);
-        Data.setValue(musicQueue);
+    public void moveItem(MusicFile item, int fromPosition, int toPosition) {
+        if(fromPosition != toPosition){
+            MusicQueue musicQueue = Data.getValue();
+            musicQueue.songs.remove(fromPosition);
+            musicQueue.songs.add(toPosition,item);
+            musicQueue.lastMoveFrom = fromPosition;
+            musicQueue.lastMoveTo = toPosition;
+            if(musicQueue.currentIndex != null){
+                if(musicQueue.currentIndex == fromPosition){
+                    musicQueue.currentIndex = toPosition;
+                } else{
+                    if(musicQueue.currentIndex >= fromPosition && musicQueue.currentIndex <= toPosition){
+                        musicQueue.currentIndex--;
+                    }
+                    if(musicQueue.currentIndex <= fromPosition && musicQueue.currentIndex >= toPosition){
+                        musicQueue.currentIndex++;
+                    }
+                }
+            }
+            musicQueue.updateReason = MusicQueue.UpdateReason.ITEM_MOVED;
+            Data.setValue(musicQueue);
+        }
     }
 
     public void addItems(ArrayList<MusicFile> items){
@@ -88,6 +115,7 @@ public class MusicQueueViewModel extends ViewModel {
             public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
                 Log.d("MusicQueueViewModel.addItems","done " + data.songs.size());
                 LoadingIndicator.setLoading(false);
+                data.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
                 Data.setValue(data);
 
             }
@@ -109,8 +137,8 @@ public class MusicQueueViewModel extends ViewModel {
             public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
                 Log.d("MusicQueueViewModel.addItem","done " + data.songs.size());
                 LoadingIndicator.setLoading(false);
+                data.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
                 Data.setValue(data);
-
             }
 
             @Override
@@ -126,7 +154,9 @@ public class MusicQueueViewModel extends ViewModel {
         ApiClient.getInstance().clearQueue().enqueue(new Callback<MusicQueue>(){
             @Override
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
-                Data.setValue(response.body());
+                MusicQueue musicQueue = response.body();
+                musicQueue.updateReason = MusicQueue.UpdateReason.CLEAR;
+                Data.setValue(musicQueue);
                 LoadingIndicator.setLoading(false);
             }
 
@@ -143,6 +173,7 @@ public class MusicQueueViewModel extends ViewModel {
         MusicQueue queue = Data.getValue();
         queue.currentIndex = null;
         Collections.shuffle(queue.songs);
+        queue.updateReason = MusicQueue.UpdateReason.SHUFFLE;
         Data.setValue(queue);
         LoadingIndicator.setLoading(false);
     }

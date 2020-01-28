@@ -101,7 +101,11 @@ public class QueueFragment extends Fragment {
             public void onChanged(MusicQueue musicQueue) {
                 Log.d(TAG,"Music files have changed "+musicQueue.songs.size());
                 adapter.setData(musicQueue);
-                adapter.notifyDataSetChanged();
+                int scrollTarget = layoutManager.findFirstCompletelyVisibleItemPosition();
+                listView.setAdapter(adapter);
+                if(musicQueue.updateReason == MusicQueue.UpdateReason.ITEM_MOVED){
+                    listView.scrollToPosition(scrollTarget);
+                }
             }
         });
 
@@ -169,7 +173,7 @@ public class QueueFragment extends Fragment {
             viewHolder.itemView.setAlpha(1.0f);
             if (draggingFromPosition != C.INDEX_UNSET) {
                 ViewHolder holder = (ViewHolder) viewHolder;
-                viewModel.moveItem(holder.musicFile, draggingToPosition);
+                viewModel.moveItem(holder.musicFile,draggingFromPosition, draggingToPosition);
             }
             draggingFromPosition = C.INDEX_UNSET;
             draggingToPosition = C.INDEX_UNSET;

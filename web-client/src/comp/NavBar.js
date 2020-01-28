@@ -20,6 +20,10 @@ const links = [
         text: 'Search',
     },
     {
+      text: 'Admin',
+      to: 'admin'
+    },
+    {
         text: 'Logout',
         action: 'logout',
     },

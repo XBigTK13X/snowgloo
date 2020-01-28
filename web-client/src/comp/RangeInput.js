@@ -31,7 +31,7 @@ export default class RangeInput extends Component {
                                 borderRadius: '4px',
                                 background: getTrackBackground({
                                     values: [this.props.value],
-                                    colors: ['#cca0d8', '#ccc'],
+                                    colors: ['#AC03F4', '#ccc'],
                                     min: 0,
                                     max: 100,
                                 }),
@@ -61,7 +61,7 @@ export default class RangeInput extends Component {
                             style={{
                                 height: '16px',
                                 width: '5px',
-                                backgroundColor: isDragged ? '#cca0d8' : '#CCC',
+                                backgroundColor: isDragged ? '#AC03F4' : '#CCC',
                             }}
                         />
                     </div>
