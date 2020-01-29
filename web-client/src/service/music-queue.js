@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import arrayMove from 'array-move'
 
 class MusicQueue {
     constructor(queue) {
@@ -69,10 +70,40 @@ class MusicQueue {
         return this.getCurrent()
     }
 
-    shuffle(){
-      this.queue.currentIndex = null
-      this.queue.songs = _.shuffle(this.queue.songs)
-      return this.serverWrite()
+    moveItem(from, to) {
+        arrayMove.mutate(this.queue.songs, from, to)
+        if (this.queue.currentIndex != null) {
+            if (this.queue.currentIndex === from) {
+                this.queue.currentIndex = to
+            } else {
+                if (this.queue.currentIndex >= from && this.queue.currentIndex <= to) {
+                    this.queue.currentIndex--
+                }
+                if (this.queue.currentIndex <= from && this.queue.currentIndex >= to) {
+                    this.queue.currentIndex++
+                }
+            }
+        }
+    }
+
+    remove(songIndex) {
+        this.queue.songs.splice(songIndex, 1)
+        if (this.queue.currentIndex != null) {
+            if (songIndex < this.queue.currentIndex) {
+                this.queue.currentIndex--
+            } else {
+                if (songIndex === this.queue.currentIndex) {
+                    this.queue.currentIndex = null
+                }
+            }
+        }
+        return this.serverWrite()
+    }
+
+    shuffle() {
+        this.queue.currentIndex = null
+        this.queue.songs = _.shuffle(this.queue.songs)
+        return this.serverWrite()
     }
 
     serverRead() {

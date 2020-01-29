@@ -20,8 +20,8 @@ const links = [
         text: 'Search',
     },
     {
-      text: 'Admin',
-      to: 'admin'
+        text: 'Admin',
+        to: 'admin',
     },
     {
         text: 'Logout',

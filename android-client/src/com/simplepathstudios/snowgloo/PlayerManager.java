@@ -129,7 +129,7 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
     private void handleUpdate(MusicQueue musicQueue){
         Log.d(TAG,"Updating music player with new queue " + musicQueue.songs.size() + " because " +musicQueue.updateReason);
         MusicQueue.UpdateReason updateReason = musicQueue.updateReason;
-        if(updateReason == MusicQueue.UpdateReason.INITIALIZE){
+        if(updateReason == MusicQueue.UpdateReason.SERVER_RELOAD){
             return;
         }
         concatenatingMediaSource = new ConcatenatingMediaSource();

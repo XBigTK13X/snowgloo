@@ -36,9 +36,9 @@ export default [
         url: '/song/list',
         component: pages.SongList,
     },
-  {
-    name: 'search',
-    url: '/search',
-    component: pages.Search
-  }
+    {
+        name: 'search',
+        url: '/search',
+        component: pages.Search,
+    },
 ]

@@ -55,7 +55,7 @@ const register = router => {
     })
 
     router.delete('/api/queue/:username', async (request, response) => {
-      response.send(await musicQueue.clear(request.params.username))
+        response.send(await musicQueue.clear(request.params.username))
     })
 
     router.get('/api/system/info', async (request, response) => {
@@ -65,8 +65,8 @@ const register = router => {
         })
     })
 
-    router.get('/api/search', async (request, response) =>{
-      response.send(await catalog.search(request.query.query))
+    router.get('/api/search', async (request, response) => {
+        response.send(await catalog.search(request.query.query))
     })
 }
 

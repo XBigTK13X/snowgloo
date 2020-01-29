@@ -15,11 +15,11 @@ class MusicQueue {
         return database.getInstance(`queue-${user}`).write(queue)
     }
 
-    clear(user){
-      return this.write(user, {
-          songs: [],
-          currentIndex: null,
-      })
+    clear(user) {
+        return this.write(user, {
+            songs: [],
+            currentIndex: null,
+        })
     }
 }
 

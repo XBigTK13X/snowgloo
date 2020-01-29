@@ -85,12 +85,13 @@ export default class ReactHowlerPlayer extends Component {
     }
 
     setupPlayer = () => {
+        if (!this.props.src || this.props.src[0] === this.state.src[0]) {
+            return
+        }
+
         this.destroySound()
         const { src, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
 
-        if (!src) {
-            return
-        }
         let sound = new Howl({
             src,
             format,

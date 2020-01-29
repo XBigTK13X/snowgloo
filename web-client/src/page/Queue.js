@@ -12,18 +12,12 @@ export default class Home extends Component {
         return (
             <div>
                 <button className="icon-button" onClick={this.props.shuffleQueue} title="Shuffle the queue">
-                  <FontAwesomeIcon icon={faRandom} />
+                    <FontAwesomeIcon icon={faRandom} />
                 </button>
                 <button className="icon-button" onClick={this.props.emptyQueue} title="Empty the queue">
-                  <FontAwesomeIcon icon={faTrashAlt} />
+                    <FontAwesomeIcon icon={faTrashAlt} />
                 </button>
-                <Comp.SongPicker
-                  hideQueueButton
-                  songs={this.props.queuedSongs}
-                  playMedia={this.props.playMedia}
-                  playingIndex={this.props.playingIndex}
-                  showNowPlaying={true}
-                  />
+                <Comp.SongPicker hideQueueButton songs={this.props.queuedSongs} playMedia={this.props.playMedia} playingIndex={this.props.playingIndex} updateSongList={this.props.updateSongList} removeItem={this.props.removeItem} />
             </div>
         )
     }

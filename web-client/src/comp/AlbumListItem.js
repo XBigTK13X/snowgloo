@@ -12,7 +12,9 @@ export default class AlbumListItem extends Component {
                 <a href="/">
                     <div className="list-item">
                         <Comp.CoverArt imageUrl={this.props.album.CoverArt} />
-                        <p className="truncate">{this.props.album.Album} ({this.props.album.ReleaseYear})</p>
+                        <p className="truncate">
+                            {this.props.album.Album} ({this.props.album.ReleaseYear})
+                        </p>
                         <p className="truncate">{this.props.album.Artist}</p>
                     </div>
                 </a>

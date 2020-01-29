@@ -12,7 +12,7 @@ export default class LinkTile extends Component {
             )
         }
         return (
-            <Comp.Href to={this.props.to}>
+            <Comp.Href to={this.props.to} params={this.props.params}>
                 <a href="/">
                     <div className="nav-button">{this.props.text}</div>
                 </a>
