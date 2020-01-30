@@ -23,7 +23,7 @@ class Playlists {
         return new Promise(resolve => {
             this.catalog = catalog
             recurse(this.databaseRoot, (err, files) => {
-                if(files && files.length){
+                if (files && files.length) {
                     let readPromises = files.map(file => {
                         let playlistId = file
                             .split('/')
@@ -40,7 +40,7 @@ class Playlists {
                             }
                         })
                         console.log(`Loaded ${this.playlists.list.length} playlists from disk and ignored ${playlists.length - this.playlists.list.length} deleted playlists.`)
-                    })    
+                    })
                 }
             })
         })

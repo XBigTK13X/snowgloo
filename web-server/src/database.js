@@ -40,7 +40,7 @@ class Database {
             if (workingSet) {
                 this.workingSet = workingSet
             }
-            fs.writeFile(this.filePath, JSON.stringify(this.workingSet,null,'\t'), 'utf8', err => {
+            fs.writeFile(this.filePath, JSON.stringify(this.workingSet, null, '\t'), 'utf8', err => {
                 if (err) {
                     return reject(err)
                 }

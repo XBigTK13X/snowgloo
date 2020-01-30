@@ -1,5 +1,6 @@
 const settings = require('./settings')
 const inspect = require('./inspect')
+const util = require('./util')
 
 class MusicFile {
     constructor(path) {
@@ -63,6 +64,7 @@ class MusicFile {
         this.Album = this.Album.trim()
         this.Artist = this.Artist.trim()
         this.Title = this.Title.trim()
+        this.SearchTitle = util.searchify(this.Title)
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 

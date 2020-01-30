@@ -4,6 +4,7 @@ const path = require('path')
 
 const settings = require('./settings')
 const database = require('./database')
+const util = require('./util')
 
 const MusicFile = require('./music-file')
 
@@ -159,6 +160,7 @@ class Catalog {
                                         CoverArt: workingSet.albumCoverArts[file.AlbumSlug],
                                         Kind: file.Kind,
                                         SubKind: file.SubKind,
+                                        SearchAlbum: util.searchify(file.Album),
                                     }
                                     albums.list.push(file.AlbumSlug)
                                 }
@@ -211,32 +213,19 @@ class Catalog {
                 ItemCount: 0,
             }
             this.workingSet.files.forEach(file => {
-                if (
-                    file.Title.toLowerCase()
-                        .replace(/\s/g, '')
-                        .includes(query)
-                ) {
+                if (file.SearchTitle.includes(query)) {
                     results.Songs.push(file)
                     results.ItemCount++
                 }
             })
             this.workingSet.albums.list.forEach(albumSlug => {
-                if (
-                    this.workingSet.albums.lookup[albumSlug].Album.toLowerCase()
-                        .replace(/\s/g, '')
-                        .includes(query)
-                ) {
+                if (this.workingSet.albums.lookup[albumSlug].SearchAlbum.includes(query)) {
                     results.Albums.push(this.workingSet.albums.lookup[albumSlug])
                     results.ItemCount++
                 }
             })
             this.workingSet.artists.list.forEach(artist => {
-                if (
-                    artist
-                        .toLowerCase()
-                        .replace(/\s/g, '')
-                        .includes(query)
-                ) {
+                if (util.searchify(artist).includes(query)) {
                     results.Artists.push(this.workingSet.artists.lookup[artist])
                     results.ItemCount++
                 }
