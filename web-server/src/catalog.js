@@ -41,16 +41,17 @@ class Catalog {
     build(force, pass) {
         if (!pass) {
             pass = 1
+            this.buildingSet = {}
         }
         console.log('Reading catalog into memory')
         return new Promise((resolve, reject) => {
-            this.database.read().then(workingSet => {
+            this.database.read().then(databaseWorkingSet => {
                 if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
-                    console.log(`Using ${workingSet.files.length} cached database results`)
-                    this.workingSet = workingSet
+                    console.log(`Using ${databaseWorkingSet.files.length} cached database results`)
+                    this.workingSet = databaseWorkingSet
                     return resolve(this.workingSet.files)
                 }
-                workingSet = {}
+                let workingSet = this.buildingSet
                 let startTime = new Date().getTime()
                 this.building = true
                 this.rebuildCount = 0
@@ -98,7 +99,7 @@ class Catalog {
                         let promiseBatches = []
                         for (let ii = 0; ii < files.length; ii += batchSize) {
                             promiseBatches.push(() => {
-                                if (ii % batchSize === 0 || ii >= files.length - 1) {
+                                if (ii % batchSize === 0 || ii >= files.length - 2) {
                                     console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
                                     this.rebuildCount = ii
                                     this.totalCount = files.length
@@ -117,7 +118,7 @@ class Catalog {
 
                     serialReads
                         .then(() => {
-                            return new Promise(resolve => {
+                            return new Promise(innerResolve => {
                                 coverArts.forEach(coverArt => {
                                     let artDir = path.dirname(coverArt)
                                     files.forEach(file => {
@@ -129,7 +130,7 @@ class Catalog {
                                             albumCoverArts[file.AlbumSlug] = `${settings.mediaServer}${coverArt}`
                                         }
                                     })
-                                    resolve()
+                                    innerResolve()
                                 })
                             })
                         })
@@ -144,7 +145,9 @@ class Catalog {
                                 list: [],
                                 lookup: {},
                             }
+                            workingSet.filesLookup = {}
                             workingSet.files.forEach(file => {
+                                workingSet.filesLookup[file.Id] = file
                                 if (!_.has(albums.lookup, file.AlbumSlug)) {
                                     albums.lookup[file.AlbumSlug] = {
                                         Album: file.Album,
@@ -242,9 +245,15 @@ class Catalog {
         })
     }
 
-    getSongs() {
+    getSongs(songIds) {
         return new Promise(resolve => {
-            resolve(this.workingSet.files)
+            if(!songIds){
+                return resolve(this.workingSet.files)
+            }
+
+            return resolve(songIds.map(songId=>{
+                return this.workingSet.filesLookup[songId]
+            }))
         })
     }
 

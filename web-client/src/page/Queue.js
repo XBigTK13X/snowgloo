@@ -4,7 +4,16 @@ import { faRandom, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from '../comp'
 
+
 export default class Home extends Component {
+    constructor(props){
+        super(props)
+        this.state = {
+            playlists: null,
+            newPlaylistName: ''
+        }
+    }
+
     render() {
         if (!this.props.queuedSongs || !this.props.queuedSongs.length) {
             return <p>{this.props.user} has no music queued up.</p>

@@ -1,6 +1,7 @@
 const settings = require('./settings')
 const catalog = require('./catalog')
 const musicQueue = require('./music-queue')
+const playlists = require('./playlists')
 
 const register = router => {
     router.get('/api/song/list', async (request, response) => {
@@ -44,8 +45,7 @@ const register = router => {
     })
 
     router.get('/api/queue/:username', async (request, response) => {
-        let queue = await musicQueue.read(request.params.username)
-        response.send(queue)
+        response.send(await musicQueue.read(request.params.username))
     })
 
     router.post('/api/queue/:username', async (request, response) => {
@@ -67,6 +67,18 @@ const register = router => {
 
     router.get('/api/search', async (request, response) => {
         response.send(await catalog.search(request.query.query))
+    })
+
+    router.post('/api/playlist', async (request, response) => {
+        response.send(await playlists.write(request.body.playlist))
+    })
+
+    router.get('/api/playlist/view', async (request, response) => {
+        response.send(await playlists.read(request.query.playlistId))
+    })
+
+    router.get('/api/playlist/list', async (request, response) => {
+        response.send(await playlists.readAll())
     })
 }
 

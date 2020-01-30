@@ -99,9 +99,14 @@ export default class App extends Component {
     }
 
     addToQueue(songs) {
-        songs.forEach(song => {
-            service.musicQueue.add(song)
-        })
+        if(songs.constructor === Array){
+            songs.forEach(song => {
+                service.musicQueue.add(song)
+            })
+        } else {
+            service.musicQueue.add(songs)
+        }
+
         service.musicQueue.serverWrite().then(queue => {
             this.setState({
                 queue,
@@ -166,6 +171,7 @@ export default class App extends Component {
                   */}
                     <div className="page-wrapper">
                         <Comp.NavBar logout={this.logout} />
+                        <br/>
                         <UIView
                             render={(Component, props) => {
                                 return (

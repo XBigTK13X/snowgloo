@@ -32,6 +32,16 @@ export default [
         component: pages.AlbumView,
     },
     {
+      name: 'playlist-list',
+      url: '/playlist/list',
+      component: pages.PlaylistList
+    },
+    {
+      name: 'playlist-view',
+      url: '/playlist/view/:playlistId',
+      component: pages.PlaylistView
+    },
+    {
         name: 'song-list',
         url: '/song/list',
         component: pages.SongList,

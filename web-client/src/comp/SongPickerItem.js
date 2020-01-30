@@ -41,7 +41,6 @@ export default class SongPickerItem extends Component {
                         )}
                         children={handleClose => (
                             <div>
-                                <p>What it do?</p>
                                 <Comp.LinkButton to="album-view" params={{ albumSlug: this.props.song.AlbumSlug }} text="View Album" />
                                 <Comp.LinkButton to="artist-view" params={{ artist: this.props.song.Artist }} text="View Artist" />
                                 {this.props.removeItem ? (

@@ -2,10 +2,15 @@ const settings = require('./settings')
 const fs = require('fs')
 const _ = require('lodash')
 const path = require('path')
+const mkdirp = require('mkdirp')
 
 class Database {
     constructor(name) {
         this.filePath = path.join(settings.databaseDirectory, `${name}.json`)
+        let dirPath = path.dirname(this.filePath)
+        if(!fs.existsSync(dirPath)){
+            mkdirp.sync(dirPath)
+        }
         this.workingSet = {}
     }
 
@@ -33,13 +38,10 @@ class Database {
         })
     }
 
-    write(updates) {
+    write(workingSet) {
         return new Promise((resolve, reject) => {
-            if (updates) {
-                this.workingSet = {
-                    ...this.workingSet,
-                    ...updates,
-                }
+            if(workingSet){
+                this.workingSet = workingSet    
             }
             fs.writeFile(this.filePath, JSON.stringify(this.workingSet), 'utf8', err => {
                 if (err) {

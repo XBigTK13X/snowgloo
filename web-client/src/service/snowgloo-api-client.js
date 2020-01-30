@@ -80,6 +80,24 @@ class ApiClient {
             return response.data
         })
     }
+
+    getPlaylists(){
+      return this.get(`/playlist/list`)
+    }
+
+    getPlaylist(playlistId){
+      return this.httpClient.get('/playlist/view', {params: {playlistId}}).then(response=>{
+        return response.data
+      })
+    }
+
+    savePlaylist(playlist){
+      return this.httpClient.post(`/playlist`,{
+        playlist
+      }).then(response=>{
+        return response.data
+      })
+    }
 }
 
 let instance

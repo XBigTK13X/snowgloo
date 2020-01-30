@@ -10,6 +10,7 @@ export default {
     LinkButton: require('./LinkButton').default,
     LinkTile: require('./LinkTile').default,
     LoginForm: require('./LoginForm').default,
+    PlaylistListItem: require('./PlaylistListItem').default,
     NavBar: require('./NavBar').default,
     RangeInput: require('./RangeInput').default,
     SongDuration: require('./SongDuration').default,

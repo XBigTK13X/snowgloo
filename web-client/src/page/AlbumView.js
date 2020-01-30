@@ -7,7 +7,7 @@ export default class AlbumView extends Component {
         super(props)
 
         this.state = {
-            songs: null,
+            album: null,
         }
     }
 
@@ -25,7 +25,7 @@ export default class AlbumView extends Component {
         }
         return (
             <div>
-                <Comp.SongPicker addToQueue={this.props.addToQueue} songs={this.state.album.Songs} playMedia={this.props.playMedia} addToQueue={this.props.addToQueue} />
+                <Comp.SongPicker addToQueue={this.props.addToQueue} songs={this.state.album.Songs} playMedia={this.props.playMedia}/>
             </div>
         )
     }

@@ -1,5 +1,10 @@
 const catalog = require('./catalog')
-catalog.build(false).catch(err => {
+const playlists = require('./playlists')
+catalog.build(false)
+.then(()=>{
+    return playlists.build(catalog)
+})
+.catch(err => {
     console.err('Unable to build the catalog', { err })
 })
 

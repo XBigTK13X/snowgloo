@@ -5,6 +5,7 @@ class MusicFile {
     constructor(path) {
         const parts = path.split('/')
         this.LocalFilePath = path
+        this.Id = this.LocalFilePath.replace(settings.mediaRoot,'')
         this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
         this.Kind = 'Artist'
         this.SubKind = null
@@ -59,6 +60,9 @@ class MusicFile {
                 this.DisplayArtist = this.Album
             }
         }
+        this.Album = this.Album.trim()
+        this.Artist = this.Artist.trim()
+        this.Title = this.Title.trim()
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
