@@ -247,13 +247,15 @@ class Catalog {
 
     getSongs(songIds) {
         return new Promise(resolve => {
-            if(!songIds){
+            if (!songIds) {
                 return resolve(this.workingSet.files)
             }
 
-            return resolve(songIds.map(songId=>{
-                return this.workingSet.filesLookup[songId]
-            }))
+            return resolve(
+                songIds.map(songId => {
+                    return this.workingSet.filesLookup[songId]
+                })
+            )
         })
     }
 

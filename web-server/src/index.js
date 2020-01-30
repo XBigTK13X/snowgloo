@@ -1,12 +1,13 @@
 const catalog = require('./catalog')
 const playlists = require('./playlists')
-catalog.build(false)
-.then(()=>{
-    return playlists.build(catalog)
-})
-.catch(err => {
-    console.err('Unable to build the catalog', { err })
-})
+catalog
+    .build(false)
+    .then(() => {
+        return playlists.build(catalog)
+    })
+    .catch(err => {
+        console.err('Unable to build the catalog', { err })
+    })
 
 const fs = require('fs')
 const path = require('path')

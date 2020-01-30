@@ -12,7 +12,7 @@ export default class PlaylistList extends Component {
             playlists: null,
             playlistName: '',
             selectedPlaylistId: 'null',
-            selectedPlaylistName: null
+            selectedPlaylistName: null,
         }
 
         this.changePlaylistName = this.changePlaylistName.bind(this)
@@ -25,7 +25,7 @@ export default class PlaylistList extends Component {
         this.loadPlaylists()
     }
 
-    loadPlaylists(){
+    loadPlaylists() {
         this.props.api.getPlaylists().then(result => {
             this.setState({
                 playlists: result.list,
@@ -33,78 +33,91 @@ export default class PlaylistList extends Component {
         })
     }
 
-    changePlaylistName(event){
+    changePlaylistName(event) {
         this.setState({
             playlistName: event.target.value,
             selectedPlaylistId: 'null',
-            selectedPlaylistName: null
+            selectedPlaylistName: null,
         })
     }
 
-    selectPlaylist(event){
+    selectPlaylist(event) {
         this.setState({
             playlistName: '',
             selectedPlaylistId: event.target.value,
-            selectedPlaylistName: event.target.name
+            selectedPlaylistName: event.target.name,
         })
     }
 
-    savePlaylist(){
+    savePlaylist() {
         let playlist = {
             name: this.state.playlistName,
             id: this.state.selectedPlaylistId === 'null' ? null : this.state.selectedPlaylistId,
-            songs: this.props.queuedSongs
+            songs: this.props.queuedSongs,
         }
-        this.props.api.savePlaylist(playlist)
-        .then(()=>{
-            this.loadPlaylists()
-        })
-        .catch(err=>{
-            console.error(err)
-        })
+        this.props.api
+            .savePlaylist(playlist)
+            .then(() => {
+                this.loadPlaylists()
+            })
+            .catch(err => {
+                console.error(err)
+            })
     }
 
     render() {
-        let playlists = !this.state.playlists || !this.state.playlists.length ?
-            "No playlists found.":
-        (
-            <div className="list-grid">
-                {this.state.playlists.map((playlist, playlistIndex) => {
-                    return <Comp.PlaylistListItem key={playlistIndex} playlist={playlist} />
-                })}
-            </div>
-        )
+        let playlists =
+            !this.state.playlists || !this.state.playlists.length ? (
+                'No playlists found.'
+            ) : (
+                <div className="list-grid">
+                    {this.state.playlists.map((playlist, playlistIndex) => {
+                        return <Comp.PlaylistListItem key={playlistIndex} playlist={playlist} />
+                    })}
+                </div>
+            )
 
         return (
             <div>
-            {
-                this.props.queuedSongs && this.props.queuedSongs.length?
-                <div>
-                    Save current queue as a playlist.
-                    <br/>
-                    <br/>
-                    <label>New Playlist Name: <input placeholder="New playlist name"  type="text" value={this.state.playlistName} onChange={this.changePlaylistName}/></label>
-                    {this.state.playlists?
-                        <label>Existing Playlist Name: <select value={this.state.selectedPlaylistId} onChange={this.selectPlaylist}>
-                            <option value={'null'} key={-1} name={'null'}></option>
-                            {this.state.playlists.map((playlist,playlistIndex)=>{
-                                return (
-                                    <option value={playlist.id} key={playlistIndex} name={playlist.name}>{playlist.name}</option>
-                                )
-                            })}
-                        </select></label>:null}
-                </div>:null
-            }
-                {
-                    (this.state.playlistName.length > 2 || this.state.selectedPlaylistId !== 'null') ?
-                        (
-                            <button className="icon-button" onClick={this.savePlaylist} title="Open the playlist menu">
-                                <FontAwesomeIcon icon={faSave} />
-                            </button>
-                        )
-                        :null
-                    }
-                <br/>
+                <h1>Playlists</h1>
+                {this.props.queuedSongs && this.props.queuedSongs.length ? (
+                    <div>
+                        Save current queue as a playlist.
+                        <br />
+                        <br />
+                        <label>
+                            New playlist: <input placeholder="New playlist name" type="text" value={this.state.playlistName} onChange={this.changePlaylistName} />
+                        </label>
+                        {this.state.playlists ? (
+                            <div>
+                                <br />
+                                <label>
+                                    Existing playlist:{' '}
+                                    <select value={this.state.selectedPlaylistId} onChange={this.selectPlaylist}>
+                                        <option value={'null'} key={-1} name={'null'}></option>
+                                        {this.state.playlists.map((playlist, playlistIndex) => {
+                                            return (
+                                                <option value={playlist.id} key={playlistIndex} name={playlist.name}>
+                                                    {playlist.name}
+                                                </option>
+                                            )
+                                        })}
+                                    </select>
+                                </label>
+                                <br />
+                            </div>
+                        ) : null}
+                    </div>
+                ) : (
+                    <p>Put something in the queue to create or change a playlist</p>
+                )}
+                {this.state.playlistName.length > 2 || this.state.selectedPlaylistId !== 'null' ? (
+                    <button className="icon-button" onClick={this.savePlaylist} title="Open the playlist menu">
+                        <FontAwesomeIcon icon={faSave} />
+                    </button>
+                ) : null}
+                <hr />
+                <br />
                 {playlists}
             </div>
         )

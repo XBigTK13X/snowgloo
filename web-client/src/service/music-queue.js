@@ -35,8 +35,7 @@ class MusicQueue {
         return new Promise(resolve => {
             let found = false
             this.queue.songs.forEach((entry, entryIndex) => {
-                if (entry === song) {
-                    this.queue.currentIndex = entryIndex
+                if (entry.Id === song.Id) {
                     found = true
                 }
             })

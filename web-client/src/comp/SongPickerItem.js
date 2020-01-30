@@ -12,7 +12,6 @@ export default class SongPickerItem extends Component {
         this.handleClick = this.handleClick.bind(this)
     }
     handleClick(e) {
-        console.log(e.target)
         const kind = e.target.getAttribute('data-kind')
         if (kind === 'play') {
             this.props.playMedia(this.props.song)

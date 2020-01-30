@@ -19,7 +19,7 @@ export default class SongPicker extends Component {
                 <FontAwesomeIcon icon={faFolderPlus} />
             </button>
         ) : null
-        let title = this.props.title? <h3>{this.props.title}</h3>:null
+        let title = this.props.title ? <h3>{this.props.title}</h3> : null
         return (
             <div>
                 {title}

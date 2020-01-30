@@ -13,6 +13,7 @@ export default class PlaylistView extends Component {
 
     componentDidMount() {
         this.props.api.getPlaylist(this.props.$stateParams.playlistId).then(result => {
+            console.log({ result })
             this.setState({
                 playlist: result,
             })
@@ -25,11 +26,7 @@ export default class PlaylistView extends Component {
         }
         return (
             <div>
-                <Comp.SongPicker
-                    title={this.state.playlist.name}
-                    addToQueue={this.props.addToQueue}
-                    songs={this.state.playlist.songs}
-                    playMedia={this.props.playMedia} />
+                <Comp.SongPicker title={this.state.playlist.name} addToQueue={this.props.addToQueue} songs={this.state.playlist.songs} playMedia={this.props.playMedia} />
             </div>
         )
     }

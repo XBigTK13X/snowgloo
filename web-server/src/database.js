@@ -8,7 +8,7 @@ class Database {
     constructor(name) {
         this.filePath = path.join(settings.databaseDirectory, `${name}.json`)
         let dirPath = path.dirname(this.filePath)
-        if(!fs.existsSync(dirPath)){
+        if (!fs.existsSync(dirPath)) {
             mkdirp.sync(dirPath)
         }
         this.workingSet = {}
@@ -40,8 +40,8 @@ class Database {
 
     write(workingSet) {
         return new Promise((resolve, reject) => {
-            if(workingSet){
-                this.workingSet = workingSet    
+            if (workingSet) {
+                this.workingSet = workingSet
             }
             fs.writeFile(this.filePath, JSON.stringify(this.workingSet), 'utf8', err => {
                 if (err) {

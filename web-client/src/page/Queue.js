@@ -4,13 +4,12 @@ import { faRandom, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from '../comp'
 
-
 export default class Home extends Component {
-    constructor(props){
+    constructor(props) {
         super(props)
         this.state = {
             playlists: null,
-            newPlaylistName: ''
+            newPlaylistName: '',
         }
     }
 
@@ -20,6 +19,7 @@ export default class Home extends Component {
         }
         return (
             <div>
+                <h1>Queue {this.props.queuedSongs.length === 1 ? '(1 song)' : `(${this.props.queuedSongs.length} songs)`}</h1>
                 <button className="icon-button" onClick={this.props.shuffleQueue} title="Shuffle the queue">
                     <FontAwesomeIcon icon={faRandom} />
                 </button>

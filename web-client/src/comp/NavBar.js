@@ -8,8 +8,8 @@ const links = [
         text: 'Queue',
     },
     {
-      to: 'playlist-list',
-      text: 'Playlists'
+        to: 'playlist-list',
+        text: 'Playlists',
     },
     {
         to: 'artist-list',
