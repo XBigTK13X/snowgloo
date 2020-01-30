@@ -162,7 +162,7 @@ public class SearchFragment extends Fragment {
 
         @Override
         public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-            queueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
+            queueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
             super.onViewCreated(view, savedInstanceState);
             listElement = view.findViewById(R.id.song_list);
             listElement.setAdapter(adapter);

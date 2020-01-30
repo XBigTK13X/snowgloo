@@ -70,7 +70,7 @@ public class AlbumViewFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        queueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
+        queueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
         listElement = view.findViewById(R.id.album_songs);
         adapter = new AlbumViewFragment.Adapter();
         listElement.setAdapter(adapter);

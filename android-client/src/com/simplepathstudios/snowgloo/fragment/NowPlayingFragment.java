@@ -41,7 +41,7 @@ public class NowPlayingFragment extends Fragment {
         musicQueueViewModel.Data.observe(getViewLifecycleOwner(), new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                Log.d(TAG, "Updating main activity track metadata");
+                Log.d(TAG, "Updating now playing track metadata");
                 MusicFile currentSong = musicQueue.getCurrent();
                 if(currentSong.CoverArt != null){
                     trackMetadataView.setText(currentSong.getMetadata());

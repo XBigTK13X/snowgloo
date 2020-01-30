@@ -19,10 +19,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MusicQueueViewModel extends ViewModel {
+    public enum SelectionMode {
+        UserChoice,
+        PlayerAction
+    }
+
     public MutableLiveData<MusicQueue> Data;
+    private boolean firstLoad;
     public MusicQueueViewModel(){
         Data = new MutableLiveData<MusicQueue>();
         Data.setValue(MusicQueue.EMPTY);
+        this.firstLoad = true;
     }
 
     public MusicFile getCurrent(){
@@ -40,13 +47,13 @@ public class MusicQueueViewModel extends ViewModel {
         Log.d("MusicQueueViewModel","LoadingIndicator");
         LoadingIndicator.setLoading(true);
         ApiClient.getInstance().getQueue().enqueue(new Callback< MusicQueue >(){
-
             @Override
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
                 Log.d("MusicQueueViewModel","Successful load");
                 LoadingIndicator.setLoading(false);
                 MusicQueue musicQueue = response.body();
-                musicQueue.updateReason = MusicQueue.UpdateReason.SERVER_RELOAD;
+                musicQueue.updateReason = firstLoad ? MusicQueue.UpdateReason.SERVER_FIRST_LOAD : MusicQueue.UpdateReason.SERVER_RELOAD;
+                firstLoad = false;
                 Data.setValue(musicQueue);
             }
 
@@ -63,8 +70,7 @@ public class MusicQueueViewModel extends ViewModel {
             @Override
             public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
                 Log.d("MusicQueueViewModel.save","Successful save");
-                MusicQueuePayload payload = response.body();
-                Data.setValue(payload.queue);
+                Data.setValue(musicQueue);
                 LoadingIndicator.setLoading(false);
             }
 
@@ -95,13 +101,13 @@ public class MusicQueueViewModel extends ViewModel {
         });
     }
 
-    public void setCurrentIndex(Integer currentIndex){
+    public void setCurrentIndex(Integer currentIndex, SelectionMode selectionMode){
         MusicQueue musicQueue = Data.getValue();
         if(musicQueue.currentIndex != null && musicQueue.currentIndex == currentIndex){
             return;
         }
         musicQueue.currentIndex = currentIndex;
-        musicQueue.updateReason = MusicQueue.UpdateReason.CURRENT_INDEX_CHANGED;
+        musicQueue.updateReason = selectionMode == SelectionMode.UserChoice ? MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX : MusicQueue.UpdateReason.TRACK_CHANGED;
         save(musicQueue);
     }
 
@@ -144,15 +150,43 @@ public class MusicQueueViewModel extends ViewModel {
     }
 
     public void addItems(ArrayList<MusicFile> items){
+        if(items == null){
+            return;
+        }
         MusicQueue data = Data.getValue();
-        data.songs.addAll(items);
+        for(MusicFile item : items){
+            boolean found = false;
+            for(MusicFile song : data.songs){
+                if(song.Id.equalsIgnoreCase(item.Id)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                data.songs.add(item);
+            }
+        }
+
         data.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
         save(data);
     }
 
     public void addItem(MusicFile item){
+        if (item == null) {
+            return;
+        }
+        boolean found = false;
         MusicQueue data = Data.getValue();
-        data.songs.add(item);
+        for(MusicFile song : data.songs) {
+            if(song.Id.equalsIgnoreCase(item.Id)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            data.songs.add(item);
+        }
+
         data.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
         save(data);
     }

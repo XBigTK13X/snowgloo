@@ -19,6 +19,7 @@ public class MusicFile {
     public String Title;
     public Integer Disc;
     public Integer Track;
+    public String Id;
 
     public MusicFile(){}
 

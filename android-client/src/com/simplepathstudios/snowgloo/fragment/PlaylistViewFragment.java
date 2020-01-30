@@ -71,7 +71,7 @@ public class PlaylistViewFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        queueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
+        queueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
         listElement = view.findViewById(R.id.playlist_songs);
         adapter = new PlaylistViewFragment.Adapter();
         listElement.setAdapter(adapter);

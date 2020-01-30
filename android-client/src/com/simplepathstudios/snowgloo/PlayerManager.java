@@ -5,9 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.core.app.NotificationCompat;
@@ -38,25 +38,21 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
-import java.util.EnumSet;
-
-public class PlayerManager implements EventListener, SessionAvailabilityListener {
-
-    private final String TAG = "PlayerManager";
-    private final Integer NOTIFICATION_ID = 776677;
+public class PlayerManager {
 
     private static final String USER_AGENT = "SnowglooMobile";
-    private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
-            new DefaultHttpDataSourceFactory(USER_AGENT);
-
-    private final boolean PLAY_WHEN_READY = false;
+    private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =  new DefaultHttpDataSourceFactory(USER_AGENT);
+    private final String TAG = "PlayerManager";
+    private final Integer NOTIFICATION_ID = 776677;
 
     private final Context context;
     private final PlayerView localPlayerView;
     private final PlayerControlView castControlView;
     private final DefaultTrackSelector trackSelector;
-    private final SimpleExoPlayer exoPlayer;
+    private final SimpleExoPlayer localPlayer;
     private final CastPlayer castPlayer;
     private final MediaItemConverter mediaItemConverter;
 
@@ -65,8 +61,9 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
     private MusicQueueViewModel musicQueueViewModel;
     private Integer currentItemIndex;
     private Player currentPlayer;
+    private String lastPreparedContentHash;
+    public MusicQueue.UpdateReason lastUpdateReason;
 
-    private boolean skipNextTrackMonitor = false;
 
     public PlayerManager(
             MainActivity mainActivity,
@@ -90,8 +87,20 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
         });
 
         trackSelector = new DefaultTrackSelector(context);
-        exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
-        exoPlayer.addListener(this);
+        localPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
+        localPlayer.addListener(new EventListener() {
+            @Override
+            public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+                // Track finished playing or the forward/backward button was pressed.
+                if(reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION || reason == Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT){
+                    Log.d(TAG, String.format("Local player discontinuity reason => [%d]",reason));
+                    int playerIndex = currentPlayer.getCurrentWindowIndex();
+                    if(currentItemIndex != null && currentItemIndex != playerIndex){
+                        musicQueueViewModel.setCurrentIndex(playerIndex, MusicQueueViewModel.SelectionMode.PlayerAction);
+                    }
+                }
+            }
+        });
 
         playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
                 context,
@@ -99,7 +108,7 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
                 R.string.notification_channel_name,
                 R.string.notification_channel_description,
                 NOTIFICATION_ID,
-                new SnowglooNotificationAdapter(this),
+                new SnowglooNotificationAdapter(),
                 new PlayerNotificationManager.NotificationListener() {
             @Override
             public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
@@ -112,61 +121,87 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
         });
         playerNotificationManager.setUseNavigationActionsInCompactView(true);
         playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-        playerNotificationManager.setPlayer(exoPlayer);
 
-        localPlayerView.setPlayer(exoPlayer);
+        localPlayerView.setPlayer(localPlayer);
         localPlayerView.setControllerShowTimeoutMs(0);
         localPlayerView.setControllerHideOnTouch(false);
 
         castPlayer = new CastPlayer(castContext);
-        castPlayer.addListener(this);
-        castPlayer.setSessionAvailabilityListener(this);
+        castPlayer.addListener(new EventListener() {
+            @Override
+            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+                // Chromecast finished playing the last track, or back/forward was pressed
+                int playerIndex = currentPlayer.getCurrentWindowIndex();
+                Log.d(TAG, String.format("Cast tracks changed currentIndex => %d playerIndex => %d", currentItemIndex, playerIndex));
+                if(currentItemIndex != null && currentItemIndex != playerIndex){
+                    Log.d(TAG, "Firing off an update from the player");
+                    musicQueueViewModel.setCurrentIndex(playerIndex, MusicQueueViewModel.SelectionMode.PlayerAction);
+                }
+            }
+        });
+        castPlayer.setSessionAvailabilityListener(new SessionAvailabilityListener() {
+            @Override
+            public void onCastSessionAvailable() {
+                setCurrentPlayer(castPlayer);
+            }
+
+            @Override
+            public void onCastSessionUnavailable() {
+                setCurrentPlayer(localPlayer);
+            }
+        });
         castControlView.setPlayer(castPlayer);
 
-        setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
+        setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : localPlayer);
     }
 
     private void handleUpdate(MusicQueue musicQueue){
-        Log.d(TAG,"Updating music player with new queue " + musicQueue.songs.size() + " because " +musicQueue.updateReason);
+        Log.d(TAG,"Updating music player with new queue of " + musicQueue.songs.size() + " songs and currentIndex " + musicQueue.currentIndex + " because " +musicQueue.updateReason);
         MusicQueue.UpdateReason updateReason = musicQueue.updateReason;
-        if(updateReason == MusicQueue.UpdateReason.SERVER_RELOAD){
+        lastUpdateReason = musicQueue.updateReason;
+        currentItemIndex = musicQueue.currentIndex;
+        if(updateReason == MusicQueue.UpdateReason.SERVER_RELOAD || updateReason == MusicQueue.UpdateReason.TRACK_CHANGED){
             return;
         }
-        concatenatingMediaSource = new ConcatenatingMediaSource();
-        for(MusicFile musicFile : musicQueue.songs){
-            concatenatingMediaSource.addMediaSource(buildMediaSource(musicFile));
-        }
-        long currentSeekPosition = 0L;
-        if(EnumSet.of(MusicQueue.UpdateReason.ITEM_MOVED, MusicQueue.UpdateReason.ITEM_REMOVED, MusicQueue.UpdateReason.ITEM_ADDED).contains(updateReason)){
-            currentSeekPosition = currentPlayer.getCurrentPosition();
-        }
-        if(EnumSet.of(MusicQueue.UpdateReason.CURRENT_INDEX_CHANGED, MusicQueue.UpdateReason.SHUFFLE, MusicQueue.UpdateReason.ITEM_MOVED, MusicQueue.UpdateReason.ITEM_REMOVED, MusicQueue.UpdateReason.ITEM_ADDED).contains(updateReason)){
-            skipNextTrackMonitor = true;
-        }
-        if(currentPlayer == exoPlayer){
-            exoPlayer.prepare(concatenatingMediaSource);
-        }
-        if(musicQueue.currentIndex != null) {
-            if(currentPlayer == castPlayer){
+
+        String currentContentHash = musicQueue.contentHash();
+
+        boolean shouldSeek = MusicQueue.UpdateReason.shouldSeek(updateReason);
+        boolean shouldPlay = MusicQueue.UpdateReason.shouldPlay(updateReason);
+
+        final long currentSeekPosition = shouldSeek ? currentPlayer.getCurrentPosition() : 0L;
+        if(currentPlayer == localPlayer){
+            if(!currentContentHash.equals(lastPreparedContentHash)){
+                concatenatingMediaSource = new ConcatenatingMediaSource();
+                for(MusicFile musicFile : musicQueue.songs){
+                    concatenatingMediaSource.addMediaSource(buildMediaSource(musicFile));
+                }
+                localPlayer.prepare(concatenatingMediaSource);
+            }
+
+            if(shouldSeek || shouldPlay){
+                localPlayer.seekTo(musicQueue.currentIndex == null ? 0 : musicQueue.currentIndex, currentSeekPosition);
+            }
+            if(shouldPlay){
+                localPlayer.setPlayWhenReady(true);
+            }else{
+                localPlayer.setPlayWhenReady(false);
+            }
+        } else {
+            if(!currentContentHash.equals(lastPreparedContentHash)) {
                 MediaQueueItem[] items = new MediaQueueItem[musicQueue.songs.size()];
                 for (int i = 0; i < items.length; i++) {
                     MusicFile item = musicQueue.songs.get(i);
                     items[i] = mediaItemConverter.toMediaQueueItem(musicToMedia(item));
                 }
-                castPlayer.loadItems(items, musicQueue.currentIndex, currentSeekPosition, Player.REPEAT_MODE_OFF);
+                castPlayer.setPlayWhenReady(musicQueue.currentIndex == null || !shouldPlay);
+                castPlayer.loadItems(items, musicQueue.currentIndex == null ? 0 : musicQueue.currentIndex, currentSeekPosition, Player.REPEAT_MODE_OFF);
+            } else {
+                castPlayer.seekTo(musicQueue.currentIndex == null ? 0: musicQueue.currentIndex, currentSeekPosition);
             }
-            else {
-                if(updateReason == MusicQueue.UpdateReason.CURRENT_INDEX_CHANGED){
-                    currentPlayer.seekTo(musicQueue.currentIndex, currentSeekPosition);
-                    currentPlayer.setPlayWhenReady(true);
-                }else{
-                    currentPlayer.setPlayWhenReady(false);
-                }
-            }
-        } else {
-            currentPlayer.setPlayWhenReady(false);
+
         }
-        currentItemIndex = musicQueue.currentIndex;
+        lastPreparedContentHash = currentContentHash;
     }
 
     private MediaItem musicToMedia(MusicFile musicFile){
@@ -177,15 +212,6 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
                 .build();
     }
 
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        Log.d(TAG,"dispatchKeyEvent");
-        if (currentPlayer == exoPlayer) {
-            return localPlayerView.dispatchKeyEvent(event);
-        } else {
-            return castControlView.dispatchKeyEvent(event);
-        }
-    }
-
     public void release() {
         Log.d(TAG, "Released the PlayerManager");
         currentItemIndex = C.INDEX_UNSET;
@@ -193,7 +219,7 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
         castPlayer.setSessionAvailabilityListener(null);
         castPlayer.release();
         localPlayerView.setPlayer(null);
-        exoPlayer.release();
+        localPlayer.release();
         playerNotificationManager.setPlayer(null);
         playerNotificationManager = null;
         String ns = Context.NOTIFICATION_SERVICE;
@@ -201,56 +227,18 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
         nMgr.cancel(NOTIFICATION_ID);
     }
 
-    // Player.EventListener implementation.
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-        // This should only matter when one track starts immediately after the end of another in the queue.
-        // The event gets fired left right and everywhere, thus the janky boolean to turn it off except when needed.
-        Log.d(TAG,"Tracks changed");
-        Integer playerIndex;
-        if(currentPlayer == exoPlayer){
-            playerIndex = exoPlayer.getCurrentWindowIndex();
-        } else {
-            playerIndex = castPlayer.getCurrentWindowIndex();
-        }
-        if(currentItemIndex != null && playerIndex != currentItemIndex){
-            if(skipNextTrackMonitor){
-                skipNextTrackMonitor = false;
-            } else{
-                musicQueueViewModel.setCurrentIndex(playerIndex);
-            }
-        }
-    }
-
-    // CastPlayer.SessionAvailabilityListener implementation.
-
-    @Override
-    public void onCastSessionAvailable() {
-        setCurrentPlayer(castPlayer);
-    }
-
-    @Override
-    public void onCastSessionUnavailable() {
-        setCurrentPlayer(exoPlayer);
-    }
-
-    private void updateCurrentItemIndex() {
-        int playbackState = currentPlayer.getPlaybackState();
-        if(playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED){
-            int playerIndex = currentPlayer.getCurrentWindowIndex();
-            musicQueueViewModel.setCurrentIndex(playerIndex);
-        } else {
-            musicQueueViewModel.setCurrentIndex(null);
-        }
-    }
 
     private void setCurrentPlayer(Player currentPlayer) {
-        Log.d(TAG,"setCurrentPlayer");
         if (this.currentPlayer == currentPlayer) {
             return;
         }
 
-        if (currentPlayer == exoPlayer) {
+        Log.d(TAG,"setCurrentPlayer");
+
+        playerNotificationManager.setPlayer(currentPlayer);
+        lastPreparedContentHash = null;
+
+        if (currentPlayer == localPlayer) {
             localPlayerView.setVisibility(View.VISIBLE);
             castControlView.hide();
         } else  {
@@ -274,14 +262,13 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
                     windowIndex = currentItemIndex;
                 }
             }
-            skipNextTrackMonitor = true;
             previousPlayer.stop(true);
         }
 
         this.currentPlayer = currentPlayer;
 
-        if (currentPlayer == exoPlayer) {
-            exoPlayer.prepare(concatenatingMediaSource);
+        if (currentPlayer == localPlayer) {
+            localPlayer.prepare(concatenatingMediaSource);
         }
 
         if (windowIndex != C.INDEX_UNSET) {
@@ -302,21 +289,17 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
     }
 
     private class SnowglooNotificationAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
-
-        private final PlayerManager playerManager;
-
-        public SnowglooNotificationAdapter(PlayerManager playerManager){
-            this.playerManager = playerManager;
+        public SnowglooNotificationAdapter(){
         }
 
         @Override
         public String getCurrentSubText(Player player) {
-            return null;
+            return getCurrentMusic().Artist;
         }
 
         @Override
         public String getCurrentContentTitle(Player player) {
-            return playerManager.getCurrentMusic().Title;
+            return getCurrentMusic().Title;
         }
 
         @Override
@@ -326,14 +309,57 @@ public class PlayerManager implements EventListener, SessionAvailabilityListener
 
         @Override
         public String getCurrentContentText(Player player) {
-            return null;
+            return getCurrentMusic().Album;
         }
 
         @Override
         public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+            Target target = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    callback.onBitmap(bitmap);
+                }
 
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            };
+            Picasso.get().load(getCurrentMusic().CoverArt).into(target);
             return null;
         }
     };
 }
 
+
+/*            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+                int playerIndex = currentPlayer.getCurrentWindowIndex();
+                Log.d(TAG, String.format("Cast player state changed currentIndex => %d playerIndex => %d playbackState => %d playWhenReady => %b",currentItemIndex, playerIndex, playbackState, playWhenReady));
+                if(playbackState == Player.STATE_READY){
+                    if(currentItemIndex != null && currentItemIndex != playerIndex){
+                        musicQueueViewModel.setCurrentIndex(playerIndex, MusicQueueViewModel.SelectionMode.PlayerAction);
+                    }
+                }
+            }
+            @Override
+            public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+                int playerIndex = currentPlayer.getCurrentWindowIndex();
+                Log.d(TAG, String.format("Cast position discontinuity currentIndex => %d playerIndex => %d", currentItemIndex, playerIndex));
+            }*/
+
+/*
+
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        Log.d(TAG,"dispatchKeyEvent");
+        if (currentPlayer == localPlayer) {
+            return localPlayerView.dispatchKeyEvent(event);
+        } else {
+            return castControlView.dispatchKeyEvent(event);
+        }
+    }*/

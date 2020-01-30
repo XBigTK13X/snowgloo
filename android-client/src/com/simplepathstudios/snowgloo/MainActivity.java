@@ -190,14 +190,6 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    // Activity input.
-
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        // If the event was not handled then see if the player view can handle it.
-        return super.dispatchKeyEvent(event) || playerManager.dispatchKeyEvent(event);
-    }
-
     private void showToast(int messageId) {
         Toast.makeText(getApplicationContext(), messageId, Toast.LENGTH_LONG).show();
     }

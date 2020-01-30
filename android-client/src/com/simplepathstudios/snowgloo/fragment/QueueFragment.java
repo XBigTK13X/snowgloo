@@ -243,7 +243,7 @@ public class QueueFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            viewModel.setCurrentIndex(getAdapterPosition());
+            viewModel.setCurrentIndex(getAdapterPosition(), MusicQueueViewModel.SelectionMode.UserChoice);
         }
     }
 
