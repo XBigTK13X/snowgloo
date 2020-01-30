@@ -7,8 +7,8 @@ const config = {
     webApiUrl: process.env.SNOWGLOO_WEB_API_URL || '"http://192.168.1.20:5051/api/"',
     userList: process.env.SNOWGLOO_USER_LIST_CSV || 'Snowman,QTFleur',
     apiPostBodySizeLimit: '100mb',
-    serverVersion: '0.5.2',
-    buildDate: 'January 27, 2020',
+    serverVersion: '0.6.0',
+    buildDate: 'January 30, 2020',
 }
 
 config.userList = config.userList.split(',')

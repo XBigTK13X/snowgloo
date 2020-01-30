@@ -51,7 +51,7 @@ export default class PlaylistList extends Component {
 
     savePlaylist() {
         let playlist = {
-            name: this.state.playlistName,
+            name: this.state.playlistName !== '' ? this.state.playlistName : this.state.selectedPlaylistName,
             id: this.state.selectedPlaylistId === 'null' ? null : this.state.selectedPlaylistId,
             songs: this.props.queuedSongs,
         }

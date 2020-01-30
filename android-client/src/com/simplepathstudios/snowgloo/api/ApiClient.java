@@ -75,4 +75,12 @@ public class ApiClient {
     public Call clearQueue(){
         return this.httpClient.clearQueue(this.username);
     }
+
+    public Call getPlaylist(String playlistId){
+        return this.httpClient.getPlaylist(playlistId);
+    }
+
+    public Call getPlaylists(){
+        return this.httpClient.getPlaylists();
+    }
 }

@@ -15,8 +15,10 @@ import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
+import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.api.model.SearchResults;
 import com.simplepathstudios.snowgloo.api.model.ServerInfo;
 import com.simplepathstudios.snowgloo.api.model.UserList;
@@ -56,4 +58,9 @@ public interface ApiService {
     @GET("/api/search")
     Call<SearchResults> search(@Query("query") String query);
 
+    @GET("/api/playlist/list")
+    Call<PlaylistList> getPlaylists();
+
+    @GET("/api/playlist/view")
+    Call<MusicPlaylist> getPlaylist(@Query("playlistId") String playlistId);
 }
