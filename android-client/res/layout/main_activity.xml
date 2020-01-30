@@ -43,18 +43,6 @@
 
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/track_metadata"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/black"
-            android:gravity="center"
-            android:text="Nothing is playing"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
         <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/cast_control_view"
             android:layout_width="match_parent"
@@ -70,9 +58,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="top"
-            android:layout_weight=".10"
+            android:layout_weight=".08"
             app:repeat_toggle_modes="all|one"
-            app:surface_type="none"/>
+            app:surface_type="none" />
 
     </LinearLayout>
 

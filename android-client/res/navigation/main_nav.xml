@@ -31,11 +31,15 @@
         <action
             android:id="@+id/action_queue_fragment_to_playlist_list_fragment"
             app:destination="@id/playlist_list_fragment" />
+        <action
+            android:id="@+id/action_queue_fragment_to_now_playing_fragment"
+            app:destination="@id/now_playing_fragment" />
     </fragment>
     <fragment
         android:id="@+id/artist_list_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.ArtistListFragment"
-        android:label="Artists" >
+        android:label="Artists"
+        tools:layout="@layout/artist_list_fragment">
         <action
             android:id="@+id/action_artist_list_fragment_to_artist_view_fragment"
             app:destination="@id/artist_view_fragment" />
@@ -62,25 +66,37 @@
         android:id="@+id/options_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.OptionsFragment"
         android:label="Options"
-        tools:layout="@layout/options_fragment" >
-        <action
-            android:id="@+id/action_options_fragment_to_queue_fragment"
-            app:destination="@id/queue_fragment" />
-    </fragment>
+        tools:layout="@layout/options_fragment" />
     <fragment
         android:id="@+id/search_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.SearchFragment"
         android:label="Search"
-        tools:layout="@layout/search_fragment" />
+        tools:layout="@layout/search_fragment" >
+        <action
+            android:id="@+id/action_search_fragment_to_album_view_fragment"
+            app:destination="@id/album_view_fragment" />
+        <action
+            android:id="@+id/action_search_fragment_to_artist_view_fragment"
+            app:destination="@id/artist_view_fragment" />
+    </fragment>
     <fragment
         android:id="@+id/playlist_list_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.PlaylistListFragment"
         android:label="Playlists"
-        tools:layout="@layout/playlist_list_fragment" />
+        tools:layout="@layout/playlist_list_fragment" >
+        <action
+            android:id="@+id/action_playlist_list_fragment_to_playlist_view_fragment"
+            app:destination="@id/playlist_view_fragment" />
+    </fragment>
     <fragment
         android:id="@+id/playlist_view_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.PlaylistViewFragment"
         android:label="Playlist"
         tools:layout="@layout/playlist_view_fragment" />
+    <fragment
+        android:id="@+id/now_playing_fragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.NowPlayingFragment"
+        android:label="Now Playing"
+        tools:layout="@layout/now_playing_fragment" />
 
 </navigation>

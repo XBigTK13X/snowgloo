@@ -2,11 +2,12 @@ package com.simplepathstudios.snowgloo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.ViewGroup;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +25,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
@@ -35,7 +35,6 @@ import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
-import com.simplepathstudios.snowgloo.viewmodel.UserListViewModel;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -46,12 +45,10 @@ public class MainActivity extends AppCompatActivity{
     private SettingsViewModel settingsViewModel;
     private PlayerManager playerManager;
     private Toolbar toolbar;
-    private TextView trackMetadataView;
+
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ProgressBar loadingView;
-    private MusicQueueViewModel musicQueueViewModel;
-
 
     private CastContext castContext;
 
@@ -91,8 +88,6 @@ public class MainActivity extends AppCompatActivity{
         SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();
         ApiClient.retarget(settings.ServerUrl, settings.Username);
 
-        this.musicQueueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
-
         setContentView(R.layout.main_activity);
 
         toolbar = findViewById(R.id.toolbar);
@@ -105,17 +100,7 @@ public class MainActivity extends AppCompatActivity{
         localPlayerView = findViewById(R.id.local_player_view);
         localPlayerView.requestFocus();
 
-        trackMetadataView = findViewById(R.id.track_metadata);
-
         castControlView = findViewById(R.id.cast_control_view);
-
-        musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
-            @Override
-            public void onChanged(MusicQueue musicQueue) {
-                Log.d(TAG, "Updating main activity track metadata");
-                trackMetadataView.setText(musicQueue.getCurrent().getMetadata());
-            }
-        });
 
         if(playerManager == null) {
             playerManager = new PlayerManager(
@@ -135,14 +120,18 @@ public class MainActivity extends AppCompatActivity{
                 R.id.search_fragment,
                 R.id.options_fragment,
                 R.id.artist_view_fragment,
-                R.id.album_view_fragment)
+                R.id.album_view_fragment,
+                R.id.playlist_view_fragment,
+                R.id.playlist_list_fragment,
+                R.id.now_playing_fragment)
                 .setDrawerLayout(drawerLayout)
                 .build();
         navigationView = findViewById(R.id.nav_view);
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                toolbar.setTitle(destination.getLabel());
+                CharSequence name = destination.getLabel();
+                toolbar.setTitle(name);
             }
         });
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
@@ -196,6 +185,4 @@ public class MainActivity extends AppCompatActivity{
     private void showToast(int messageId) {
         Toast.makeText(getApplicationContext(), messageId, Toast.LENGTH_LONG).show();
     }
-
-
 }

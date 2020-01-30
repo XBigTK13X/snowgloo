@@ -3,6 +3,8 @@
 
     <item android:id="@+id/queue_fragment"
         android:title="Queue" />
+    <item android:id="@+id/now_playing_fragment"
+        android:title="Now Playing" />
     <item android:id="@+id/search_fragment"
         android:title="Search" />
     <item android:id="@+id/playlist_list_fragment"

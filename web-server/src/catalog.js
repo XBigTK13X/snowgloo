@@ -46,7 +46,7 @@ class Catalog {
         console.log('Reading catalog into memory')
         return new Promise((resolve, reject) => {
             this.database.read().then(databaseWorkingSet => {
-                if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
+                if (!force && pass === 1 && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
                     console.log(`Using ${databaseWorkingSet.files.length} cached database results`)
                     this.workingSet = databaseWorkingSet
                     return resolve(this.workingSet.files)

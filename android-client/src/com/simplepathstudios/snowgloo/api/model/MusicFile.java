@@ -15,9 +15,7 @@ public class MusicFile {
     public String AudioUrl;
     public Integer ReleaseYear;
     public Float ReleaseYearSort;
-    public Integer Duration;
-    public String CoverImageUrl;
-    public String LocalFilePath;
+    public String CoverArt;
     public String Title;
     public Integer Disc;
     public Integer Track;

@@ -23,23 +23,25 @@ class Playlists {
         return new Promise(resolve => {
             this.catalog = catalog
             recurse(this.databaseRoot, (err, files) => {
-                let readPromises = files.map(file => {
-                    let playlistId = file
-                        .split('/')
-                        .pop()
-                        .split('.')[0]
-                    let database = this.getDatabase(playlistId)
-                    return database.read()
-                })
-                Promise.all(readPromises).then(playlists => {
-                    playlists.forEach(playlist => {
-                        if (!playlist.deleted) {
-                            this.playlists.lookup[playlist.id] = playlist
-                            this.playlists.list.push(playlist)
-                        }
+                if(files && files.length){
+                    let readPromises = files.map(file => {
+                        let playlistId = file
+                            .split('/')
+                            .pop()
+                            .split('.')[0]
+                        let database = this.getDatabase(playlistId)
+                        return database.read()
                     })
-                    console.log(`Loaded ${this.playlists.list.length} playlists from disk and ignored ${playlists.length - this.playlists.list.length} deleted playlists.`)
-                })
+                    Promise.all(readPromises).then(playlists => {
+                        playlists.forEach(playlist => {
+                            if (!playlist.deleted) {
+                                this.playlists.lookup[playlist.id] = playlist
+                                this.playlists.list.push(playlist)
+                            }
+                        })
+                        console.log(`Loaded ${this.playlists.list.length} playlists from disk and ignored ${playlists.length - this.playlists.list.length} deleted playlists.`)
+                    })    
+                }
             })
         })
     }
