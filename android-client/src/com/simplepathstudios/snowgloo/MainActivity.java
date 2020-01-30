@@ -40,6 +40,11 @@ public class MainActivity extends AppCompatActivity{
 
     private final String TAG = "MainActivity";
 
+    private static MainActivity __instance;
+    public static MainActivity getInstance(){
+        return __instance;
+    }
+
     private PlayerView localPlayerView;
     private PlayerControlView castControlView;
     private SettingsViewModel settingsViewModel;
@@ -55,6 +60,8 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        __instance = this;
+
         // Getting the cast context later than onStart can cause device discovery not to take place.
         try {
             castContext = CastContext.getSharedInstance(this);
@@ -70,6 +77,9 @@ public class MainActivity extends AppCompatActivity{
             // Unknown error. We propagate it.
             throw e;
         }
+
+        Intent intent = new Intent(this, CleanupService.class);
+        startService(intent);
 
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
@@ -171,6 +181,12 @@ public class MainActivity extends AppCompatActivity{
         if (castContext == null) {
             //Nothing to release.
             return;
+        }
+    }
+
+    public void cleanup(){
+        if(playerManager != null){
+            playerManager.release();
         }
     }
 
