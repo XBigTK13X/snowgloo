@@ -136,7 +136,7 @@ public class ArtistViewFragment extends Fragment {
         @Override
         public ArtistViewFragment.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
+                    .inflate(R.layout.small_list_item, parent, false);
             return new ArtistViewFragment.ViewHolder(v);
         }
 

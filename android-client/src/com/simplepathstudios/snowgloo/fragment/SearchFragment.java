@@ -3,10 +3,12 @@ package com.simplepathstudios.snowgloo.fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -36,7 +38,6 @@ public class SearchFragment extends Fragment {
 
     private SearchResultsViewModel searchResultsViewModel;
     private MusicQueueViewModel queueViewModel;
-    private Button searchButton;
     private EditText searchQuery;
 
     @Override
@@ -48,13 +49,15 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        searchButton = view.findViewById(R.id.search_button);
         searchQuery = view.findViewById(R.id.search_query);
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        searchQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
-                String query = searchQuery.getText().toString();
-                searchResultsViewModel.load(query);
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId== EditorInfo.IME_ACTION_DONE || (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)){
+                    String query = searchQuery.getText().toString();
+                    searchResultsViewModel.load(query);
+                }
+                return false;
             }
         });
 
@@ -142,7 +145,7 @@ public class SearchFragment extends Fragment {
         @Override
         public AlbumViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
+                    .inflate(R.layout.small_list_item, parent, false);
             return new AlbumViewHolder(v);
         }
 
@@ -195,7 +198,7 @@ public class SearchFragment extends Fragment {
         @Override
         public ArtistViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
+                    .inflate(R.layout.small_list_item, parent, false);
             return new ArtistViewHolder(v);
         }
 
@@ -274,7 +277,7 @@ public class SearchFragment extends Fragment {
         @Override
         public SongViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
+                    .inflate(R.layout.small_list_item, parent, false);
             return new SongViewHolder(v);
         }
 

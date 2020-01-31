@@ -151,7 +151,7 @@ public class AlbumViewFragment extends Fragment {
         @Override
         public AlbumViewFragment.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
+                    .inflate(R.layout.small_list_item, parent, false);
             return new AlbumViewFragment.ViewHolder(v);
         }
 

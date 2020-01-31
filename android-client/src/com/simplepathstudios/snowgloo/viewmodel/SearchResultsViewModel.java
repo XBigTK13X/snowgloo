@@ -22,6 +22,9 @@ public class SearchResultsViewModel extends ViewModel {
 
     public void load(String query) {
         Log.d("ServerInfoViewModel", "LoadingIndicator");
+        if(query.isEmpty() || query.length() < 3){
+            return;
+        }
         LoadingIndicator.setLoading(true);
         ApiClient.getInstance().search(query).enqueue(new Callback<SearchResults>() {
 
