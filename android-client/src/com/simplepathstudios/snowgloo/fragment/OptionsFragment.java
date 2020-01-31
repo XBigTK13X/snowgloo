@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
+import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.ServerInfo;
 import com.simplepathstudios.snowgloo.viewmodel.ServerInfoViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
@@ -30,6 +31,7 @@ public class OptionsFragment extends Fragment {
     private RadioGroup serverUrlRadios;
     private TextView versionText;
     private TextView errorText;
+    private TextView userText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -85,6 +87,9 @@ public class OptionsFragment extends Fragment {
         versionText = view.findViewById(R.id.version_text);
         versionText.setText(versionInfo);
         errorText = view.findViewById(R.id.error_text);
+
+        userText = view.findViewById(R.id.user_text);
+        userText.setText(String.format("Logged in as %s.", ApiClient.getInstance().getCurrentUser()));
 
         serverInfoViewModel.load();
 

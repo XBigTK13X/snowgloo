@@ -19,7 +19,7 @@ export default class Home extends Component {
         }
         return (
             <div>
-                <h1>Queue {this.props.queuedSongs.length === 1 ? '(1 song)' : `(${this.props.queuedSongs.length} songs)`}</h1>
+                <h1>{this.props.user}'s Queue {this.props.queuedSongs.length === 1 ? '(1 song)' : `(${this.props.queuedSongs.length} songs)`}</h1>
                 <button className="icon-button" onClick={this.props.shuffleQueue} title="Shuffle the queue">
                     <FontAwesomeIcon icon={faRandom} />
                 </button>

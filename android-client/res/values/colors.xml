@@ -3,6 +3,7 @@
 <resources>
 
     <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
 
     <color name="primary">#AC03F4</color>
     <color name="primary_dark">#9302D1</color>
