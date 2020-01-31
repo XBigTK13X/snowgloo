@@ -11,10 +11,8 @@ public class LoadingIndicator {
     public static void setLoading(boolean status){
         isLoading = status;
         if(isLoading){
-            Log.d(TAG,"Showing the progress bar");
             progressBar.setVisibility(View.VISIBLE);
         } else {
-            Log.d(TAG,"Hiding the progress bar");
             progressBar.setVisibility(View.INVISIBLE);
         }
     }

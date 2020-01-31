@@ -14,6 +14,7 @@ import com.simplepathstudios.snowgloo.api.model.AlbumList;
 import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
+import com.simplepathstudios.snowgloo.api.model.CoverArt;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -25,6 +26,9 @@ import com.simplepathstudios.snowgloo.api.model.UserList;
 
 
 public interface ApiService {
+    @GET("api/song/cover-art")
+    Call<CoverArt> getCoverArt(@Query("songFilePath") String songFilePath, @Query("albumCoverUrl") String albumCoverUrl);
+
     @GET("api/song/list")
     Call<List<MusicFile>> getSongList();
 

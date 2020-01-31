@@ -34,6 +34,10 @@ public class ApiClient {
         this.httpClient = retrofit.create(ApiService.class);
     }
 
+    public Call getCoverArt(String songFilePath, String albumCoverUrl){
+        return this.httpClient.getCoverArt(songFilePath, albumCoverUrl);
+    }
+
     public Call getQueue(){
         return this.httpClient.getQueue(this.username);
     }

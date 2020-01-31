@@ -44,7 +44,6 @@ public class MusicQueueViewModel extends ViewModel {
     }
 
     public void load(){
-        Log.d("MusicQueueViewModel","LoadingIndicator");
         LoadingIndicator.setLoading(true);
         ApiClient.getInstance().getQueue().enqueue(new Callback< MusicQueue >(){
             @Override

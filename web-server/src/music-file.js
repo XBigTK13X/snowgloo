@@ -69,12 +69,14 @@ class MusicFile {
     }
 
     readInfo() {
-        return inspect.audio(this.LocalFilePath).then(data => {
-            if (data.error) {
-                console.error(this.LocalFilePath, data.error)
-                throw data.error
-            }
-            this.Info = data
+        return new Promise(resolve=>{
+            return inspect.audio(this.LocalFilePath).then(data => {
+                if (data.error) {
+                    console.error(this.LocalFilePath, data.error)
+                    throw data.error
+                }
+                this.Info = data
+            })
         })
     }
 }

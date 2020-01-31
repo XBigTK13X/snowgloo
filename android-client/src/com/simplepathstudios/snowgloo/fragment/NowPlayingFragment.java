@@ -1,7 +1,10 @@
 package com.simplepathstudios.snowgloo.fragment;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +18,16 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.api.ApiClient;
+import com.simplepathstudios.snowgloo.api.model.CoverArt;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 import com.squareup.picasso.Picasso;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class NowPlayingFragment extends Fragment {
     private static final String TAG = "NowPlayingFragment";
@@ -44,10 +53,25 @@ public class NowPlayingFragment extends Fragment {
                 Log.d(TAG, "Updating now playing track metadata");
                 MusicFile currentSong = musicQueue.getCurrent();
                 trackMetadataView.setText(currentSong.getMetadata());
-                if(currentSong.CoverArt != null){
-                    Picasso.get().load(currentSong.CoverArt).into(coverArt);
-                }
 
+                if(currentSong.CoverArt != null){
+                    ApiClient.getInstance().getCoverArt(currentSong.LocalFilePath, currentSong.CoverArt).enqueue(new Callback<CoverArt>() {
+                        @Override
+                        public void onResponse(Call call, Response response) {
+                            String embeddedImageUri = ((CoverArt)response.body()).coverArtUri;
+                            String imageData = embeddedImageUri.substring(embeddedImageUri.indexOf("base64,")+6);
+                            byte[] decodedString = Base64.decode(imageData, Base64.DEFAULT);
+                            Bitmap bitMap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            coverArt.setImageBitmap(bitMap);
+                        }
+
+                        @Override
+                        public void onFailure(Call call, Throwable t) {
+                            Picasso.get().load(currentSong.CoverArt).into(coverArt);
+                        }
+                    });
+
+                }
             }
         });
     }

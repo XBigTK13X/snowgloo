@@ -20,6 +20,7 @@ public class MusicFile {
     public Integer Disc;
     public Integer Track;
     public String Id;
+    public String LocalFilePath;
 
     public MusicFile(){}
 

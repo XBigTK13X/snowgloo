@@ -192,7 +192,7 @@ export default class App extends Component {
                             }}
                         />
                     </div>
-                    <Comp.AudioControls song={this.state.song} songFinished={this.songFinished} isCasting={this.state.isCasting} />
+                    <Comp.AudioControls api={service.api} song={this.state.song} songFinished={this.songFinished} isCasting={this.state.isCasting} />
                 </UIRouter>
             </div>
         )

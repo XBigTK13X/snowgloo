@@ -100,6 +100,13 @@ class ApiClient {
                 return response.data
             })
     }
+
+    getEmbeddedArt(songFilePath,albumCoverUrl){
+        return this.httpClient.get(`/song/cover-art`,{params:{songFilePath,albumCoverUrl}})
+        .then(response=>{
+            return response.data
+        })
+    }
 }
 
 let instance

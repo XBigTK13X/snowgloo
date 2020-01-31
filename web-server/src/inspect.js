@@ -1,4 +1,6 @@
+const jsmediatags = require('jsmediatags')
 const spawn = require('child_process').spawn
+const btoa = require('btoa')
 
 const probe = file => {
     return new Promise((resolve, reject) => {
@@ -30,6 +32,26 @@ const audio = path => {
     })
 }
 
+const embeddedArt = (path,albumArtUrl) => {
+    return new Promise((resolve,reject)=>{
+        jsmediatags.read(path, {
+            onSuccess: function(tags) {
+                let picture = tags.tags.picture;
+                let base64String = "";
+                for (var i = 0; i < picture.data.length; i++) {
+                    base64String += String.fromCharCode(picture.data[i]);
+                }
+                var dataUri = "data:" + picture.format + ";base64," + btoa(base64String);
+                resolve(dataUri)
+           },
+           onError: function(error) {
+               resolve(albumArtUrl)
+           }
+        });
+    })
+}
+
 module.exports = {
     audio,
+    embeddedArt
 }

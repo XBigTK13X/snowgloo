@@ -43,7 +43,7 @@ export default class SongPicker extends Component {
                                     <tbody ref={provided.innerRef}>
                                         {this.props.songs.map((song, songIndex) => {
                                             return (
-                                                <Draggable key={song.LocalFilePath} isDragDisabled={!this.props.updateSongList} draggableId={song.LocalFilePath} id={song.LocalFilePath} index={songIndex}>
+                                                <Draggable key={song.Id} isDragDisabled={!this.props.updateSongList} draggableId={song.Id} id={song.Id} index={songIndex}>
                                                     {(provided, snapshot) => {
                                                         return (
                                                             <Comp.SongPickerItem
