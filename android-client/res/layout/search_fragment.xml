@@ -1,46 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <EditText
-        android:id="@+id/search_query"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Enter a search query"
-        android:inputType="textPersonName" />
-
-    <Button
-        android:id="@+id/search_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Search" />
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/search_result_tab_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <EditText
+            android:id="@+id/search_query"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Artists" />
+            android:ems="10"
+            android:hint="Enter a search query"
+            android:inputType="textPersonName" />
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/search_button"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Albums" />
+            android:text="Search" />
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Songs" />
-    </com.google.android.material.tabs.TabLayout>
+            android:orientation="vertical"
+            android:id="@+id/lists_container">
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/search_result_tab_views"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
 
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

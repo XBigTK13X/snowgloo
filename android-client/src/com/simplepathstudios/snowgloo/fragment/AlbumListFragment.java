@@ -70,7 +70,7 @@ public class AlbumListFragment  extends Fragment {
             NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
             Bundle bundle = new Bundle();
             bundle.putString("AlbumSlug", musicAlbum.AlbumSlug);
-            bundle.putString("AlbumDisplay", musicAlbum.Album + "("+musicAlbum.ReleaseYear+")");
+            bundle.putString("AlbumDisplay", musicAlbum.Album + " ("+musicAlbum.ReleaseYear+")");
             navController.navigate(R.id.album_view_fragment, bundle);
         }
     }

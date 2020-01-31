@@ -223,7 +223,7 @@ public class QueueFragment extends Fragment {
                     NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
                     Bundle bundle = new Bundle();
                     bundle.putString("AlbumSlug", musicFile.AlbumSlug);
-                    bundle.putString("AlbumDisplay", musicFile.Album + "("+musicFile.ReleaseYear+")");
+                    bundle.putString("AlbumDisplay", musicFile.Album + " ("+musicFile.ReleaseYear+")");
                     navController.navigate(R.id.album_view_fragment, bundle);
                     return false;
                 }

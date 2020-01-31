@@ -104,7 +104,6 @@ public class AlbumViewFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "Adding "+musicFile.Title + " to queue");
             queueViewModel.addItem(musicFile);
         }
     }

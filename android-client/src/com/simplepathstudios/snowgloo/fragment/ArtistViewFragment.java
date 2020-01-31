@@ -71,6 +71,7 @@ public class ArtistViewFragment extends Fragment {
             @Override
             public void onChanged(ArtistView artistView) {
                 LinearLayout container = getView().findViewById(R.id.lists_container);
+                container.removeAllViews();
                 for(String listKind : artistView.albums.listKinds){
                     if(artistView.albums.lists.get(listKind).size() > 0){
                         ArrayList<MusicAlbum> albums = new ArrayList<>();
@@ -79,7 +80,7 @@ public class ArtistViewFragment extends Fragment {
                         }
                         View listView = getLayoutInflater().inflate(R.layout.album_list,container,false);
                         TextView listKindText = listView.findViewById(R.id.list_kind);
-                        listKindText.setText(listKind);
+                        listKindText.setText(String.format("%s (%d)",listKind,artistView.albums.lists.get(listKind).size()));
                         RecyclerView listElement = listView.findViewById(R.id.album_list);
                         ArtistViewFragment.Adapter adapter = new ArtistViewFragment.Adapter();
                         listElement.setAdapter(adapter);
@@ -88,7 +89,6 @@ public class ArtistViewFragment extends Fragment {
                         adapter.setData(albums);
                         adapter.notifyDataSetChanged();
                         container.addView(listView);
-                        Log.d(TAG, "Populated "+artistName + " "+listKind+" with "+albums.size()+" albums");
                     }
                 }
             }
@@ -144,7 +144,7 @@ public class ArtistViewFragment extends Fragment {
         public void onBindViewHolder(ArtistViewFragment.ViewHolder holder, int position) {
             holder.album = this.data.get(position);
             TextView view = holder.textView;
-            view.setText(holder.album.Album + "("+holder.album.ReleaseYear+")");
+            view.setText(holder.album.Album + " ("+holder.album.ReleaseYear+")");
         }
 
         @Override
