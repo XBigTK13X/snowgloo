@@ -3,6 +3,7 @@ package com.simplepathstudios.snowgloo.api.model;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+
 public class MusicQueue {
     public static final MusicQueue EMPTY = new MusicQueue();
 

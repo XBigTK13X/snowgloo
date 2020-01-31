@@ -100,8 +100,8 @@ public class QueueFragment extends Fragment {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 Log.d(TAG,"Music files have changed "+musicQueue.songs.size());
-                adapter.setData(musicQueue);
                 int scrollTarget = layoutManager.findFirstCompletelyVisibleItemPosition();
+                adapter.setData(musicQueue);
                 listView.setAdapter(adapter);
                 if(musicQueue.updateReason == MusicQueue.UpdateReason.ITEM_MOVED){
                     listView.scrollToPosition(scrollTarget);

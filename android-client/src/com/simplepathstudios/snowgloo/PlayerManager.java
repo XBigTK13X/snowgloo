@@ -50,17 +50,19 @@ public class PlayerManager {
 
     private final Context context;
     private final PlayerView localPlayerView;
+    private final MediaItemConverter mediaItemConverter;
     private final PlayerControlView castControlView;
     private final DefaultTrackSelector trackSelector;
     private final SimpleExoPlayer localPlayer;
     private final CastPlayer castPlayer;
-    private final MediaItemConverter mediaItemConverter;
+    private Player currentPlayer;
+
 
     private ConcatenatingMediaSource concatenatingMediaSource;
     private PlayerNotificationManager playerNotificationManager;
     private MusicQueueViewModel musicQueueViewModel;
     private Integer currentItemIndex;
-    private Player currentPlayer;
+
     private String lastPreparedContentHash;
     public MusicQueue.UpdateReason lastUpdateReason;
 
@@ -102,26 +104,6 @@ public class PlayerManager {
             }
         });
 
-        playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
-                context,
-                "com.simplepathstudios.snowgloo",
-                R.string.notification_channel_name,
-                R.string.notification_channel_description,
-                NOTIFICATION_ID,
-                new SnowglooNotificationAdapter(),
-                new PlayerNotificationManager.NotificationListener() {
-            @Override
-            public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
-            }
-
-            @Override
-            public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-
-            }
-        });
-        playerNotificationManager.setUseNavigationActionsInCompactView(true);
-        playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-
         localPlayerView.setPlayer(localPlayer);
         localPlayerView.setControllerShowTimeoutMs(0);
         localPlayerView.setControllerHideOnTouch(false);
@@ -151,6 +133,26 @@ public class PlayerManager {
             }
         });
         castControlView.setPlayer(castPlayer);
+
+        playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
+                context,
+                "com.simplepathstudios.snowgloo",
+                R.string.notification_channel_name,
+                R.string.notification_channel_description,
+                NOTIFICATION_ID,
+                new SnowglooNotificationAdapter(),
+                new PlayerNotificationManager.NotificationListener() {
+                    @Override
+                    public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
+                    }
+
+                    @Override
+                    public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+                        Log.d(TAG, "The notification was cancelled");
+                    }
+                });
+        playerNotificationManager.setUseNavigationActionsInCompactView(true);
+        playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
         setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : localPlayer);
     }

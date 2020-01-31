@@ -194,7 +194,7 @@ public class MusicQueueViewModel extends ViewModel {
     public void shuffle(){
         LoadingIndicator.setLoading(true);
         MusicQueue queue = Data.getValue();
-        queue.currentIndex = null;
+        queue.currentIndex = 0;
         Collections.shuffle(queue.songs);
         queue.updateReason = MusicQueue.UpdateReason.SHUFFLE;
         save(queue);

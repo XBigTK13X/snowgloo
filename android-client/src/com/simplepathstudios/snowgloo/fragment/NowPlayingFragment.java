@@ -43,8 +43,8 @@ public class NowPlayingFragment extends Fragment {
             public void onChanged(MusicQueue musicQueue) {
                 Log.d(TAG, "Updating now playing track metadata");
                 MusicFile currentSong = musicQueue.getCurrent();
+                trackMetadataView.setText(currentSong.getMetadata());
                 if(currentSong.CoverArt != null){
-                    trackMetadataView.setText(currentSong.getMetadata());
                     Picasso.get().load(currentSong.CoverArt).into(coverArt);
                 }
 
