@@ -9,9 +9,9 @@ const register = router => {
         response.send(await catalog.getSongs())
     })
 
-    router.get('/api/song/cover-art', async(request, response) => {
+    router.get('/api/song/cover-art', async (request, response) => {
         response.send({
-            coverArtUri: await inspect.embeddedArt(request.query.songFilePath, request.query.albumCoverUrl)
+            coverArtUri: await inspect.embeddedArt(request.query.songFilePath, request.query.albumCoverUrl),
         })
     })
 
@@ -35,11 +35,6 @@ const register = router => {
             album: await catalog.getAlbum(decodeURIComponent(request.query.albumSlug)),
         }
         response.send(result)
-    })
-
-    router.post('/api/catalog/build', async (request, response) => {
-        catalog.build(true)
-        response.send('Building')
     })
 
     router.get('/api/catalog/build/status', async (request, response) => {
@@ -87,6 +82,22 @@ const register = router => {
 
     router.get('/api/playlist/list', async (request, response) => {
         response.send(await playlists.readAll())
+    })
+
+    router.post('/api/admin/catalog/build', async (request, response) => {
+        catalog.build(true)
+        response.send('Building')
+    })
+
+    router.post('/api/admin/queues/clear', async (request, response) => {
+        musicQueue.clearAll()
+        response.send('Cleared')
+    })
+
+    router.get('/api/admin/playlists/deleted', async (request, response) => {
+        response.send({
+            playlists: await playlists.getDeleted(),
+        })
     })
 }
 

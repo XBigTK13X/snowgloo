@@ -43,12 +43,6 @@ class ApiClient {
         })
     }
 
-    catalogRebuild() {
-        return this.httpClient.post('catalog/build').then(response => {
-            return response.data
-        })
-    }
-
     catalogStatus() {
         return this.get('catalog/build/status')
     }
@@ -101,11 +95,26 @@ class ApiClient {
             })
     }
 
-    getEmbeddedArt(songFilePath,albumCoverUrl){
-        return this.httpClient.get(`/song/cover-art`,{params:{songFilePath,albumCoverUrl}})
-        .then(response=>{
+    getEmbeddedArt(songFilePath, albumCoverUrl) {
+        return this.httpClient.get(`/song/cover-art`, { params: { songFilePath, albumCoverUrl } }).then(response => {
             return response.data
         })
+    }
+
+    catalogRebuild() {
+        return this.httpClient.post('admin/catalog/build').then(response => {
+            return response.data
+        })
+    }
+
+    clearQueues() {
+        return this.httpClient.post('admin/queues/clear').then(response => {
+            return response.data
+        })
+    }
+
+    getDeletedPlaylists() {
+        return this.get('admin/playlists/deleted')
     }
 }
 

@@ -13,6 +13,10 @@ class Playlists {
             lookup: {},
             list: [],
         }
+        this.deletedPlaylists = {
+            lookup: {},
+            list: [],
+        }
     }
 
     getDatabase(playlistId) {
@@ -37,6 +41,9 @@ class Playlists {
                             if (!playlist.deleted) {
                                 this.playlists.lookup[playlist.id] = playlist
                                 this.playlists.list.push(playlist)
+                            } else {
+                                this.deletedPlaylists.lookup[playlist.id] = playlist
+                                this.deletedPlaylists.list.push(playlist)
                             }
                         })
                         console.log(`Loaded ${this.playlists.list.length} playlists from disk and ignored ${playlists.length - this.playlists.list.length} deleted playlists.`)
@@ -67,7 +74,16 @@ class Playlists {
                     break
                 }
             }
+            this.deletedPlaylists.lookup[playlist.id] = playlist
+            this.deletedPlaylists.list.push(playlist)
         } else {
+            delete this.deletedPlaylists.lookup[playlist.id]
+            for (let ii = 0; ii < this.deletedPlaylists.list.length; ii++) {
+                if (this.deletedPlaylists.list[ii].id === playlist.id) {
+                    this.deletedPlaylists.list.splice(ii, 1)
+                    break
+                }
+            }
             if (!_.has(this.playlists.lookup, playlist.id)) {
                 this.playlists.list.push(playlist)
             }
@@ -95,6 +111,10 @@ class Playlists {
 
     readAll() {
         return this.playlists
+    }
+
+    getDeleted() {
+        return this.deletedPlaylists.list
     }
 }
 

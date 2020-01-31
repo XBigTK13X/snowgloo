@@ -1,4 +1,5 @@
 const database = require('./database')
+const settings = require('./settings')
 
 class MusicQueue {
     read(user) {
@@ -19,6 +20,12 @@ class MusicQueue {
         return this.write(user, {
             songs: [],
             currentIndex: null,
+        })
+    }
+
+    clearAll() {
+        settings.userList.forEach(user => {
+            this.clear(user)
         })
     }
 }

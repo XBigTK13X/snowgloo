@@ -12,6 +12,7 @@ export default class PlaylistView extends Component {
         this.state = {
             playlist: null,
             playlistName: '',
+            deleting: false,
         }
 
         this.changePlaylistName = this.changePlaylistName.bind(this)
@@ -50,6 +51,10 @@ export default class PlaylistView extends Component {
 
     deletePlaylist() {
         let playlist = { ...this.state.playlist }
+        this.setState({
+            playlist: null,
+            deleting: true,
+        })
         playlist.deleted = true
         this.savePlaylist(playlist).then(() => {
             this.props.$transition$.router.stateService.go('playlist-list')
@@ -57,6 +62,9 @@ export default class PlaylistView extends Component {
     }
 
     render() {
+        if (this.state.deleting) {
+            return 'Deleting the playlist. Please wait one moment.'
+        }
         if (!this.state.playlist) {
             return null
         }

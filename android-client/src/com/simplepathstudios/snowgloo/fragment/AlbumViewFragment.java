@@ -61,8 +61,7 @@ public class AlbumViewFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "AlbumViewFragment initiated");
         albumSlug = getArguments().getString("AlbumSlug");
         albumDisplay = getArguments().getString("AlbumDisplay");
@@ -83,11 +82,8 @@ public class AlbumViewFragment extends Fragment {
         albumViewModel.Data.observe(getViewLifecycleOwner(), new Observer<AlbumView>() {
             @Override
             public void onChanged(AlbumView album) {
-                Log.d(TAG,"Loaded album");
-                if(album.album != null && album.album.Songs != null){
-                    Log.d(TAG, "Found "+album.album.Songs.size()+" songs");
-                }
                 adapter.setData(album.album);
+                listElement.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
             }
         });

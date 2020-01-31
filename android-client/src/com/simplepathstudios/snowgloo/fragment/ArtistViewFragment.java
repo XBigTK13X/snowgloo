@@ -119,7 +119,7 @@ public class ArtistViewFragment extends Fragment {
             NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
             Bundle bundle = new Bundle();
             bundle.putString("AlbumSlug", album.AlbumSlug);
-            bundle.putString("AlbumDisplay", album.Album + "("+album.ReleaseYear+")");
+            bundle.putString("AlbumDisplay", album.Album + " ("+album.ReleaseYear+")");
             navController.navigate(R.id.album_view_fragment, bundle);
         }
     }

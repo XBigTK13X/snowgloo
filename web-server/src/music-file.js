@@ -35,19 +35,18 @@ class MusicFile {
                 this.Artist = parts[parts.length - 4]
             }
         }
-        let trackAndTitle = parts[parts.length - 1]
-            .split('.')
-            .slice(0, -1)
-            .join('.')
+        let trackAndTitle = parts[parts.length - 1].split('.')
+        trackAndTitle.pop()
+        trackAndTitle = trackAndTitle.join('.')
         if (!trackAndTitle.includes(' - ')) {
             this.Title = trackAndTitle
         } else {
             let titleParts = trackAndTitle.split(' - ')
             if (titleParts[0].includes('D')) {
                 let discAndTrackParts = titleParts[0].split('D')[1].split('T')
-                this.Disc = parseInt(discAndTrackParts.shift(), 10)
-                this.Track = parseInt(discAndTrackParts.shift(), 10)
-                this.Title = discAndTrackParts.join(' - ')
+                this.Disc = parseInt(discAndTrackParts[0], 10)
+                this.Track = parseInt(discAndTrackParts[1], 10)
+                this.Title = titleParts[1]
             } else {
                 this.Disc = 1
                 this.Track = parseInt(titleParts[0], 10)
@@ -69,14 +68,12 @@ class MusicFile {
     }
 
     readInfo() {
-        return new Promise(resolve=>{
-            return inspect.audio(this.LocalFilePath).then(data => {
-                if (data.error) {
-                    console.error(this.LocalFilePath, data.error)
-                    throw data.error
-                }
-                this.Info = data
-            })
+        return inspect.audio(this.LocalFilePath).then(data => {
+            if (data.error) {
+                console.error(this.LocalFilePath, data.error)
+                throw data.error
+            }
+            this.Info = data
         })
     }
 }
