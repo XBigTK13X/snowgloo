@@ -160,11 +160,8 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onResume() {
         super.onResume();
-        if (castContext == null) {
-         // There is no Cast context to work with. Do nothing.
-           return;
-        }
-        if(playerManager == null && localPlayerView != null && castControlView != null) {
+        if(playerManager == null) {
+            Log.d(TAG, "onResume => Create a new PlayerManager");
             playerManager = new PlayerManager(
                     this,
                     localPlayerView,
@@ -172,16 +169,11 @@ public class MainActivity extends AppCompatActivity{
                     this,
                     castContext);
         }
-
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (castContext == null) {
-            //Nothing to release.
-            return;
-        }
     }
 
     public void cleanup(){

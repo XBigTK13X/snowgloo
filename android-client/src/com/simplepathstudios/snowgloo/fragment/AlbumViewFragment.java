@@ -2,6 +2,7 @@ package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -91,7 +94,7 @@ public class AlbumViewFragment extends Fragment {
         albumViewModel.load(albumSlug);
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener,View.OnClickListener {
 
         public final TextView textView;
         public MusicFile musicFile;
@@ -100,11 +103,39 @@ public class AlbumViewFragment extends Fragment {
             super(textView);
             this.textView = textView;
             textView.setOnClickListener(this);
+            itemView.setOnCreateContextMenuListener(this);
         }
 
         @Override
         public void onClick(View v) {
             queueViewModel.addItem(musicFile);
+        }
+
+        public void onCreateContextMenu(ContextMenu menu, View v,
+                                        ContextMenu.ContextMenuInfo menuInfo) {
+            MenuItem viewAlbumAction = menu.add("View Album");
+            viewAlbumAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("AlbumSlug", musicFile.AlbumSlug);
+                    bundle.putString("AlbumDisplay", musicFile.Album + " ("+musicFile.ReleaseYear+")");
+                    navController.navigate(R.id.album_view_fragment, bundle);
+                    return false;
+                }
+            });
+            MenuItem viewArtistAction = menu.add("View Artist");
+            viewArtistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Artist", musicFile.Artist);
+                    navController.navigate(R.id.artist_view_fragment, bundle);
+                    return false;
+                }
+            });
         }
     }
     private class Adapter extends RecyclerView.Adapter<AlbumViewFragment.ViewHolder> {
