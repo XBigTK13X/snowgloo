@@ -167,6 +167,7 @@ public class MusicQueueViewModel extends ViewModel {
         }
 
         data.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
+        data.currentIndex = data.currentIndex == null ? data.songs.size() - items.size():data.currentIndex;
         save(data);
     }
 
@@ -187,6 +188,7 @@ public class MusicQueueViewModel extends ViewModel {
         }
 
         data.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
+        data.currentIndex = data.currentIndex == null ? data.songs.size() - 1 : data.currentIndex;
         save(data);
     }
 

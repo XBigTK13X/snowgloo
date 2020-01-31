@@ -58,11 +58,16 @@ public class NowPlayingFragment extends Fragment {
                     ApiClient.getInstance().getCoverArt(currentSong.LocalFilePath, currentSong.CoverArt).enqueue(new Callback<CoverArt>() {
                         @Override
                         public void onResponse(Call call, Response response) {
-                            String embeddedImageUri = ((CoverArt)response.body()).coverArtUri;
-                            String imageData = embeddedImageUri.substring(embeddedImageUri.indexOf("base64,")+6);
-                            byte[] decodedString = Base64.decode(imageData, Base64.DEFAULT);
-                            Bitmap bitMap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            coverArt.setImageBitmap(bitMap);
+                            String imageUrl = ((CoverArt)response.body()).coverArtUri;
+                            int base64Location = imageUrl.indexOf("base64,");
+                            if (base64Location == -1) {
+                                Picasso.get().load(currentSong.CoverArt).into(coverArt);
+                            } else {
+                                String imageData = imageUrl.substring(base64Location + 6);
+                                byte[] decodedString = Base64.decode(imageData, Base64.DEFAULT);
+                                Bitmap bitMap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                coverArt.setImageBitmap(bitMap);
+                            }
                         }
 
                         @Override

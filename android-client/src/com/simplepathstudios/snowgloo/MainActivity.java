@@ -2,14 +2,13 @@ package com.simplepathstudios.snowgloo;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,8 +31,6 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.ApiClient;
-import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 public class MainActivity extends AppCompatActivity{
@@ -122,7 +119,7 @@ public class MainActivity extends AppCompatActivity{
         }
 
         NavController navController = Navigation.findNavController(this,R.id.nav_host_fragment);
-        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.main_activity_layout);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.queue_fragment,
                 R.id.album_list_fragment,
@@ -146,6 +143,16 @@ public class MainActivity extends AppCompatActivity{
         });
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        // Hide the keyboard if touch event outside keyboard (better search experience)
+        findViewById(R.id.main_activity_layout).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                return false;
+            }
+        });
     }
 
     @Override

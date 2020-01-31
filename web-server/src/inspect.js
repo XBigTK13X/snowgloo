@@ -37,6 +37,9 @@ const embeddedArt = (path,albumArtUrl) => {
         jsmediatags.read(path, {
             onSuccess: function(tags) {
                 let picture = tags.tags.picture;
+                if(!picture){
+                    return resolve(albumArtUrl)
+                }
                 let base64String = "";
                 for (var i = 0; i < picture.data.length; i++) {
                     base64String += String.fromCharCode(picture.data[i]);
