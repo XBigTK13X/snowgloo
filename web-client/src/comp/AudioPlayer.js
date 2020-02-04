@@ -1,7 +1,6 @@
 // Modified from https://github.com/binodswain/react-howler-player
 
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { Howl } from 'howler'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay, faPause, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons'
@@ -19,18 +18,7 @@ const STATE = {
 
 const STEP_MILLISECONDS = 400 //Originally 15
 
-class Prepare extends Component {
-    static propTypes = {
-        loadingText: PropTypes.string,
-        isDark: PropTypes.bool,
-    }
-
-    render() {
-        return null
-    }
-}
-
-export default class ReactHowlerPlayer extends Component {
+export default class AudioPlayer extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -90,34 +78,36 @@ export default class ReactHowlerPlayer extends Component {
         }
 
         this.destroySound()
-        const { src, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
+        .then(()=>{
+            const { src, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
 
-        let sound = new Howl({
-            src,
-            format,
-            autoplay: true,
-            html5: true,
-        })
+            let sound = new Howl({
+                src,
+                format,
+                autoplay: true,
+                html5: true,
+            })
 
-        sound.volume(this.props.isCasting ? 0 : this.state.volume)
+            sound.volume(this.props.isCasting ? 0 : this.state.volume)
 
-        sound.once('load', this.readyToPlay)
+            sound.once('load', this.readyToPlay)
 
-        sound.on('end', () => {
-            this.playbackEnded()
-            this.props.songFinished()
-        })
+            sound.on('end', () => {
+                this.playbackEnded()
+                this.props.songFinished()
+            })
 
-        sound.on('play', () => {
-            this.stepInterval = setInterval(this.step, STEP_MILLISECONDS)
-        })
+            sound.on('play', () => {
+                this.stepInterval = setInterval(this.step, STEP_MILLISECONDS)
+            })
 
-        this.setState({
-            sound,
-            playerState: STATE.PREPARE,
-            progressValue: 0,
-            currentPos: '0:00',
-            src,
+            this.setState({
+                sound,
+                playerState: STATE.PREPARE,
+                progressValue: 0,
+                currentPos: '0:00',
+                src,
+            })
         })
     }
 
@@ -131,7 +121,9 @@ export default class ReactHowlerPlayer extends Component {
             }
             onTimeUpdate(playerState)
         }
-        clearInterval(this.stepInterval)
+        if(this.stepInterval){
+            clearInterval(this.stepInterval)
+        }
         this.setState({
             playerState: STATE.ENDED,
             progressValue: 100,
@@ -151,7 +143,9 @@ export default class ReactHowlerPlayer extends Component {
     playbackPause = () => {
         const { sound } = this.state
         sound.pause()
-        clearInterval(this.stepInterval)
+        if(this.stepInterval){
+            clearInterval(this.stepInterval)
+        }
         service.googleCast.playOrPause()
         this.setState({
             playerState: STATE.PAUSE,
@@ -216,22 +210,20 @@ export default class ReactHowlerPlayer extends Component {
     }
 
     destroySound = () => {
-        const { sound } = this.state
-        clearInterval(this.stepInterval)
-        if (sound) {
-            sound.off()
-            sound.stop()
-        }
+        return new Promise(resolve=>{
+            const { sound } = this.state
+            if(this.stepInterval){
+                clearInterval(this.stepInterval)
+            }
+            if (sound) {
+                sound.unload()
+            }
+            resolve()
+        })
     }
 
     render() {
         const { playerState, duration, currentPos, isMute } = this.state
-
-        const { loadingText } = this.props
-
-        if (playerState === STATE.PREPARE) {
-            return <Prepare loadingText={loadingText} />
-        }
 
         let playPauseAction
         let playPauseIcon
