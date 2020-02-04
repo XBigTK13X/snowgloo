@@ -64,7 +64,7 @@ class MusicFile {
         this.Artist = this.Artist.trim()
         this.Title = this.Title.trim()
         this.SearchTerms = util.searchify(this.Title)
-        if(this.Kind === 'Compilation'){
+        if (this.Kind === 'Compilation') {
             this.SearchTerms += util.searchify(this.DisplayArtist)
         }
         this.Id = `${this.DisplayArtist}-${this.DisplayAlbum}-${this.Title}`
@@ -81,7 +81,7 @@ class MusicFile {
         })
     }
 
-    matches(query){
+    matches(query) {
         return this.SearchTerms.includes(query)
     }
 }

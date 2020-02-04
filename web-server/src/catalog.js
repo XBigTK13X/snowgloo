@@ -57,7 +57,7 @@ class Catalog {
                     })
                     this.workingSet.albums.list.forEach(albumName => {
                         const album = this.workingSet.albums.lookup[albumName]
-                        this.workingSet.albums.lookup[albumName] = new MusicAlbum(album,album.CoverArt)
+                        this.workingSet.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
                     })
                     this.workingSet.artists.list.forEach(artistName => {
                         const artist = this.workingSet.artists.lookup[artistName]
@@ -129,7 +129,7 @@ class Catalog {
                         serialReads = promiseBatches.reduce((m, p) => {
                             return m.then(v => {
                                 this.rebuildCount++
-                                if(this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount >= this.totalCount - 1){
+                                if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount >= this.totalCount - 1) {
                                     console.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
                                 }
                                 return Promise.all([...v, p()])
@@ -171,7 +171,7 @@ class Catalog {
                                 workingSet.filesLookup[file.Id] = file
                                 if (!_.has(albums.lookup, file.AlbumSlug)) {
                                     const album = new MusicAlbum(file, workingSet.albumCoverArts[file.AlbumSlug])
-                                    if(album.ReleaseYear === 9999){
+                                    if (album.ReleaseYear === 9999) {
                                         throw new Error(`Album has no defined year ${JSON.stringify(file)}`)
                                     }
                                     albums.lookup[file.AlbumSlug] = album

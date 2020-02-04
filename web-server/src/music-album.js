@@ -1,7 +1,7 @@
 const util = require('./util')
 
-class MusicAlbum{
-    constructor(musicFile, coverArtUrl){
+class MusicAlbum {
+    constructor(musicFile, coverArtUrl) {
         this.Album = musicFile.Album
         this.DisplayAlbum = musicFile.DisplayAlbum
         this.DisplayArtist = musicFile.DisplayArtist
@@ -16,7 +16,7 @@ class MusicAlbum{
         this.SubKind = musicFile.SubKind
     }
 
-    matches(query){
+    matches(query) {
         return this.SearchAlbum.includes(query)
     }
 }

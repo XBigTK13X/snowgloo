@@ -5,12 +5,12 @@ const pad = num => {
     return num
 }
 
-const trackPad = num =>{
-    if(num < 10){
-        return '00'+num
+const trackPad = num => {
+    if (num < 10) {
+        return '00' + num
     }
-    if(num < 100){
-        return '0'+num
+    if (num < 100) {
+        return '0' + num
     }
     return num
 }
@@ -41,5 +41,5 @@ const secondsToTimeStamp = seconds => {
 
 export default {
     secondsToTimeStamp,
-    trackPad
+    trackPad,
 }

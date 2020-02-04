@@ -77,8 +77,7 @@ export default class AudioPlayer extends Component {
             return
         }
 
-        this.destroySound()
-        .then(()=>{
+        this.destroySound().then(() => {
             const { src, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
 
             let sound = new Howl({
@@ -121,7 +120,7 @@ export default class AudioPlayer extends Component {
             }
             onTimeUpdate(playerState)
         }
-        if(this.stepInterval){
+        if (this.stepInterval) {
             clearInterval(this.stepInterval)
         }
         this.setState({
@@ -143,7 +142,7 @@ export default class AudioPlayer extends Component {
     playbackPause = () => {
         const { sound } = this.state
         sound.pause()
-        if(this.stepInterval){
+        if (this.stepInterval) {
             clearInterval(this.stepInterval)
         }
         service.googleCast.playOrPause()
@@ -210,9 +209,9 @@ export default class AudioPlayer extends Component {
     }
 
     destroySound = () => {
-        return new Promise(resolve=>{
+        return new Promise(resolve => {
             const { sound } = this.state
-            if(this.stepInterval){
+            if (this.stepInterval) {
                 clearInterval(this.stepInterval)
             }
             if (sound) {
