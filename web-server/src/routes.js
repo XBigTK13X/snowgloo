@@ -27,6 +27,7 @@ const register = router => {
     router.get('/api/artist/view', async (request, response) => {
         let result = {
             albums: await catalog.getAlbums(decodeURIComponent(request.query.artist)),
+            artist: request.query.artist
         }
         response.send(result)
     })

@@ -119,6 +119,7 @@ export default class Admin extends Component {
         }
         return (
             <div>
+                <h1>Admin</h1>
                 <button className="action-button" onClick={this.rebuildCatalog}>
                     Rebuild catalog
                 </button>

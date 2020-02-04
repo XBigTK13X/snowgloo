@@ -40,6 +40,7 @@ export default class PlaylistView extends Component {
             if (this.state.playlistName) {
                 playlist.name = this.state.playlistName
             }
+            console.log("Saving playlist ",playlist)
         }
         return this.props.api.savePlaylist(playlist).then(savedPlaylist => {
             this.setState({
@@ -70,7 +71,7 @@ export default class PlaylistView extends Component {
         }
         return (
             <div>
-                <h1>{this.state.playlist.name}</h1>
+                <h1>Playlist - {this.state.playlist.name}</h1>
                 <div>
                     <label>
                         Change playlist name

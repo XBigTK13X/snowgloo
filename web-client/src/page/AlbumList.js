@@ -22,6 +22,11 @@ export default class ArtistList extends Component {
         if (!this.state.albums.list) {
             return null
         }
-        return <Comp.AlbumPicker albums={this.state.albums} />
+        return (
+            <div>
+            <h1>Albums ({this.state.albums.list.length})</h1>
+                <Comp.AlbumPicker albums={this.state.albums} />
+            </div>
+        )
     }
 }

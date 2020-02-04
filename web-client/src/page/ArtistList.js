@@ -23,10 +23,13 @@ export default class AlbumList extends Component {
             return null
         }
         return (
-            <div className="list-grid">
-                {this.state.artists.map((artist, artistIndex) => {
-                    return <Comp.ArtistListItem key={artistIndex} artist={artist} />
-                })}
+            <div>
+                <h1>Artists ({this.state.artists.length})</h1>
+                <div className="list-grid">
+                    {this.state.artists.map((artist, artistIndex) => {
+                        return <Comp.ArtistListItem key={artistIndex} artist={artist} />
+                    })}
+                </div>
             </div>
         )
     }

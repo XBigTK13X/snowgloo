@@ -86,6 +86,12 @@ class Playlists {
             }
             if (!_.has(this.playlists.lookup, playlist.id)) {
                 this.playlists.list.push(playlist)
+            } else {
+                for(let ii = 0; ii < this.playlists.list.length; ii++){
+                    if(this.playlists.list[ii].id === playlist.id){
+                        this.playlists.list[ii] = playlist
+                    }
+                }
             }
             this.playlists.lookup[playlist.id] = playlist
             this.playlists.list.sort((a, b) => {

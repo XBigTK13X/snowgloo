@@ -24,6 +24,11 @@ export default class SongList extends Component {
         if (!this.state.songs || !this.state.songs.list) {
             return null
         }
-        return <Comp.SongPicker songs={this.state.songs.list} playMedia={this.props.playMedia} />
+        return (
+            <div>
+                <h1>Songs</h1>
+                <Comp.SongPicker songs={this.state.songs.list} playMedia={this.props.playMedia} />
+            </div>
+        )
     }
 }
