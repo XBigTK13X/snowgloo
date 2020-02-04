@@ -86,9 +86,6 @@ class Catalog {
                                 }
                                 return false
                             }
-                            if (!x.includes('Compilation')){
-                                return false
-                            }
                             if (!x.includes('.mp3')) {
                                 return false
                             }
@@ -109,24 +106,14 @@ class Catalog {
                             }
                             return a.Track > b.Track ? 1 : -1
                         })
+                    console.log(`Filtered down to ${files.length} songs to process`)
 
                     let serialReads = Promise.resolve()
                     if (pass === 2) {
                         const batchSize = 8
-                        const notifySize = Math.ceil(files.length / 10)
                         let promiseBatches = []
                         for (let ii = 0; ii < files.length; ii += batchSize) {
                             promiseBatches.push(() => {
-                                if (ii % notifySize === 0) {
-                                    console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
-                                    this.rebuildCount = ii
-                                    this.totalCount = files.length
-                                }
-                                else if(ii + notifySize >= files.length - 1){
-                                    console.log(`Reading file ${files.length} of ${files.length} [${files[files.length - 1].LocalFilePath}]`)
-                                    this.rebuildCount = files.length - 1
-                                    this.totalCount = files.length
-                                }
                                 let internalPromises = []
                                 for (let jj = 0; jj < batchSize; jj++) {
                                     if (ii + jj < files.length) {
@@ -136,7 +123,18 @@ class Catalog {
                                 return Promise.all(internalPromises)
                             })
                         }
-                        serialReads = promiseBatches.reduce((m, p) => m.then(v => Promise.all([...v, p()])), Promise.resolve([]))
+                        this.rebuildCount = 0
+                        this.totalCount = promiseBatches.length
+                        const notify = 100
+                        serialReads = promiseBatches.reduce((m, p) => {
+                            return m.then(v => {
+                                this.rebuildCount++
+                                if(this.rebuildCount % notify === 0 || this.rebuildCount >= this.totalCount - 1){                                    
+                                    console.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
+                                }
+                                return Promise.all([...v, p()])
+                            })
+                        }, Promise.resolve([]))
                     }
 
                     serialReads
@@ -172,7 +170,11 @@ class Catalog {
                             workingSet.files.forEach(file => {
                                 workingSet.filesLookup[file.Id] = file
                                 if (!_.has(albums.lookup, file.AlbumSlug)) {
-                                    albums.lookup[file.AlbumSlug] = new MusicAlbum(file, workingSet.albumCoverArts[file.AlbumSlug])
+                                    const album = new MusicAlbum(file, workingSet.albumCoverArts[file.AlbumSlug])
+                                    if(album.ReleaseYear === 9999){
+                                        throw new Error(`Album has no defined year ${JSON.stringify(file)}`)
+                                    }
+                                    albums.lookup[file.AlbumSlug] = album
                                     albums.list.push(file.AlbumSlug)
                                 }
                                 albums.lookup[file.AlbumSlug].Songs.push(file)

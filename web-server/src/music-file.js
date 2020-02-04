@@ -67,6 +67,7 @@ class MusicFile {
         if(this.Kind === 'Compilation'){
             this.SearchTerms += util.searchify(this.DisplayArtist)
         }
+        this.Id = `${this.DisplayArtist}-${this.DisplayAlbum}-${this.Title}`
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
