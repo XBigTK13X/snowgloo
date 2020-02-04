@@ -10,6 +10,7 @@ public class MusicQueue {
     public ArrayList<MusicFile> songs = new ArrayList<MusicFile>();
     public Integer currentIndex = null;
     public UpdateReason updateReason = UpdateReason.SERVER_RELOAD;
+    public boolean isPlaying;
 
     public MusicFile getCurrent(){
         if(songs == null || currentIndex == null || songs.size() == 0 || currentIndex == -1 || currentIndex > songs.size() - 1) {

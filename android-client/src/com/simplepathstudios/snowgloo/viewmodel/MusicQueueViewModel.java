@@ -100,6 +100,22 @@ public class MusicQueueViewModel extends ViewModel {
         });
     }
 
+    public void previousIndex(){
+        MusicQueue data = Data.getValue();
+        if(data.currentIndex != null && data.currentIndex > 0){
+            data.currentIndex--;
+        }
+        Data.setValue(data);
+    }
+
+    public void nextIndex(){
+        MusicQueue data = Data.getValue();
+        if(data.currentIndex != null && data.songs != null && data.songs.size() - 1 > data.currentIndex){
+            data.currentIndex++;
+        }
+        Data.setValue(data);
+    }
+
     public void setCurrentIndex(Integer currentIndex, SelectionMode selectionMode){
         MusicQueue musicQueue = Data.getValue();
         if(musicQueue.currentIndex != null && musicQueue.currentIndex == currentIndex){
@@ -199,5 +215,11 @@ public class MusicQueueViewModel extends ViewModel {
         Collections.shuffle(queue.songs);
         queue.updateReason = MusicQueue.UpdateReason.SHUFFLE;
         save(queue);
+    }
+
+    public void setPlaying(boolean playing){
+        MusicQueue data = Data.getValue();
+        data.isPlaying = playing;
+        Data.setValue(data);
     }
 }

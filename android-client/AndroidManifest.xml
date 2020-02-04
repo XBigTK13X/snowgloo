@@ -15,6 +15,7 @@
         >
 
         <service android:name="com.simplepathstudios.snowgloo.CleanupService" />
+        <service android:name="com.simplepathstudios.snowgloo.audio.AudioService" />
 
 
         <activity

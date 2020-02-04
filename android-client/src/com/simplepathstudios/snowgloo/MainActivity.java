@@ -3,12 +3,16 @@ package com.simplepathstudios.snowgloo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,13 +28,15 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.exoplayer2.ui.PlayerControlView;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.ApiClient;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.audio.AudioPlayer;
+import com.simplepathstudios.snowgloo.audio.AudioService;
+import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 public class MainActivity extends AppCompatActivity{
@@ -42,16 +48,23 @@ public class MainActivity extends AppCompatActivity{
         return __instance;
     }
 
-    private PlayerView localPlayerView;
-    private PlayerControlView castControlView;
     private SettingsViewModel settingsViewModel;
-    private PlayerManager playerManager;
-    private Toolbar toolbar;
+    private MusicQueueViewModel musicQueueViewModel;
+    private MusicQueue queue;
 
+    private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ProgressBar loadingView;
+    private Button previousButton;
+    private Button playButton;
+    private Button pauseButton;
+    private Button nextButton;
+    private SeekBar seekBar;
+    private TextView seekTime;
 
+    private AudioPlayer audioPlayer;
+    private Handler seekHandler;
     private CastContext castContext;
 
     @Override
@@ -75,8 +88,9 @@ public class MainActivity extends AppCompatActivity{
             throw e;
         }
 
-        Intent intent = new Intent(this, CleanupService.class);
-        startService(intent);
+        startService(new Intent(this, CleanupService.class));
+        startService(new Intent(this, AudioService.class));
+
 
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
@@ -103,20 +117,6 @@ public class MainActivity extends AppCompatActivity{
 
         loadingView = findViewById(R.id.loading_indicator);
         LoadingIndicator.setProgressBar(loadingView);
-
-        localPlayerView = findViewById(R.id.local_player_view);
-        localPlayerView.requestFocus();
-
-        castControlView = findViewById(R.id.cast_control_view);
-
-        if(playerManager == null) {
-            playerManager = new PlayerManager(
-                    this,
-                    localPlayerView,
-                    castControlView,
-                    this,
-                    castContext);
-        }
 
         NavController navController = Navigation.findNavController(this,R.id.nav_host_fragment);
         drawerLayout = findViewById(R.id.main_activity_layout);
@@ -158,6 +158,76 @@ public class MainActivity extends AppCompatActivity{
                 return false;
             }
         });
+
+        audioPlayer = AudioPlayer.getInstance();
+
+        playButton = findViewById(R.id.play_button);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioPlayer.play();
+            }
+        });
+        pauseButton = findViewById(R.id.pause_button);
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioPlayer.pause();
+            }
+        });
+        nextButton = findViewById(R.id.next_button);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioPlayer.next();
+            }
+        });
+        previousButton = findViewById(R.id.previous_button);
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioPlayer.previous();
+            }
+        });
+
+        seekBar = findViewById(R.id.seek_bar);
+
+        musicQueueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
+        musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                queue = musicQueue;
+                playButton.setVisibility(musicQueue.isPlaying ? View.GONE : View.VISIBLE);
+                pauseButton.setVisibility(musicQueue.isPlaying ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        seekHandler = new Handler();
+        seekTime = findViewById(R.id.seek_time);
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(queue != null && queue.isPlaying && queue.currentIndex != null){
+                    int currentPosition = (int)(100*((float)audioPlayer.getSongPosition()/audioPlayer.getSongDuration()));
+                    seekBar.setProgress(currentPosition);
+                    seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(audioPlayer.getSongPosition()), Util.songPositionToTimestamp(audioPlayer.getSongDuration())));
+                }
+                seekHandler.postDelayed(this, 1000);
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(audioPlayer != null && fromUser){
+                    audioPlayer.seekTo(progress);
+                }
+            }
+        });
     }
 
     @Override
@@ -172,15 +242,7 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onResume() {
         super.onResume();
-        if(playerManager == null) {
-            Log.d(TAG, "onResume => Create a new PlayerManager");
-            playerManager = new PlayerManager(
-                    this,
-                    localPlayerView,
-                    castControlView,
-                    this,
-                    castContext);
-        }
+        AudioPlayer.getInstance().resume();
     }
 
     @Override
@@ -189,9 +251,6 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void cleanup(){
-        if(playerManager != null){
-            playerManager.release();
-        }
     }
 
     private void showToast(int messageId) {
