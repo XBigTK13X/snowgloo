@@ -83,7 +83,6 @@ public class AlbumViewFragment extends Fragment {
             @Override
             public void onChanged(AlbumView album) {
                 adapter.setData(album.album);
-                listElement.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
             }
         });

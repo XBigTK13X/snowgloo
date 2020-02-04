@@ -29,11 +29,9 @@ export default class SongPicker extends Component {
                         <thead>
                             <tr>
                                 <th className="centered">Actions</th>
-                                <th>Track</th>
                                 <th>Title</th>
                                 <th>Album</th>
                                 <th>Artist</th>
-                                <th>Duration</th>
                                 {this.props.updateSongList ? <th className="centered">Reorder</th> : null}
                             </tr>
                         </thead>

@@ -55,15 +55,18 @@ class MusicFile {
                 this.Title = parts2.join(' - ')
             }
             if (this.Kind === 'Compilation') {
+                let hasOriginalArtist = titleParts.length === 3
                 this.Title = titleParts[1]
-                this.DisplayAlbum = titleParts[2]
-                this.DisplayArtist = this.Album
+                this.DisplayArtist = hasOriginalArtist ? titleParts[2] : this.Album
             }
         }
         this.Album = this.Album.trim()
         this.Artist = this.Artist.trim()
         this.Title = this.Title.trim()
-        this.SearchTitle = util.searchify(this.Title)
+        this.SearchTerms = util.searchify(this.Title)
+        if(this.Kind === 'Compilation'){
+            this.SearchTerms += util.searchify(this.DisplayArtist)
+        }
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
@@ -75,6 +78,10 @@ class MusicFile {
             }
             this.Info = data
         })
+    }
+
+    matches(query){
+        return this.SearchTerms.includes(query)
     }
 }
 

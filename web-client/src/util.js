@@ -5,6 +5,16 @@ const pad = num => {
     return num
 }
 
+const trackPad = num =>{
+    if(num < 10){
+        return '00'+num
+    }
+    if(num < 100){
+        return '0'+num
+    }
+    return num
+}
+
 const breakdown = seconds => {
     let ticks = seconds
     let hh = Math.floor(ticks / 3600)
@@ -31,4 +41,5 @@ const secondsToTimeStamp = seconds => {
 
 export default {
     secondsToTimeStamp,
+    trackPad
 }

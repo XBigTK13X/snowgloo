@@ -7,6 +7,8 @@ const database = require('./database')
 const util = require('./util')
 
 const MusicFile = require('./music-file')
+const MusicAlbum = require('./music-album')
+const MusicArtist = require('./music-artist')
 
 const BUILD_PASSES = 2
 
@@ -50,6 +52,17 @@ class Catalog {
                 if (!force && pass === 1 && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
                     console.log(`Using ${databaseWorkingSet.files.length} cached database results`)
                     this.workingSet = databaseWorkingSet
+                    this.workingSet.files = this.workingSet.files.map(x => {
+                        return new MusicFile(x.LocalFilePath)
+                    })
+                    this.workingSet.albums.list.forEach(albumName => {
+                        const album = this.workingSet.albums.lookup[albumName]
+                        this.workingSet.albums.lookup[albumName] = new MusicAlbum(album,album.CoverArt)
+                    })
+                    this.workingSet.artists.list.forEach(artistName => {
+                        const artist = this.workingSet.artists.lookup[artistName]
+                        this.workingSet.artists.lookup[artistName] = new MusicArtist(artist)
+                    })
                     return resolve(this.workingSet.files)
                 }
                 let workingSet = this.buildingSet
@@ -71,6 +84,9 @@ class Catalog {
                                 if (!x.toLowerCase().includes('small')) {
                                     coverArts.push(x)
                                 }
+                                return false
+                            }
+                            if (!x.includes('Compilation')){
                                 return false
                             }
                             if (!x.includes('.mp3')) {
@@ -96,13 +112,19 @@ class Catalog {
 
                     let serialReads = Promise.resolve()
                     if (pass === 2) {
-                        const batchSize = 300
+                        const batchSize = 8
+                        const notifySize = Math.ceil(files.length / 10)
                         let promiseBatches = []
                         for (let ii = 0; ii < files.length; ii += batchSize) {
                             promiseBatches.push(() => {
-                                if (ii % batchSize === 0 || ii >= files.length - 2) {
+                                if (ii % notifySize === 0) {
                                     console.log(`Reading file ${ii} of ${files.length} [${files[ii].LocalFilePath}]`)
                                     this.rebuildCount = ii
+                                    this.totalCount = files.length
+                                }
+                                else if(ii + notifySize >= files.length - 1){
+                                    console.log(`Reading file ${files.length} of ${files.length} [${files[files.length - 1].LocalFilePath}]`)
+                                    this.rebuildCount = files.length - 1
                                     this.totalCount = files.length
                                 }
                                 let internalPromises = []
@@ -150,18 +172,7 @@ class Catalog {
                             workingSet.files.forEach(file => {
                                 workingSet.filesLookup[file.Id] = file
                                 if (!_.has(albums.lookup, file.AlbumSlug)) {
-                                    albums.lookup[file.AlbumSlug] = {
-                                        Album: file.Album,
-                                        Artist: file.Artist,
-                                        ReleaseYear: file.ReleaseYear,
-                                        ReleaseYearSort: file.ReleaseYearSort,
-                                        Songs: [],
-                                        AlbumSlug: file.AlbumSlug,
-                                        CoverArt: workingSet.albumCoverArts[file.AlbumSlug],
-                                        Kind: file.Kind,
-                                        SubKind: file.SubKind,
-                                        SearchAlbum: util.searchify(file.Album),
-                                    }
+                                    albums.lookup[file.AlbumSlug] = new MusicAlbum(file, workingSet.albumCoverArts[file.AlbumSlug])
                                     albums.list.push(file.AlbumSlug)
                                 }
                                 albums.lookup[file.AlbumSlug].Songs.push(file)
@@ -176,9 +187,7 @@ class Catalog {
                             }
                             workingSet.files.forEach(file => {
                                 if (!_.has(artists.lookup, file.Artist)) {
-                                    artists.lookup[file.Artist] = {
-                                        Artist: file.Artist,
-                                    }
+                                    artists.lookup[file.Artist] = new MusicArtist(file)
                                     artists.list.push(file.Artist)
                                 }
                             })
@@ -204,7 +213,7 @@ class Catalog {
     }
 
     search(query) {
-        query = query.toLowerCase().replace(/\s/g, '')
+        query = util.searchify(query)
         return new Promise(resolve => {
             let results = {
                 Songs: [],
@@ -212,21 +221,27 @@ class Catalog {
                 Albums: [],
                 ItemCount: 0,
             }
-            this.workingSet.files.forEach(file => {
-                if (file.SearchTitle.includes(query)) {
-                    results.Songs.push(file)
+            this.workingSet.files.forEach(musicFile => {
+                if(!musicFile.matches){
+                    console.log(musicFile, musicFile.matches, musicFile.readInfo)
+                }
+                if (musicFile.matches(query)) {
+                    console.log(musicFile)
+                    results.Songs.push(musicFile)
                     results.ItemCount++
                 }
             })
             this.workingSet.albums.list.forEach(albumSlug => {
-                if (this.workingSet.albums.lookup[albumSlug].SearchAlbum.includes(query)) {
-                    results.Albums.push(this.workingSet.albums.lookup[albumSlug])
+                const album = this.workingSet.albums.lookup[albumSlug]
+                if (album.matches(query)) {
+                    results.Albums.push(album)
                     results.ItemCount++
                 }
             })
-            this.workingSet.artists.list.forEach(artist => {
-                if (util.searchify(artist).includes(query)) {
-                    results.Artists.push(this.workingSet.artists.lookup[artist])
+            this.workingSet.artists.list.forEach(artistName => {
+                const artist = this.workingSet.artists.lookup[artistName]
+                if (artist.matches(query)) {
+                    results.Artists.push(artist)
                     results.ItemCount++
                 }
             })

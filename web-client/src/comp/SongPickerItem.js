@@ -69,15 +69,9 @@ export default class SongPickerItem extends Component {
                         )}
                     />
                 </td>
-                <td data-kind="play">
-                    Disc {this.props.song.Disc} Track {this.props.song.Track}
-                </td>
                 <td data-kind="play">{this.props.song.Title}</td>
                 <td data-kind="play">{this.props.song.DisplayAlbum}</td>
                 <td data-kind="play">{this.props.song.DisplayArtist}</td>
-                <td data-kind="play">
-                    <Comp.SongDuration song={this.props.song} />
-                </td>
                 {this.props.updateSongList ? (
                     <td data-kind="reorder" {...this.props.provided.dragHandleProps} className="centered">
                         <div className="small-icon-button" title="Drag to reorder">
