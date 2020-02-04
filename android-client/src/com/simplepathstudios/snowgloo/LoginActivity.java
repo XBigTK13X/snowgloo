@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity{
                 if(settings.Username != null){
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
-
+                    finish();
                 }
             }
         });

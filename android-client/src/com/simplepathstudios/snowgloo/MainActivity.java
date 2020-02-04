@@ -149,7 +149,12 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                if(imm != null){
+                    View focus = getCurrentFocus();
+                    if(focus != null){
+                        imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
+                    }
+                }
                 return false;
             }
         });
