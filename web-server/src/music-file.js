@@ -33,6 +33,7 @@ class MusicFile {
             if (this.Artist === 'Single' || this.Artist === 'Collab' || this.Artist === 'Special') {
                 this.SubKind = parts[parts.length - 3]
                 this.Artist = parts[parts.length - 4]
+                this.DisplayArtist = this.Artist
             }
         }
         let trackAndTitle = parts[parts.length - 1].split('.')
