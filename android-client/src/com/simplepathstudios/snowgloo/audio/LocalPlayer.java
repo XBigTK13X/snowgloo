@@ -3,17 +3,18 @@ package com.simplepathstudios.snowgloo.audio;
 import android.media.MediaPlayer;
 import android.util.Log;
 
+import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+
 public class LocalPlayer implements IAudioPlayer {
     private static final String TAG = "LocalPlayer";
-    private MediaPlayer mediaPlayer;
-    private String currentUrl;
-
-
+    private MediaPlayer media;
+    private String currentSongId;
 
     public LocalPlayer(){
         try {
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            media = new MediaPlayer();
+            media.setOnErrorListener(new MediaPlayer.OnErrorListener() {
 
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -24,10 +25,13 @@ public class LocalPlayer implements IAudioPlayer {
                         Log.d(TAG,"erroronplaying");
                         return false;
                     }
+                    else {
+                        Log.d(TAG, "onError playing");
+                    }
                     return false;
                 }
             });
-            mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            media.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
 
                 public void onBufferingUpdate(MediaPlayer mp, int percent) {
                     Log.d(TAG,"onBufferingUpdate" + percent);
@@ -35,21 +39,21 @@ public class LocalPlayer implements IAudioPlayer {
                 }
             });
 
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 
                 public void onPrepared(MediaPlayer mp) {
-                    mediaPlayer.start();
+                    media.start();
                     Log.d(TAG,"playing");
                 }
             });
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
+            media.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     Log.d(TAG,"completed");
+
                 }
             });
-            mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            media.setOnInfoListener(new MediaPlayer.OnInfoListener() {
                 @Override
                 public boolean onInfo(MediaPlayer mp, int what, int extra) {
                     return false;
@@ -61,71 +65,65 @@ public class LocalPlayer implements IAudioPlayer {
     }
 
     @Override
-    public void play(String url) {
-        if(currentUrl != url){
+    public void play(MusicFile musicFile, int seekPosition) {
+        if(currentSongId == null || !currentSongId.equals(musicFile.Id)){
             try{
-                mediaPlayer.reset();
-                mediaPlayer.setDataSource(url);
-                mediaPlayer.prepareAsync();
-                currentUrl = url;
+                media.reset();
+                media.setDataSource(musicFile.AudioUrl);
+                media.prepareAsync();
+                media.seekTo(seekPosition);
+                currentSongId = musicFile.Id;
             } catch(Exception e){
                 Log.e(TAG, "An error occurred while playing",e);
             }
         }
         else {
-            mediaPlayer.start();
+            media.seekTo(seekPosition);
+            media.start();
         }
     }
 
     @Override
     public void stop() {
-        mediaPlayer.stop();
+        media.stop();
     }
 
     @Override
     public void pause() {
-        mediaPlayer.pause();
+        media.pause();
     }
 
     @Override
     public void seek(int percent) {
-        mediaPlayer.seekTo((int)(mediaPlayer.getDuration() * ((float)percent/100)));
+        media.seekTo((int)(getSongDuration() * ((float)percent/100)));
     }
 
     @Override
     public void resume() {
-        mediaPlayer.start();
-    }
-
-    @Override
-    public void next() {
-    }
-
-    @Override
-    public void previous() {
+        media.start();
     }
 
     @Override
     public boolean isPlaying(){
-        return mediaPlayer.isPlaying();
+        return media.isPlaying();
     }
 
     @Override
     public int getCurrentPosition() {
-        return mediaPlayer.getCurrentPosition();
+        return media.getCurrentPosition();
     }
 
     @Override
     public int getSongDuration(){
         if(isPlaying()){
-            return mediaPlayer.getDuration();
+            return media.getDuration();
         }
         return 0;
     }
 
     @Override
     public void destroy() {
-        mediaPlayer.stop();
-        mediaPlayer.release();
+        media.stop();
+        media.release();
     }
 }

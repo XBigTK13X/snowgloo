@@ -30,21 +30,23 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastState;
+import com.google.android.gms.cast.framework.CastStateListener;
 import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
-import com.simplepathstudios.snowgloo.audio.AudioService;
 import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
 
     private static MainActivity __instance;
-    public static MainActivity getInstance(){
+
+    public static MainActivity getInstance() {
         return __instance;
     }
 
@@ -84,13 +86,10 @@ public class MainActivity extends AppCompatActivity{
                 }
                 cause = cause.getCause();
             }
-            // Unknown error. We propagate it.
             throw e;
         }
 
         startService(new Intent(this, CleanupService.class));
-        startService(new Intent(this, AudioService.class));
-
 
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
@@ -207,7 +206,7 @@ public class MainActivity extends AppCompatActivity{
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(queue != null && queue.isPlaying && queue.currentIndex != null){
+                if(queue != null && queue.isPlaying && queue.currentIndex != null && audioPlayer.isPlaying()){
                     int currentPosition = (int)(100*((float)audioPlayer.getSongPosition()/audioPlayer.getSongDuration()));
                     seekBar.setProgress(currentPosition);
                     seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(audioPlayer.getSongPosition()), Util.songPositionToTimestamp(audioPlayer.getSongDuration())));
@@ -225,6 +224,23 @@ public class MainActivity extends AppCompatActivity{
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(audioPlayer != null && fromUser){
                     audioPlayer.seekTo(progress);
+                }
+            }
+        });
+
+        castContext.addCastStateListener(new CastStateListener() {
+            @Override
+            public void onCastStateChanged(int i) {
+                if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
+                    Log.d(TAG,"Cast state is now "+i+" the chromecast is disconnected.");
+                    audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                }
+                else if(i == CastState.CONNECTING){
+                    Log.d(TAG,"Cast state is now "+i+" the chromecast is handshaking.");
+                }
+                else if(i == CastState.CONNECTED){
+                    Log.d(TAG,"Cast state is now "+i+" the chromecast is connected.");
+                    audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
                 }
             }
         });
@@ -250,7 +266,15 @@ public class MainActivity extends AppCompatActivity{
         super.onPause();
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d(TAG, "Destruction occurred");
+        audioPlayer.destroy();
+    }
+
     public void cleanup(){
+        audioPlayer.destroy();
     }
 
     private void showToast(int messageId) {

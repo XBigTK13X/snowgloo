@@ -1,14 +1,14 @@
 package com.simplepathstudios.snowgloo.audio;
 
+import com.simplepathstudios.snowgloo.api.model.MusicFile;
+
 interface IAudioPlayer {
-    void play(String url);
+    void play(MusicFile musicFile, int seekPosition);
     void stop();
     void pause();
-    void seek(int position);
+    void seek(int percent);
     void destroy();
     void resume();
-    void next();
-    void previous();
     boolean isPlaying();
     int getCurrentPosition();
     int getSongDuration();

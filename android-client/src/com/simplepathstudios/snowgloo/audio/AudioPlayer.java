@@ -8,7 +8,14 @@ import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
 
+import android.util.Log;
+
 public class AudioPlayer {
+    public enum PlaybackMode {
+        LOCAL,
+        REMOTE
+    }
+    private static final String TAG = "AudioPlayer";
     private static AudioPlayer __instance;
     public static AudioPlayer getInstance(){
         if(__instance == null){
@@ -19,22 +26,33 @@ public class AudioPlayer {
 
     IAudioPlayer currentPlayer;
     LocalPlayer localPlayer;
-    IAudioPlayer remotePlayer;
+    CastPlayer remotePlayer;
     MusicQueueViewModel viewModel;
     MusicQueue queue;
     int lastIndex;
+    int seekPosition;
 
     private AudioPlayer() {
         this.localPlayer = new LocalPlayer();
-        this.currentPlayer = this.localPlayer;
-        this.remotePlayer = new NullPlayer();
+        this.remotePlayer = new CastPlayer();
+        if(this.remotePlayer.isCasting()){
+            this.currentPlayer = this.remotePlayer;
+        }
+        else {
+            this.currentPlayer = this.localPlayer;
+        }
         this.viewModel = new ViewModelProvider(MainActivity.getInstance()).get(MusicQueueViewModel.class);
         this.viewModel.Data.observe(MainActivity.getInstance(), new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 if(musicQueue != null && musicQueue.currentIndex != null &&  musicQueue.currentIndex  != lastIndex){
-                    viewModel.setPlaying(true);
-                    currentPlayer.play(musicQueue.getCurrent().AudioUrl);
+                    Log.d(TAG, "Music queue changed. currentIndex is " + musicQueue.currentIndex + " with "+musicQueue.songs.size()+ " songs playing on "+(currentPlayer == remotePlayer?"Chromecast":"Local Device"));
+                    MusicFile musicFile = musicQueue.getCurrent();
+                    if(musicFile != null){
+                        viewModel.setPlaying(true);
+                        seekPosition = 0;
+                        currentPlayer.play(musicFile, seekPosition);
+                    }
                     lastIndex = musicQueue.currentIndex;
                 }
                 queue = musicQueue;
@@ -45,29 +63,29 @@ public class AudioPlayer {
     public void play(){
         MusicFile song = queue.getCurrent();
         viewModel.setPlaying(true);
-        this.currentPlayer.play(song.AudioUrl);
+        currentPlayer.play(song, seekPosition);
     }
 
     public int getSongPosition(){
-        return this.currentPlayer.getCurrentPosition();
+        return currentPlayer.getCurrentPosition();
     }
 
     public int getSongDuration(){
-        return this.currentPlayer.getSongDuration();
+        return currentPlayer.getSongDuration();
     }
 
     public void seekTo(int position){
-        this.currentPlayer.seek(position);
+        currentPlayer.seek(position);
     }
 
     public void pause(){
-        this.currentPlayer.pause();
+        currentPlayer.pause();
         viewModel.setPlaying(false);
     }
 
     public void resume(){
         viewModel.setPlaying(true);
-        this.currentPlayer.resume();
+        currentPlayer.resume();
     }
 
     public void next(){
@@ -76,6 +94,27 @@ public class AudioPlayer {
 
     public void previous(){
         viewModel.previousIndex();
+    }
+
+    public void setPlaybackMode(PlaybackMode mode){
+        seekPosition = currentPlayer.getCurrentPosition();
+        if(mode == PlaybackMode.LOCAL){
+            if(currentPlayer == remotePlayer){
+                remotePlayer.pause();
+            }
+            currentPlayer = localPlayer;
+        }
+        else if(mode == PlaybackMode.REMOTE) {
+            if(currentPlayer == localPlayer){
+                localPlayer.pause();
+            }
+            currentPlayer = remotePlayer;
+        }
+        currentPlayer.play(queue.getCurrent(), seekPosition);
+    }
+
+    public boolean isPlaying(){
+        return currentPlayer.isPlaying();
     }
 
     public void destroy(){
