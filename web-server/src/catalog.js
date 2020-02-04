@@ -129,7 +129,7 @@ class Catalog {
                         serialReads = promiseBatches.reduce((m, p) => {
                             return m.then(v => {
                                 this.rebuildCount++
-                                if(this.rebuildCount % notify === 0 || this.rebuildCount >= this.totalCount - 1){                                    
+                                if(this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount >= this.totalCount - 1){
                                     console.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
                                 }
                                 return Promise.all([...v, p()])
@@ -224,11 +224,7 @@ class Catalog {
                 ItemCount: 0,
             }
             this.workingSet.files.forEach(musicFile => {
-                if(!musicFile.matches){
-                    console.log(musicFile, musicFile.matches, musicFile.readInfo)
-                }
                 if (musicFile.matches(query)) {
-                    console.log(musicFile)
                     results.Songs.push(musicFile)
                     results.ItemCount++
                 }
