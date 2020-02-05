@@ -18,39 +18,21 @@ public class LocalPlayer implements IAudioPlayer {
 
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    if (extra == MediaPlayer.MEDIA_ERROR_SERVER_DIED
-                            || extra == MediaPlayer.MEDIA_ERROR_MALFORMED) {
-                        Log.d(TAG,"erroronplaying");
-                    } else if (extra == MediaPlayer.MEDIA_ERROR_IO) {
-                        Log.d(TAG,"erroronplaying");
-                        return false;
-                    }
-                    else {
-                        Log.d(TAG, "onError playing");
-                    }
-                    return false;
-                }
-            });
-            media.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    Log.d(TAG,"onBufferingUpdate" + percent);
-
+                    // If an error occurs, returning true prevents a call to the onCompletionListener
+                    return true;
                 }
             });
 
             media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-
                 public void onPrepared(MediaPlayer mp) {
+                    Log.d(TAG,"started playback from prepared listener");
                     media.start();
-                    Log.d(TAG,"playing");
                 }
             });
             media.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    Log.d(TAG,"completed");
-
+                    AudioPlayer.getInstance().next();
                 }
             });
             media.setOnInfoListener(new MediaPlayer.OnInfoListener() {
