@@ -4,11 +4,6 @@ package com.simplepathstudios.snowgloo.audio;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.cast.ApplicationMetadata;
-import com.google.android.gms.cast.Cast;
-import com.google.android.gms.cast.Cast.Listener;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaSeekOptions;
@@ -17,9 +12,6 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
@@ -137,8 +129,12 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public void destroy() {
-        media.stop();
-        sessionManager.endCurrentSession(true);
+        if(media != null){
+            media.stop();
+        }
+        if(sessionManager != null){
+            sessionManager.endCurrentSession(true);
+        }
     }
 
     @Override

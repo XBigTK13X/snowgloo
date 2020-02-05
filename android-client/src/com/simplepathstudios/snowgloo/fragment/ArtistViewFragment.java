@@ -21,18 +21,19 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.viewmodel.ArtistViewViewModel;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import java.util.ArrayList;
 
 public class ArtistViewFragment extends Fragment {
     private final String TAG = "ArtistViewFragment";
     private ArtistViewViewModel artistViewViewModel;
-    private MusicQueueViewModel musicQueueViewModel;
+    private ObservableMusicQueue observableMusicQueue;
 
     private String artistName;
     private MenuItem addToQueueButton;
@@ -51,7 +52,7 @@ public class ArtistViewFragment extends Fragment {
         addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                AddArtistToQueueDialogFragment dialogFragment = new AddArtistToQueueDialogFragment(artistViewViewModel, musicQueueViewModel);
+                AddArtistToQueueDialogFragment dialogFragment = new AddArtistToQueueDialogFragment(artistViewViewModel, observableMusicQueue);
                 dialogFragment.show(getChildFragmentManager(),"add-artist-to-queue-dialog");
                 return false;
             }
@@ -66,7 +67,7 @@ public class ArtistViewFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(artistName);
 
         artistViewViewModel = new ViewModelProvider(this).get(ArtistViewViewModel.class);
-        musicQueueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
+        observableMusicQueue = ObservableMusicQueue.getInstance();
         artistViewViewModel.Data.observe(getViewLifecycleOwner(), new Observer<ArtistView>() {
             @Override
             public void onChanged(ArtistView artistView) {

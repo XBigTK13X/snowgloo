@@ -2,7 +2,13 @@ package com.simplepathstudios.snowgloo.viewmodel;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import com.simplepathstudios.snowgloo.LoadingIndicator;
@@ -11,6 +17,7 @@ import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 
+import java.io.ObjectInputValidation;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -18,7 +25,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MusicQueueViewModel extends ViewModel {
+public class ObservableMusicQueue {
+    private static ObservableMusicQueue __instance;
+    public static ObservableMusicQueue getInstance(){
+        if(__instance == null){
+            __instance = new ObservableMusicQueue();
+        }
+        return __instance;
+    }
+
     public enum SelectionMode {
         UserChoice,
         PlayerAction
@@ -26,10 +41,17 @@ public class MusicQueueViewModel extends ViewModel {
 
     public MutableLiveData<MusicQueue> Data;
     private boolean firstLoad;
-    public MusicQueueViewModel(){
+    private ArrayList<Observer<MusicQueue>> observers;
+
+    public ObservableMusicQueue(){
         Data = new MutableLiveData<MusicQueue>();
-        Data.setValue(MusicQueue.EMPTY);
+        observers = new ArrayList<>();
+        update(MusicQueue.EMPTY);
         this.firstLoad = true;
+    }
+
+    public void observe(Observer<MusicQueue> observer){
+        observers.add(observer);
     }
 
     public MusicFile getCurrent(){
@@ -48,17 +70,17 @@ public class MusicQueueViewModel extends ViewModel {
         ApiClient.getInstance().getQueue().enqueue(new Callback< MusicQueue >(){
             @Override
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
-                Log.d("MusicQueueViewModel","Successful load");
+                Log.d("ObservableMusicQueue","Successful load");
                 LoadingIndicator.setLoading(false);
                 MusicQueue musicQueue = response.body();
                 musicQueue.updateReason = firstLoad ? MusicQueue.UpdateReason.SERVER_FIRST_LOAD : MusicQueue.UpdateReason.SERVER_RELOAD;
                 firstLoad = false;
-                Data.setValue(musicQueue);
+                update(musicQueue);
             }
 
             @Override
             public void onFailure(Call<MusicQueue> call, Throwable t) {
-                Log.e("MusicQueueViewModel","Failed",t);
+                Log.e("ObservableMusicQueue","Failed",t);
                 LoadingIndicator.setLoading(false);
             }
         });
@@ -68,14 +90,14 @@ public class MusicQueueViewModel extends ViewModel {
         ApiClient.getInstance().setQueue(musicQueue).enqueue(new Callback< MusicQueuePayload >(){
             @Override
             public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
-                Log.d("MusicQueueViewModel.save","Successful save");
-                Data.setValue(musicQueue);
+                Log.d("ObservableMusicQueue.save","Successful save");
+                update(musicQueue);
                 LoadingIndicator.setLoading(false);
             }
 
             @Override
             public void onFailure(Call<MusicQueuePayload> call, Throwable t) {
-                Log.e("MusicQueueViewModel.save","Failed",t);
+                Log.e("ObservableMusicQueue.save","Failed",t);
                 LoadingIndicator.setLoading(false);
             }
         });
@@ -88,14 +110,14 @@ public class MusicQueueViewModel extends ViewModel {
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
                 MusicQueue musicQueue = response.body();
                 musicQueue.updateReason = MusicQueue.UpdateReason.CLEAR;
-                Data.setValue(musicQueue);
+                update(musicQueue);
                 LoadingIndicator.setLoading(false);
             }
 
             @Override
             public void onFailure(Call<MusicQueue> call, Throwable t) {
                 LoadingIndicator.setLoading(false);
-                Log.e("MusicQueueViewModel.clear","Failed",t);
+                Log.e("ObservableMusicQueue.clear","Failed",t);
             }
         });
     }
@@ -103,17 +125,17 @@ public class MusicQueueViewModel extends ViewModel {
     public void previousIndex(){
         MusicQueue data = Data.getValue();
         if(data.currentIndex != null && data.currentIndex > 0){
-            data.currentIndex--;
+            data.currentIndex -= 1;
         }
-        Data.setValue(data);
+        update(data);
     }
 
     public void nextIndex(){
         MusicQueue data = Data.getValue();
         if(data.currentIndex != null && data.songs != null && data.songs.size() - 1 > data.currentIndex){
-            data.currentIndex++;
+            data.currentIndex += 1;
         }
-        Data.setValue(data);
+        update(data);
     }
 
     public void setCurrentIndex(Integer currentIndex, SelectionMode selectionMode){
@@ -220,6 +242,17 @@ public class MusicQueueViewModel extends ViewModel {
     public void setPlaying(boolean playing){
         MusicQueue data = Data.getValue();
         data.isPlaying = playing;
-        Data.setValue(data);
+        update(data);
+    }
+
+    private void update(MusicQueue musicQueue){
+        MusicQueue current = Data.getValue();
+        // TODO This seems to be properly called, but the condition is failing for some reason
+        if(current == null || current.isPlaying != musicQueue.isPlaying || current.currentIndex != musicQueue.currentIndex || current.songs.size() != musicQueue.songs.size()){
+            Data.postValue(musicQueue);
+            for(Observer<MusicQueue> observer: observers){
+                observer.onChanged(musicQueue);
+            }
+        }
     }
 }

@@ -27,10 +27,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.exoplayer2.C;
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG;
 
@@ -38,7 +39,7 @@ public class QueueFragment extends Fragment {
     static final String TAG = "QueueFragment";
 
     private QueueFragment.Adapter adapter;
-    private MusicQueueViewModel viewModel;
+    private ObservableMusicQueue observableMusicQueue;
     private LinearLayoutManager layoutManager;
     private RecyclerView listView;
     private ItemTouchHelper itemTouchHelper;
@@ -59,7 +60,7 @@ public class QueueFragment extends Fragment {
         clearQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                viewModel.clear();
+                observableMusicQueue.clear();
                 return false;
             }
         });
@@ -67,7 +68,7 @@ public class QueueFragment extends Fragment {
         shuffleQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                viewModel.shuffle();
+                observableMusicQueue.shuffle();
                 return false;
             }
         });
@@ -91,8 +92,8 @@ public class QueueFragment extends Fragment {
         listView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity());
         listView.setLayoutManager(layoutManager);
-        viewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
-        viewModel.Data.observe(getViewLifecycleOwner(), new Observer<MusicQueue>() {
+        observableMusicQueue = ObservableMusicQueue.getInstance();
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 Log.d(TAG,"Music files have changed "+musicQueue.songs.size());
@@ -105,7 +106,7 @@ public class QueueFragment extends Fragment {
             }
         });
 
-        this.viewModel.load();
+        this.observableMusicQueue.load();
     }
 
     public void onResume(){
@@ -160,7 +161,7 @@ public class QueueFragment extends Fragment {
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
             int position = viewHolder.getAdapterPosition();
-            viewModel.removeItem(position);
+            observableMusicQueue.removeItem(position);
         }
 
         @Override
@@ -169,7 +170,7 @@ public class QueueFragment extends Fragment {
             viewHolder.itemView.setAlpha(1.0f);
             if (draggingFromPosition != C.INDEX_UNSET) {
                 ViewHolder holder = (ViewHolder) viewHolder;
-                viewModel.moveItem(holder.musicFile,draggingFromPosition, draggingToPosition);
+                observableMusicQueue.moveItem(holder.musicFile,draggingFromPosition, draggingToPosition);
             }
             draggingFromPosition = C.INDEX_UNSET;
             draggingToPosition = C.INDEX_UNSET;
@@ -239,7 +240,7 @@ public class QueueFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            viewModel.setCurrentIndex(getAdapterPosition(), MusicQueueViewModel.SelectionMode.UserChoice);
+            observableMusicQueue.setCurrentIndex(getAdapterPosition(), ObservableMusicQueue.SelectionMode.UserChoice);
         }
     }
 

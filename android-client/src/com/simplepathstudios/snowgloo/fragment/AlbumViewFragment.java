@@ -21,17 +21,18 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.viewmodel.AlbumViewViewModel;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 public class AlbumViewFragment extends Fragment {
     private final String TAG = "AlbumViewFragment";
 
-    private MusicQueueViewModel queueViewModel;
+    private ObservableMusicQueue observableMusicQueue;
     private AlbumViewViewModel albumViewModel;
     private String albumSlug;
     private String albumDisplay;
@@ -54,7 +55,7 @@ public class AlbumViewFragment extends Fragment {
         addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                queueViewModel.addItems(albumViewModel.Data.getValue().album.Songs);
+                observableMusicQueue.addItems(albumViewModel.Data.getValue().album.Songs);
                 return false;
             }
         });
@@ -72,7 +73,7 @@ public class AlbumViewFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        queueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
+        observableMusicQueue = ObservableMusicQueue.getInstance();
         listElement = view.findViewById(R.id.album_songs);
         adapter = new AlbumViewFragment.Adapter();
         listElement.setAdapter(adapter);
@@ -103,7 +104,7 @@ public class AlbumViewFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            queueViewModel.addItem(musicFile);
+            observableMusicQueue.addItem(musicFile);
         }
 
         public void onCreateContextMenu(ContextMenu menu, View v,

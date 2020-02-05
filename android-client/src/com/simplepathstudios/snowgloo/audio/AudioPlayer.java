@@ -1,13 +1,11 @@
 package com.simplepathstudios.snowgloo.audio;
 
-import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import android.util.Log;
 
@@ -28,7 +26,7 @@ public class AudioPlayer {
     IAudioPlayer currentPlayer;
     LocalPlayer localPlayer;
     CastPlayer remotePlayer;
-    MusicQueueViewModel viewModel;
+    ObservableMusicQueue observableMusicQueue;
     MusicQueue queue;
     int lastIndex;
     int seekPosition;
@@ -42,29 +40,26 @@ public class AudioPlayer {
         else {
             this.currentPlayer = this.localPlayer;
         }
+        this.observableMusicQueue = ObservableMusicQueue.getInstance();
+    }
 
-        this.viewModel = new ViewModelProvider(MainActivity.getInstance()).get(MusicQueueViewModel.class);
-        this.viewModel.Data.observe(MainActivity.getInstance(), new Observer<MusicQueue>() {
-            @Override
-            public void onChanged(MusicQueue musicQueue) {
-                if(musicQueue != null && musicQueue.currentIndex != null &&  musicQueue.currentIndex  != lastIndex){
-                    Log.d(TAG, "Music queue changed. currentIndex is " + musicQueue.currentIndex + " with "+musicQueue.songs.size()+ " songs playing on "+(currentPlayer == remotePlayer?"Chromecast":"Local Device"));
-                    MusicFile musicFile = musicQueue.getCurrent();
-                    if(musicFile != null){
-                        viewModel.setPlaying(true);
-                        seekPosition = 0;
-                        currentPlayer.play(musicFile, seekPosition);
-                    }
-                    lastIndex = musicQueue.currentIndex;
-                }
-                queue = musicQueue;
+    public void handleUpdate(MusicQueue musicQueue){
+        if(musicQueue != null && musicQueue.currentIndex != null &&  musicQueue.currentIndex  != lastIndex){
+            Log.d(TAG, "Music queue changed. currentIndex is " + musicQueue.currentIndex + " with "+musicQueue.songs.size()+ " songs playing on "+(currentPlayer == remotePlayer?"Chromecast":"Local Device"));
+            MusicFile musicFile = musicQueue.getCurrent();
+            if(musicFile != null){
+                observableMusicQueue.setPlaying(true);
+                seekPosition = 0;
+                currentPlayer.play(musicFile, seekPosition);
             }
-        });
+            lastIndex = musicQueue.currentIndex;
+        }
+        queue = musicQueue;
     }
 
     public void play(){
         MusicFile song = queue.getCurrent();
-        viewModel.setPlaying(true);
+        observableMusicQueue.setPlaying(true);
         currentPlayer.play(song, seekPosition);
     }
 
@@ -82,20 +77,20 @@ public class AudioPlayer {
 
     public void pause(){
         currentPlayer.pause();
-        viewModel.setPlaying(false);
+        observableMusicQueue.setPlaying(false);
     }
 
     public void resume(){
-        viewModel.setPlaying(true);
+        observableMusicQueue.setPlaying(true);
         currentPlayer.resume();
     }
 
     public void next(){
-        viewModel.nextIndex();
+        observableMusicQueue.nextIndex();
     }
 
     public void previous(){
-        viewModel.previousIndex();
+        observableMusicQueue.previousIndex();
     }
 
     public void setPlaybackMode(PlaybackMode mode){

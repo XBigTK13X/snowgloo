@@ -11,7 +11,7 @@ import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.viewmodel.ArtistViewViewModel;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +21,9 @@ public class AddArtistToQueueDialogFragment extends DialogFragment {
     private ArrayList<String> selectedItems;
     private String[] possibleItems;
     private ArtistViewViewModel artistViewViewModel;
-    private MusicQueueViewModel musicQueueViewModel;
+    private ObservableMusicQueue musicQueueViewModel;
 
-    public AddArtistToQueueDialogFragment(ArtistViewViewModel artistViewViewModel, MusicQueueViewModel musicQueueViewModel){
+    public AddArtistToQueueDialogFragment(ArtistViewViewModel artistViewViewModel, ObservableMusicQueue musicQueueViewModel){
         this.artistViewViewModel = artistViewViewModel;
         this.musicQueueViewModel = musicQueueViewModel;
     }

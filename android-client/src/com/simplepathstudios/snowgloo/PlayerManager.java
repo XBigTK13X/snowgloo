@@ -12,7 +12,6 @@ import android.view.View;
 
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
@@ -37,7 +36,7 @@ import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -60,7 +59,7 @@ public class PlayerManager {
 
     private ConcatenatingMediaSource concatenatingMediaSource;
     private PlayerNotificationManager playerNotificationManager;
-    private MusicQueueViewModel musicQueueViewModel;
+    private ObservableMusicQueue observableMusicQueue;
     private Integer currentItemIndex;
 
     private String lastPreparedContentHash;
@@ -80,8 +79,8 @@ public class PlayerManager {
         currentItemIndex = null;
         concatenatingMediaSource = new ConcatenatingMediaSource();
         mediaItemConverter = new DefaultMediaItemConverter();
-        musicQueueViewModel = new ViewModelProvider(mainActivity).get(MusicQueueViewModel.class);
-        musicQueueViewModel.Data.observe(mainActivity, new Observer<MusicQueue>() {
+        observableMusicQueue = ObservableMusicQueue.getInstance();
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 handleUpdate(musicQueue);
@@ -98,7 +97,7 @@ public class PlayerManager {
                     Log.d(TAG, String.format("Local player discontinuity reason => [%d]",reason));
                     int playerIndex = currentPlayer.getCurrentWindowIndex();
                     if(currentItemIndex != null && currentItemIndex != playerIndex){
-                        musicQueueViewModel.setCurrentIndex(playerIndex, MusicQueueViewModel.SelectionMode.PlayerAction);
+                        observableMusicQueue.setCurrentIndex(playerIndex, ObservableMusicQueue.SelectionMode.PlayerAction);
                     }
                 }
             }
@@ -117,7 +116,7 @@ public class PlayerManager {
                 Log.d(TAG, String.format("Cast tracks changed currentIndex => %d playerIndex => %d", currentItemIndex, playerIndex));
                 if(currentItemIndex != null && currentItemIndex != playerIndex){
                     Log.d(TAG, "Firing off an update from the player");
-                    musicQueueViewModel.setCurrentIndex(playerIndex, MusicQueueViewModel.SelectionMode.PlayerAction);
+                    observableMusicQueue.setCurrentIndex(playerIndex, ObservableMusicQueue.SelectionMode.PlayerAction);
                 }
             }
         });
@@ -280,7 +279,7 @@ public class PlayerManager {
     }
 
     public MusicFile getCurrentMusic(){
-        return musicQueueViewModel.getCurrent();
+        return observableMusicQueue.getCurrent();
     }
 
     private MediaSource buildMediaSource(MusicFile item) {
@@ -345,7 +344,7 @@ public class PlayerManager {
                 Log.d(TAG, String.format("Cast player state changed currentIndex => %d playerIndex => %d playbackState => %d playWhenReady => %b",currentItemIndex, playerIndex, playbackState, playWhenReady));
                 if(playbackState == Player.STATE_READY){
                     if(currentItemIndex != null && currentItemIndex != playerIndex){
-                        musicQueueViewModel.setCurrentIndex(playerIndex, MusicQueueViewModel.SelectionMode.PlayerAction);
+                        observableMusicQueue.setCurrentIndex(playerIndex, ObservableMusicQueue.SelectionMode.PlayerAction);
                     }
                 }
             }

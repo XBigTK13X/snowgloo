@@ -37,6 +37,7 @@ public class LocalPlayer implements IAudioPlayer {
             });
             media.setOnInfoListener(new MediaPlayer.OnInfoListener() {
                 @Override
+
                 public boolean onInfo(MediaPlayer mp, int what, int extra) {
                     return false;
                 }

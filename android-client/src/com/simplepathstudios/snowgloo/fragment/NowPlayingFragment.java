@@ -2,7 +2,6 @@ package com.simplepathstudios.snowgloo.fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -15,14 +14,14 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.CoverArt;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.squareup.picasso.Picasso;
 
 import retrofit2.Call;
@@ -34,7 +33,6 @@ public class NowPlayingFragment extends Fragment {
 
     private TextView trackMetadataView;
     private ImageView coverArt;
-    private MusicQueueViewModel musicQueueViewModel;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "NowPlayingFragment initiated");
@@ -46,8 +44,7 @@ public class NowPlayingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         trackMetadataView = view.findViewById(R.id.track_metadata);
         coverArt = view.findViewById(R.id.cover_art);
-        this.musicQueueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
-        musicQueueViewModel.Data.observe(getViewLifecycleOwner(), new Observer<MusicQueue>() {
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 Log.d(TAG, "Updating now playing track metadata");

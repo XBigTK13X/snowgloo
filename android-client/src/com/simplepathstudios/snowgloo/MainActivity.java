@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -31,14 +30,11 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.gms.cast.framework.CastState;
-import com.google.android.gms.cast.framework.CastStateListener;
-import com.google.android.gms.dynamite.DynamiteModule;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 public class MainActivity extends AppCompatActivity {
@@ -52,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private SettingsViewModel settingsViewModel;
-    private MusicQueueViewModel musicQueueViewModel;
+    private ObservableMusicQueue musicQueue;
     private MusicQueue queue;
 
     private Toolbar toolbar;
@@ -68,28 +64,15 @@ public class MainActivity extends AppCompatActivity {
 
     private AudioPlayer audioPlayer;
     private Handler seekHandler;
-    private CastContext castContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         __instance = this;
+        musicQueue = ObservableMusicQueue.getInstance();
 
         // Getting the cast context later than onStart can cause device discovery not to take place.
-        try {
-            castContext = CastContext.getSharedInstance(this);
-        } catch (RuntimeException e) {
-            Throwable cause = e.getCause();
-            while (cause != null) {
-                if (cause instanceof DynamiteModule.LoadingException) {
-                    setContentView(R.layout.cast_context_error);
-                    return;
-                }
-                cause = cause.getCause();
-            }
-            throw e;
-        }
-
+        CastContext.getSharedInstance(this);
         MediaNotification.registerActivity(this);
         audioPlayer = AudioPlayer.getInstance();
         startService(new Intent(this, SnowglooService.class));
@@ -192,8 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
         seekBar = findViewById(R.id.seek_bar);
 
-        musicQueueViewModel = new ViewModelProvider(this).get(MusicQueueViewModel.class);
-        musicQueueViewModel.Data.observe(this, new Observer<MusicQueue>() {
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 queue = musicQueue;
@@ -230,23 +212,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        castContext.addCastStateListener(new CastStateListener() {
-            @Override
-            public void onCastStateChanged(int i) {
-                if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
-                    Log.d(TAG,"Cast state is now "+i+" the chromecast is disconnected.");
-                    audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
-                }
-                else if(i == CastState.CONNECTING){
-                    Log.d(TAG,"Cast state is now "+i+" the chromecast is handshaking.");
-                }
-                else if(i == CastState.CONNECTED){
-                    Log.d(TAG,"Cast state is now "+i+" the chromecast is connected.");
-                    audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
-                }
-            }
-        });
     }
 
     @Override
@@ -261,22 +226,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        AudioPlayer.getInstance().resume();
+        Log.d(TAG, "Resuming");
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.d(TAG, "Pausing");
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-        Log.d(TAG, "Destruction occurred");
-        audioPlayer.destroy();
+        Log.d(TAG, "Destroying");
     }
 
     public void cleanup(){
+        Log.d(TAG, "Cleaning up");
         audioPlayer.destroy();
     }
 

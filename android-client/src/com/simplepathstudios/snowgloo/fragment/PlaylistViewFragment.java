@@ -18,18 +18,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.model.AlbumView;
-import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.PlaylistViewViewModel;
 
 public class PlaylistViewFragment extends Fragment {
     private final String TAG = "PlaylistViewFragment";
 
-    private MusicQueueViewModel queueViewModel;
+    private ObservableMusicQueue observableMusicQueue;
     private PlaylistViewViewModel playlistViewModel;
     private String playlistId;
     private String playlistName;
@@ -52,7 +51,7 @@ public class PlaylistViewFragment extends Fragment {
         addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                queueViewModel.addItems(playlistViewModel.Data.getValue().songs);
+                observableMusicQueue.addItems(playlistViewModel.Data.getValue().songs);
                 return false;
             }
         });
@@ -71,7 +70,7 @@ public class PlaylistViewFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        queueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
+        observableMusicQueue = ObservableMusicQueue.getInstance();
         listElement = view.findViewById(R.id.playlist_songs);
         adapter = new PlaylistViewFragment.Adapter();
         listElement.setAdapter(adapter);
@@ -106,7 +105,7 @@ public class PlaylistViewFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "Adding "+musicFile.Title + " to queue");
-            queueViewModel.addItem(musicFile);
+            observableMusicQueue.addItem(musicFile);
         }
     }
     private class Adapter extends RecyclerView.Adapter<PlaylistViewFragment.ViewHolder> {

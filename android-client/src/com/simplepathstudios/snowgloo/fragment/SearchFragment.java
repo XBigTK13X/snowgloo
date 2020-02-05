@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,12 +22,13 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.SearchResults;
-import com.simplepathstudios.snowgloo.viewmodel.MusicQueueViewModel;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.SearchResultsViewModel;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
 
     private SearchResultsViewModel searchResultsViewModel;
-    private MusicQueueViewModel queueViewModel;
+    private ObservableMusicQueue observableMusicQueue;
     private EditText searchQuery;
 
     @Override
@@ -61,7 +61,7 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        queueViewModel = new ViewModelProvider(getActivity()).get(MusicQueueViewModel.class);
+        observableMusicQueue = ObservableMusicQueue.getInstance();
         searchResultsViewModel = new ViewModelProvider(getActivity()).get(SearchResultsViewModel.class);
         searchResultsViewModel.Data.observe(getViewLifecycleOwner(), new Observer<SearchResults>() {
             @Override
@@ -232,7 +232,7 @@ public class SearchFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            queueViewModel.addItem(song);
+            observableMusicQueue.addItem(song);
         }
 
         @Override
