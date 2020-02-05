@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo.audio;
 
+import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -41,6 +42,7 @@ public class AudioPlayer {
         else {
             this.currentPlayer = this.localPlayer;
         }
+
         this.viewModel = new ViewModelProvider(MainActivity.getInstance()).get(MusicQueueViewModel.class);
         this.viewModel.Data.observe(MainActivity.getInstance(), new Observer<MusicQueue>() {
             @Override

@@ -4,11 +4,16 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import android.provider.MediaStore;
 import android.util.Log;
 
-public class CleanupService extends Service {
+import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 
-    private static final String TAG = "CleanupService";
+public class SnowglooService extends Service {
+
+    private static final String TAG = "SnowglooService";
+
+    AudioPlayer audioPlayer;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -19,6 +24,7 @@ public class CleanupService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate()");
+        audioPlayer = AudioPlayer.getInstance();
     }
 
     @Override

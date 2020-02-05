@@ -1,23 +1,31 @@
 package com.simplepathstudios.snowgloo.audio;
 
 
-import android.media.browse.MediaBrowser;
 import android.net.Uri;
-import android.provider.MediaStore;
+import android.util.Log;
 
-import com.google.android.exoplayer2.ext.cast.MediaItem;
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.cast.ApplicationMetadata;
+import com.google.android.gms.cast.Cast;
+import com.google.android.gms.cast.Cast.Listener;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaSeekOptions;
+import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 
 import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_UNCHANGED;
+import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_FINISHED;
 
 public class CastPlayer implements IAudioPlayer {
     private static final String TAG = "CastPlayer";
@@ -50,6 +58,58 @@ public class CastPlayer implements IAudioPlayer {
         castSession = sessionManager.getCurrentCastSession();
         if(castSession != null){
             media = castSession.getRemoteMediaClient();
+            RemoteMediaClient.Listener idleListener = new RemoteMediaClient.Listener() {
+                @Override
+                public void onStatusUpdated() {
+                    if(media != null){
+                        MediaStatus mediaStatus = media.getMediaStatus();
+
+                        MediaInfo mediaInfo = media.getMediaInfo();
+                        if(mediaStatus != null){
+                            Log.d(TAG, "remote media status updated playerState=>"+mediaStatus.getPlayerState());
+                            int playerState = mediaStatus.getPlayerState();
+                            int idleReason = mediaStatus.getIdleReason();
+                            if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
+                                Log.d(TAG, "Should be going to the next song after " + musicFile.Id);
+                                media.removeListener(this);
+                                AudioPlayer.getInstance().next();
+                            }
+                        }
+                        else {
+                            Log.d(TAG, "remote media status changed => media status is null");
+                        }
+                    }
+                    else {
+                        Log.d(TAG, "remote media status changed => media player is null");
+                    }
+                }
+
+                @Override
+                public void onMetadataUpdated() {
+                    Log.d(TAG, "remote media metadata updated");
+                }
+
+                @Override
+                public void onQueueStatusUpdated() {
+                    Log.d(TAG, "remote media queue status updated");
+                }
+
+                @Override
+                public void onPreloadStatusUpdated() {
+                    Log.d(TAG, "remote media preload status updated");
+                }
+
+                @Override
+                public void onSendingRemoteMediaRequest() {
+                    Log.d(TAG, "remote media sending remote media request updated");
+                }
+
+                @Override
+                public void onAdBreakStatusUpdated() {
+                    Log.d(TAG, "remote media ad break status updated");
+                }
+            };
+            media.addListener(idleListener);
             media.load(prepareMedia(musicFile), true, seekPosition);
         }
     }

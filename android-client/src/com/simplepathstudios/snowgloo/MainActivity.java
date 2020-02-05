@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -89,7 +90,9 @@ public class MainActivity extends AppCompatActivity {
             throw e;
         }
 
-        startService(new Intent(this, CleanupService.class));
+        MediaNotification.registerActivity(this);
+        audioPlayer = AudioPlayer.getInstance();
+        startService(new Intent(this, SnowglooService.class));
 
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
@@ -158,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        audioPlayer = AudioPlayer.getInstance();
-
         playButton = findViewById(R.id.play_button);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,10 +207,12 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(queue != null && queue.isPlaying && queue.currentIndex != null && audioPlayer.isPlaying()){
-                    int currentPosition = (int)(100*((float)audioPlayer.getSongPosition()/audioPlayer.getSongDuration()));
-                    seekBar.setProgress(currentPosition);
-                    seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(audioPlayer.getSongPosition()), Util.songPositionToTimestamp(audioPlayer.getSongDuration())));
+                if(queue != null && queue.isPlaying && queue.currentIndex != null){
+                    int position = audioPlayer.getSongPosition();
+                    int duration = audioPlayer.getSongDuration();
+                    int completionPercent = (int)(100*((float)position/duration));
+                    seekBar.setProgress(completionPercent);
+                    seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
                 }
                 seekHandler.postDelayed(this, 1000);
             }

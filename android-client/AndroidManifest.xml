@@ -15,7 +15,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         >
 
-        <service android:name="com.simplepathstudios.snowgloo.CleanupService" />
+        <service android:name="com.simplepathstudios.snowgloo.SnowglooService" />
 
         <activity
             android:name="com.simplepathstudios.snowgloo.LoginActivity"
