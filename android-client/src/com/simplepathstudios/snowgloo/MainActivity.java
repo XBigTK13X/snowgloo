@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private SettingsViewModel settingsViewModel;
-    private ObservableMusicQueue musicQueue;
+    private ObservableMusicQueue observableMusicQueue;
     private MusicQueue queue;
 
     private Toolbar toolbar;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         __instance = this;
-        musicQueue = ObservableMusicQueue.getInstance();
+        observableMusicQueue = ObservableMusicQueue.getInstance();
 
         // Getting the cast context later than onStart can cause device discovery not to take place.
         CastContext.getSharedInstance(this);
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
         seekHandler = new Handler();
         seekTime = findViewById(R.id.seek_time);
-        MainActivity.this.runOnUiThread(new Runnable() {
+        this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if(queue != null && queue.isPlaying && queue.currentIndex != null){
@@ -194,9 +194,14 @@ public class MainActivity extends AppCompatActivity {
                     int duration = audioPlayer.getSongDuration();
                     int completionPercent = (int)(100*((float)position/duration));
                     seekBar.setProgress(completionPercent);
-                    seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
+                    if(position == 0 && duration == 0){
+                        seekTime.setText("Loading...");
+                    } else {
+                        seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
+                    }
+
                 }
-                seekHandler.postDelayed(this, 1000);
+                seekHandler.postDelayed(this, 1000); //Update every second
             }
         });
 
@@ -212,6 +217,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        observableMusicQueue.load();
     }
 
     @Override
@@ -239,11 +246,6 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         Log.d(TAG, "Destroying");
-    }
-
-    public void cleanup(){
-        Log.d(TAG, "Cleaning up");
-        audioPlayer.destroy();
     }
 
     private void showToast(int messageId) {

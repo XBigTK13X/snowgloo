@@ -13,7 +13,7 @@ public class MusicQueue {
     public boolean isPlaying;
 
     public MusicFile getCurrent(){
-        if(songs == null || currentIndex == null || songs.size() == 0 || currentIndex == -1 || currentIndex > songs.size() - 1) {
+        if(songs == null || currentIndex == null || songs.size() == 0 || currentIndex == -1 || currentIndex > songs.size() - 1 || currentIndex < 0) {
             return MusicFile.EMPTY;
         }
         return songs.get(currentIndex);

@@ -93,12 +93,15 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public int getCurrentPosition() {
-        return media.getCurrentPosition();
+        if(media != null && media.isPlaying()){
+            return media.getCurrentPosition();
+        }
+        return 0;
     }
 
     @Override
     public int getSongDuration(){
-        if(isPlaying()){
+        if(media != null && media.isPlaying()){
             return media.getDuration();
         }
         return 0;

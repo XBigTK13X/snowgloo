@@ -153,11 +153,17 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public int getCurrentPosition() {
-        return (int)media.getApproximateStreamPosition();
+        if(media != null && media.isPlaying()){
+            return (int)media.getApproximateStreamPosition();
+        }
+        return 0;
     }
 
     @Override
     public int getSongDuration() {
-        return (int)media.getStreamDuration();
+        if(media != null && media.isPlaying()){
+            return (int)media.getStreamDuration();
+        }
+        return 0;
     }
 }

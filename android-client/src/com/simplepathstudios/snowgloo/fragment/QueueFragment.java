@@ -105,8 +105,6 @@ public class QueueFragment extends Fragment {
                 }
             }
         });
-
-        this.observableMusicQueue.load();
     }
 
     public void onResume(){
