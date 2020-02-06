@@ -1,12 +1,13 @@
 const settings = require('./settings')
 const inspect = require('./inspect')
 const util = require('./util')
+const asset = require('./asset')
 
 class MusicFile {
     constructor(path) {
         const parts = path.split('/')
         this.LocalFilePath = path
-        this.Id = this.LocalFilePath.replace(settings.mediaRoot, '')
+        this.Id = this.LocalFilePath.replace(settings.mediaRoot, '').replace(/#/g, '%23')
         this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
         this.Kind = 'Artist'
         this.SubKind = null
@@ -17,6 +18,9 @@ class MusicFile {
         } else if (path.includes('/Compilation')) {
             this.Kind = 'Compilation'
         }
+        this.CoverArt = null
+        this.AlbumCoverArt = null
+        this.EmbeddedCoverArt = null
         this.Album = parts[parts.length - 2]
         this.ReleaseYear = 9999
         if (this.Album.includes('(') && this.Album.includes(')')) {
@@ -64,6 +68,8 @@ class MusicFile {
         this.Album = this.Album.trim()
         this.Artist = this.Artist.trim()
         this.Title = this.Title.trim()
+        this.DisplayAlbum = this.DisplayAlbum.trim()
+        this.DisplayArtist = this.DisplayArtist.trim()
         this.SearchTerms = util.searchify(this.Title)
         if (this.Kind === 'Compilation') {
             this.SearchTerms += util.searchify(this.DisplayArtist)
@@ -72,14 +78,35 @@ class MusicFile {
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
-    readInfo() {
-        return inspect.audio(this.LocalFilePath).then(data => {
-            if (data.error) {
-                console.error(this.LocalFilePath, data.error)
-                throw data.error
-            }
-            this.Info = data
+    parseMetadata() {
+        return new Promise(resolve=>{
+            inspect.audio(this.LocalFilePath).then(data => {
+                if (data.error) {
+                    console.error(this.LocalFilePath, data.error)
+                    throw data.error
+                }
+                this.Info = data
+                if(this.EmbeddedCoverArt){
+                    return resolve()
+                }
+                return inspect.embeddedArt(this.LocalFilePath)
+                    .then((embeddedArt)=>{
+                        if(!embeddedArt){
+                            return resolve()
+                        }
+                        let imageName = `${this.Id}.${embeddedArt.extension}`
+                        return asset.getInstance(imageName).write(embeddedArt.content)
+                        .then(()=>{
+                            this.EmbeddedCoverArt = `${settings.mediaServer}/snowgloo/${imageName}`
+                            resolve()
+                        })
+                    })
+            })
+            .catch(err=>{
+                resolve()
+            })
         })
+
     }
 
     matches(query) {

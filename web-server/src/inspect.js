@@ -32,23 +32,21 @@ const audio = path => {
     })
 }
 
-const embeddedArt = (path, albumArtUrl) => {
+const embeddedArt = (path) => {
     return new Promise((resolve, reject) => {
         jsmediatags.read(path, {
             onSuccess: function(tags) {
                 let picture = tags.tags.picture
                 if (!picture) {
-                    return resolve(albumArtUrl)
+                    return resolve(null)
                 }
-                let base64String = ''
-                for (var i = 0; i < picture.data.length; i++) {
-                    base64String += String.fromCharCode(picture.data[i])
-                }
-                var dataUri = 'data:' + picture.format + ';base64,' + btoa(base64String)
-                resolve(dataUri)
+                resolve({
+                    content: Buffer.from(picture.data),
+                    extension: picture.format.split('/')[1]
+                })
             },
             onError: function(error) {
-                resolve(albumArtUrl)
+                resolve(null)
             },
         })
     })

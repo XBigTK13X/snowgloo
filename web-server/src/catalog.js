@@ -53,7 +53,11 @@ class Catalog {
                     console.log(`Using ${databaseWorkingSet.files.length} cached database results`)
                     this.workingSet = databaseWorkingSet
                     this.workingSet.files = this.workingSet.files.map(x => {
-                        return new MusicFile(x.LocalFilePath)
+                        let result = new MusicFile(x.LocalFilePath)
+                        result.CoverArt = x.CoverArt
+                        result.EmbeddedCoverArt = x.EmbeddedCoverArt
+                        result.AlbumCoverArt = x.AlbumCoverArt
+                        return result
                     })
                     this.workingSet.albums.list.forEach(albumName => {
                         const album = this.workingSet.albums.lookup[albumName]
@@ -117,7 +121,7 @@ class Catalog {
                                 let internalPromises = []
                                 for (let jj = 0; jj < batchSize; jj++) {
                                     if (ii + jj < files.length) {
-                                        internalPromises.push(files[ii + jj].readInfo())
+                                        internalPromises.push(files[ii + jj].parseMetadata())
                                     }
                                 }
                                 return Promise.all(internalPromises)
@@ -144,12 +148,13 @@ class Catalog {
                                     let artDir = path.dirname(coverArt)
                                     files.forEach(file => {
                                         if (_.has(albumCoverArts, file.AlbumSlug)) {
-                                            file.CoverArt = albumCoverArts[file.AlbumSlug]
+                                            file.AlbumCoverArt = albumCoverArts[file.AlbumSlug]
                                         }
                                         if (file.LocalFilePath.includes(artDir)) {
-                                            file.CoverArt = `${settings.mediaServer}${coverArt}`
-                                            albumCoverArts[file.AlbumSlug] = `${settings.mediaServer}${coverArt}`
+                                            file.AlbumCoverArt = `${settings.mediaServer}${coverArt}`
+                                            albumCoverArts[file.AlbumSlug] = file.AlbumCoverArt
                                         }
+                                        file.CoverArt = file.EmbeddedCoverArt ? file.EmbeddedCoverArt : file.AlbumCoverArt
                                     })
                                     innerResolve()
                                 })

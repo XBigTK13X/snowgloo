@@ -2,8 +2,6 @@ FROM node:13.6.0
 
 RUN apt-get update && apt-get install nginx ffmpeg -y
 
-COPY script/nginx/site.conf /etc/nginx/sites-enabled/default
-
 WORKDIR /usr/src/app/web-server
 COPY ./web-server/package.json ./package.json
 COPY ./web-server/yarn.lock ./yarn.lock
@@ -23,6 +21,8 @@ WORKDIR /usr/src/app/web-client
 RUN yarn build
 RUN rm -rf /usr/src/app/web-server/src/web-build/
 RUN cp -r /usr/src/app/web-client/build/ /usr/src/app/web-server/src/web-build/
+
+COPY script/nginx/site.conf /etc/nginx/sites-enabled/default
 
 EXPOSE 5050
 WORKDIR /usr/src/app/web-server

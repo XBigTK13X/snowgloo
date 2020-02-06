@@ -3,16 +3,11 @@ const catalog = require('./catalog')
 const musicQueue = require('./music-queue')
 const playlists = require('./playlists')
 const inspect = require('./inspect')
+const asset = require('./asset')
 
 const register = router => {
     router.get('/api/song/list', async (request, response) => {
         response.send(await catalog.getSongs())
-    })
-
-    router.get('/api/song/cover-art', async (request, response) => {
-        response.send({
-            coverArtUri: await inspect.embeddedArt(request.query.songFilePath, request.query.albumCoverUrl),
-        })
     })
 
     router.get('/api/album/list', async (request, response) => {

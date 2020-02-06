@@ -3,6 +3,17 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/cover_art"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:maxWidth="500dp"
+        android:maxHeight="500dp"
+        android:padding="20dp"
+        android:scaleType="fitCenter" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/album_songs"
         android:layout_width="fill_parent"

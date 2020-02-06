@@ -50,30 +50,7 @@ public class NowPlayingFragment extends Fragment {
                 Log.d(TAG, "Updating now playing track metadata");
                 MusicFile currentSong = musicQueue.getCurrent();
                 trackMetadataView.setText(currentSong.getMetadata());
-
-                if(currentSong.CoverArt != null){
-                    ApiClient.getInstance().getCoverArt(currentSong.LocalFilePath, currentSong.CoverArt).enqueue(new Callback<CoverArt>() {
-                        @Override
-                        public void onResponse(Call call, Response response) {
-                            String imageUrl = ((CoverArt)response.body()).coverArtUri;
-                            int base64Location = imageUrl.indexOf("base64,");
-                            if (base64Location == -1) {
-                                Picasso.get().load(currentSong.CoverArt).into(coverArt);
-                            } else {
-                                String imageData = imageUrl.substring(base64Location + 6);
-                                byte[] decodedString = Base64.decode(imageData, Base64.DEFAULT);
-                                Bitmap bitMap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                                coverArt.setImageBitmap(bitMap);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call call, Throwable t) {
-                            Picasso.get().load(currentSong.CoverArt).into(coverArt);
-                        }
-                    });
-
-                }
+                Picasso.get().load(currentSong.CoverArt).into(coverArt);
             }
         });
     }

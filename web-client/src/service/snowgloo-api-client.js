@@ -95,12 +95,6 @@ class ApiClient {
             })
     }
 
-    getEmbeddedArt(songFilePath, albumCoverUrl) {
-        return this.httpClient.get(`/song/cover-art`, { params: { songFilePath, albumCoverUrl } }).then(response => {
-            return response.data
-        })
-    }
-
     catalogRebuild() {
         return this.httpClient.post('admin/catalog/build').then(response => {
             return response.data

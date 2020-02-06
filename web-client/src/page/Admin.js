@@ -88,10 +88,12 @@ export default class Admin extends Component {
                     <h3>Deleted Playlists</h3>
                     <table>
                         <thead>
-                            <th>Name</th>
-                            <th>Id</th>
-                            <th>Songs</th>
-                            <th>Restore</th>
+                            <tr>
+                                <th>Name</th>
+                                <th>Id</th>
+                                <th>Songs</th>
+                                <th>Restore</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {this.state.deletedPlaylists.map((playlist, playlistIndex) => {
