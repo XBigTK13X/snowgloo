@@ -44,15 +44,12 @@ public class AudioPlayer {
     }
 
     public void handleUpdate(MusicQueue musicQueue){
-        if(musicQueue != null && musicQueue.currentIndex != null &&  musicQueue.currentIndex  != lastIndex){
+        if(musicQueue != null && musicQueue.currentIndex != null){
             Log.d(TAG, "Music queue changed. currentIndex is " + musicQueue.currentIndex + " with "+musicQueue.songs.size()+ " songs playing on "+(currentPlayer == remotePlayer?"Chromecast":"Local Device"));
             MusicFile musicFile = musicQueue.getCurrent();
-            if(musicFile != null){
-                observableMusicQueue.setPlaying(true);
-                seekPosition = 0;
-                currentPlayer.play(musicFile, seekPosition);
+            if(musicFile != null && musicQueue.updateReason == MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX){
+                this.play();
             }
-            lastIndex = musicQueue.currentIndex;
         }
         queue = musicQueue;
     }
@@ -60,7 +57,13 @@ public class AudioPlayer {
     public void play(){
         MusicFile song = queue.getCurrent();
         observableMusicQueue.setPlaying(true);
+        seekPosition = 0;
         currentPlayer.play(song, seekPosition);
+    }
+
+    public void pause(){
+        observableMusicQueue.setPlaying(false);
+        currentPlayer.pause();
     }
 
     public int getSongPosition(){
@@ -75,11 +78,6 @@ public class AudioPlayer {
         currentPlayer.seek(position);
     }
 
-    public void pause(){
-        currentPlayer.pause();
-        observableMusicQueue.setPlaying(false);
-    }
-
     public void resume(){
         observableMusicQueue.setPlaying(true);
         currentPlayer.resume();
@@ -87,10 +85,12 @@ public class AudioPlayer {
 
     public void next(){
         observableMusicQueue.nextIndex();
+        this.play();
     }
 
     public void previous(){
         observableMusicQueue.previousIndex();
+        this.play();
     }
 
     public void setPlaybackMode(PlaybackMode mode){

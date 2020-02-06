@@ -50,19 +50,20 @@ public class CastPlayer implements IAudioPlayer {
         castSession = sessionManager.getCurrentCastSession();
         if(castSession != null){
             media = castSession.getRemoteMediaClient();
+            @SuppressWarnings("deprecation")
             RemoteMediaClient.Listener idleListener = new RemoteMediaClient.Listener() {
                 @Override
                 public void onStatusUpdated() {
                     if(media != null){
                         MediaStatus mediaStatus = media.getMediaStatus();
 
-                        MediaInfo mediaInfo = media.getMediaInfo();
                         if(mediaStatus != null){
                             Log.d(TAG, "remote media status updated playerState=>"+mediaStatus.getPlayerState());
                             int playerState = mediaStatus.getPlayerState();
                             int idleReason = mediaStatus.getIdleReason();
                             if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
                                 Log.d(TAG, "Should be going to the next song after " + musicFile.Id);
+                                //noinspection deprecation
                                 media.removeListener(this);
                                 AudioPlayer.getInstance().next();
                             }

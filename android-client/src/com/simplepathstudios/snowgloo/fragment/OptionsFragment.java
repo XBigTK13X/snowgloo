@@ -19,6 +19,7 @@ import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.ServerInfo;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.ServerInfoViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
@@ -51,6 +52,7 @@ public class OptionsFragment extends Fragment {
         settingsViewModel.Data.observe(getViewLifecycleOwner(), new Observer<SettingsViewModel.Settings>() {
             @Override
             public void onChanged(SettingsViewModel.Settings settings) {
+                ObservableMusicQueue.getInstance().load();
                 if(settings.ServerUrl.equalsIgnoreCase(SnowglooSettings.DevServerUrl)){
                     prodRadio.setChecked(false);
                     devRadio.setChecked(true);

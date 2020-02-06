@@ -9,6 +9,7 @@ import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,11 +25,6 @@ public class ObservableMusicQueue {
             __instance = new ObservableMusicQueue();
         }
         return __instance;
-    }
-
-    public enum SelectionMode {
-        UserChoice,
-        PlayerAction
     }
 
     private MusicQueue queue;
@@ -64,7 +60,13 @@ public class ObservableMusicQueue {
                 Log.d("ObservableMusicQueue","Successful load");
                 LoadingIndicator.setLoading(false);
                 queue = response.body();
-                queue.updateReason = firstLoad ? MusicQueue.UpdateReason.SERVER_FIRST_LOAD : MusicQueue.UpdateReason.SERVER_RELOAD;
+                if(firstLoad){
+                    queue.updateReason = MusicQueue.UpdateReason.SERVER_FIRST_LOAD;
+                    queue.isPlaying = false;
+                } else {
+                    queue.updateReason = MusicQueue.UpdateReason.SERVER_RELOAD;
+                }
+
                 firstLoad = false;
                 notifyObservers(false);
             }
@@ -126,12 +128,12 @@ public class ObservableMusicQueue {
         notifyObservers();
     }
 
-    public void setCurrentIndex(Integer currentIndex, SelectionMode selectionMode){
+    public void setCurrentIndex(Integer currentIndex){
         if(queue.currentIndex != null && queue.currentIndex == currentIndex){
             return;
         }
         queue.currentIndex = currentIndex;
-        queue.updateReason = selectionMode == SelectionMode.UserChoice ? MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX : MusicQueue.UpdateReason.TRACK_CHANGED;
+        queue.updateReason = MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX;
         notifyObservers();
     }
 

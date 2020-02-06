@@ -235,7 +235,7 @@ public class QueueFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            observableMusicQueue.setCurrentIndex(getAdapterPosition(), ObservableMusicQueue.SelectionMode.UserChoice);
+            observableMusicQueue.setCurrentIndex(getAdapterPosition());
         }
     }
 

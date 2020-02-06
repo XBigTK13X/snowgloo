@@ -174,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         seekBar = findViewById(R.id.seek_bar);
-
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
@@ -224,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+        // TODO Is this causing the stutter while music is playing and resuming the activity?
         Log.d(TAG, "Inflating chromecast menu");
         getMenuInflater().inflate(R.menu.menu, menu);
         CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
