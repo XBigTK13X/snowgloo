@@ -94,6 +94,9 @@ public class AudioPlayer {
     }
 
     public void setPlaybackMode(PlaybackMode mode){
+        if((mode == PlaybackMode.LOCAL && currentPlayer == localPlayer) ||(mode == PlaybackMode.REMOTE && currentPlayer == remotePlayer)){
+            return;
+        }
         seekPosition = currentPlayer.getCurrentPosition();
         if(mode == PlaybackMode.LOCAL){
             if(currentPlayer == remotePlayer){

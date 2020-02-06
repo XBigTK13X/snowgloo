@@ -93,7 +93,7 @@ public class QueueFragment extends Fragment {
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                Log.d(TAG,"Music files have changed "+musicQueue.songs.size());
+                Log.d(TAG,"Music files have changed " + musicQueue.songs.size() + " because "+musicQueue.updateReason);
                 int scrollTarget = layoutManager.findFirstCompletelyVisibleItemPosition();
                 adapter.setData(musicQueue);
                 listView.setAdapter(adapter);
