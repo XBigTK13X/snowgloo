@@ -1,8 +1,7 @@
 package com.simplepathstudios.snowgloo.api;
 
-import com.google.android.exoplayer2.util.Log;
-import com.simplepathstudios.snowgloo.LoadingIndicator;
-import com.simplepathstudios.snowgloo.SnowglooSettings;
+import android.util.Log;
+
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 

@@ -70,3 +70,52 @@ public class MediaNotification {
         });
     }
 }
+
+/* Taken from old exoplayer based manager
+    private class SnowglooNotificationAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
+        public SnowglooNotificationAdapter(){
+        }
+
+        @Override
+        public String getCurrentSubText(Player player) {
+            return getCurrentMusic().Artist;
+        }
+
+        @Override
+        public String getCurrentContentTitle(Player player) {
+            return getCurrentMusic().Title;
+        }
+
+        @Override
+        public PendingIntent createCurrentContentIntent(Player player) {
+            return null;
+        }
+
+        @Override
+        public String getCurrentContentText(Player player) {
+            return getCurrentMusic().Album;
+        }
+
+        @Override
+        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+            Target target = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    callback.onBitmap(bitmap);
+                }
+
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            };
+            Picasso.get().load(getCurrentMusic().CoverArt).into(target);
+            return null;
+        }
+    };
+ */

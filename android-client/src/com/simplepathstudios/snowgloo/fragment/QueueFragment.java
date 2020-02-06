@@ -19,15 +19,12 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.exoplayer2.C;
-import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -132,8 +129,8 @@ public class QueueFragment extends Fragment {
 
         public RecyclerViewCallback() {
             super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END);
-            draggingFromPosition = C.INDEX_UNSET;
-            draggingToPosition = C.INDEX_UNSET;
+            draggingFromPosition = -1;
+            draggingToPosition = -1;
         }
 
         @Override
@@ -147,7 +144,7 @@ public class QueueFragment extends Fragment {
         public boolean onMove(RecyclerView list, RecyclerView.ViewHolder origin, RecyclerView.ViewHolder target) {
             int fromPosition = origin.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
-            if (draggingFromPosition == C.INDEX_UNSET) {
+            if (draggingFromPosition == -1) {
                 // A drag has started, but changes to the media queue will be reflected in clearView().
                 draggingFromPosition = fromPosition;
             }
@@ -166,12 +163,12 @@ public class QueueFragment extends Fragment {
         public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
             viewHolder.itemView.setAlpha(1.0f);
-            if (draggingFromPosition != C.INDEX_UNSET) {
+            if (draggingFromPosition != -1) {
                 ViewHolder holder = (ViewHolder) viewHolder;
                 observableMusicQueue.moveItem(holder.musicFile,draggingFromPosition, draggingToPosition);
             }
-            draggingFromPosition = C.INDEX_UNSET;
-            draggingToPosition = C.INDEX_UNSET;
+            draggingFromPosition = -1;
+            draggingToPosition = -1;
         }
 
         @Override
