@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:adjustViewBounds="true"
+        android:background="@drawable/image_background"
         android:maxWidth="500dp"
         android:maxHeight="500dp"
         android:padding="20dp"

@@ -9,11 +9,10 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,12 +55,14 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ProgressBar loadingView;
-    private Button previousButton;
-    private Button playButton;
-    private Button pauseButton;
-    private Button nextButton;
+    private ImageButton previousButton;
+    private ImageButton playButton;
+    private ImageButton pauseButton;
+    private ImageButton nextButton;
     private SeekBar seekBar;
     private TextView seekTime;
+    private TextView audioControlsNowPlaying;
+    private NavDestination currentLocation;
 
     private AudioPlayer audioPlayer;
     private Handler seekHandler;
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 CharSequence name = destination.getLabel();
+                currentLocation = destination;
                 toolbar.setTitle(name);
             }
         });
@@ -191,6 +193,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        audioControlsNowPlaying = findViewById(R.id.audio_controls_now_playing);
+
+        audioControlsNowPlaying.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(currentLocation.getId() == R.id.now_playing_fragment){
+                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
+                    navController.navigate(R.id.queue_fragment);
+                } else {
+                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
+                    navController.navigate(R.id.now_playing_fragment);
+                }
+            }
+        });
+
         seekHandler = new Handler();
         this.runOnUiThread(new Runnable() {
             @Override
@@ -206,11 +223,14 @@ public class MainActivity extends AppCompatActivity {
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING || queue.playerState == MusicQueue.PlayerState.PAUSED){
                         seekBar.setVisibility(View.VISIBLE);
                         seekTime.setVisibility(View.VISIBLE);
+                        audioControlsNowPlaying.setVisibility(View.VISIBLE);
+                        audioControlsNowPlaying.setText(queue.getCurrent().getOneLineMetadata());
                     }
                 }
                 seekHandler.postDelayed(this, SEEK_BAR_UPDATE_MILLISECONDS);
             }
         });
+
 
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
@@ -229,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     pauseButton.setVisibility(View.GONE);
                     seekBar.setVisibility(View.INVISIBLE);
                     seekTime.setVisibility(View.INVISIBLE);
+                    audioControlsNowPlaying.setVisibility(View.INVISIBLE);
                 }
             }
         });

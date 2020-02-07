@@ -1,9 +1,6 @@
 package com.simplepathstudios.snowgloo.fragment;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,18 +12,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 
-import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.ApiClient;
-import com.simplepathstudios.snowgloo.api.model.CoverArt;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.squareup.picasso.Picasso;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class NowPlayingFragment extends Fragment {
     private static final String TAG = "NowPlayingFragment";
@@ -49,7 +39,7 @@ public class NowPlayingFragment extends Fragment {
             public void onChanged(MusicQueue musicQueue) {
                 Log.d(TAG, "Updating now playing track metadata");
                 MusicFile currentSong = musicQueue.getCurrent();
-                trackMetadataView.setText(currentSong.getMetadata());
+                trackMetadataView.setText(currentSong.getMultiLineMetadata());
                 Picasso.get().load(currentSong.CoverArt).into(coverArt);
             }
         });
