@@ -9,6 +9,7 @@ import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
+import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import java.util.Collections;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.simplepathstudios.snowgloo.api.model.MusicQueue.UpdateReason.PLAYER_STATE_CHANGED;
 
 public class ObservableMusicQueue {
     private static ObservableMusicQueue __instance;
@@ -42,27 +45,16 @@ public class ObservableMusicQueue {
         observer.onChanged(queue);
     }
 
-    public MusicFile getCurrent(){
-        if(queue.songs == null || queue.currentIndex == null){
-            return MusicFile.EMPTY;
-        }
-        if(queue.currentIndex != null && queue.songs.size() > queue.currentIndex){
-            return queue.songs.get(queue.currentIndex);
-        }
-        return MusicFile.EMPTY;
-    }
-
     public void load(){
         LoadingIndicator.setLoading(true);
         ApiClient.getInstance().getQueue().enqueue(new Callback< MusicQueue >(){
             @Override
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
-                Log.d("ObservableMusicQueue","Successful load");
                 LoadingIndicator.setLoading(false);
                 queue = response.body();
                 if(firstLoad){
                     queue.updateReason = MusicQueue.UpdateReason.SERVER_FIRST_LOAD;
-                    queue.isPlaying = false;
+                    queue.playerState = MusicQueue.PlayerState.IDLE;
                 } else {
                     queue.updateReason = MusicQueue.UpdateReason.SERVER_RELOAD;
                 }
@@ -73,7 +65,6 @@ public class ObservableMusicQueue {
 
             @Override
             public void onFailure(Call<MusicQueue> call, Throwable t) {
-                Log.e("ObservableMusicQueue","Failed",t);
                 LoadingIndicator.setLoading(false);
             }
         });
@@ -83,13 +74,11 @@ public class ObservableMusicQueue {
         ApiClient.getInstance().setQueue(queue).enqueue(new Callback< MusicQueuePayload >(){
             @Override
             public void onResponse(Call<MusicQueuePayload> call, Response<MusicQueuePayload> response) {
-                Log.d("ObservableMusicQueue.save","Successful save");
                 LoadingIndicator.setLoading(false);
             }
 
             @Override
             public void onFailure(Call<MusicQueuePayload> call, Throwable t) {
-                Log.e("ObservableMusicQueue.save","Failed",t);
                 LoadingIndicator.setLoading(false);
             }
         });
@@ -102,6 +91,7 @@ public class ObservableMusicQueue {
             public void onResponse(Call<MusicQueue> call, Response<MusicQueue> response) {
                 queue = response.body();
                 queue.updateReason = MusicQueue.UpdateReason.CLEAR;
+                queue.playerState = MusicQueue.PlayerState.IDLE;
                 notifyObservers();
                 LoadingIndicator.setLoading(false);
             }
@@ -118,6 +108,7 @@ public class ObservableMusicQueue {
         if(queue.currentIndex != null && queue.currentIndex > 0){
             queue.currentIndex -= 1;
         }
+        queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
         notifyObservers();
     }
 
@@ -125,6 +116,7 @@ public class ObservableMusicQueue {
         if(queue.currentIndex != null && queue.songs != null && queue.songs.size() - 1 > queue.currentIndex){
             queue.currentIndex += 1;
         }
+        queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
         notifyObservers();
     }
 
@@ -219,14 +211,16 @@ public class ObservableMusicQueue {
         LoadingIndicator.setLoading(true);
         queue.currentIndex = 0;
         Collections.shuffle(queue.songs);
+        queue.playerState = MusicQueue.PlayerState.IDLE;
         queue.updateReason = MusicQueue.UpdateReason.SHUFFLE;
         notifyObservers();
     }
 
-    public void setPlaying(boolean playing){
-        if(queue.isPlaying != playing){
-            queue.isPlaying = playing;
-            notifyObservers();
+    public void setPlayerState(MusicQueue.PlayerState playerState){
+        if(queue.playerState != playerState){
+            queue.playerState = playerState;
+            queue.updateReason = PLAYER_STATE_CHANGED;
+            notifyObservers(false);
         }
     }
 

@@ -15,9 +15,13 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
+import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_PLAY;
 import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_UNCHANGED;
 import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_FINISHED;
+import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_PLAYING;
 
 public class CastPlayer implements IAudioPlayer {
     private static final String TAG = "CastPlayer";
@@ -27,7 +31,6 @@ public class CastPlayer implements IAudioPlayer {
     private RemoteMediaClient media;
 
     public CastPlayer(){
-
     }
 
     private MediaInfo prepareMedia(MusicFile musicFile){
@@ -68,39 +71,18 @@ public class CastPlayer implements IAudioPlayer {
                                 AudioPlayer.getInstance().next();
                             }
                         }
-                        else {
-                            Log.d(TAG, "remote media status changed => media status is null");
-                        }
-                    }
-                    else {
-                        Log.d(TAG, "remote media status changed => media player is null");
                     }
                 }
-
                 @Override
-                public void onMetadataUpdated() {
-                    Log.d(TAG, "remote media metadata updated");
-                }
-
+                public void onMetadataUpdated() { }
                 @Override
-                public void onQueueStatusUpdated() {
-                    Log.d(TAG, "remote media queue status updated");
-                }
-
+                public void onQueueStatusUpdated() {}
                 @Override
-                public void onPreloadStatusUpdated() {
-                    Log.d(TAG, "remote media preload status updated");
-                }
-
+                public void onPreloadStatusUpdated() {}
                 @Override
-                public void onSendingRemoteMediaRequest() {
-                    Log.d(TAG, "remote media sending remote media request updated");
-                }
-
+                public void onSendingRemoteMediaRequest() {}
                 @Override
-                public void onAdBreakStatusUpdated() {
-                    Log.d(TAG, "remote media ad break status updated");
-                }
+                public void onAdBreakStatusUpdated() {}
             };
             media.addListener(idleListener);
             media.load(prepareMedia(musicFile), true, seekPosition);
@@ -109,43 +91,38 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public void stop() {
-        media.stop();
+        if(media != null){
+            media.stop();
+        }
     }
 
     @Override
     public void pause() {
-        media.pause();
+        if(media != null){
+            media.pause();
+        }
     }
 
     @Override
-    public void seek(int percent) {
+    public void seek(int position) {
         media.seek(
                 new MediaSeekOptions
-                    .Builder()
-                    .setPosition((int)(this.getSongDuration() * ((float)percent/100)))
-                    .setResumeState(RESUME_STATE_UNCHANGED)
-                    .build()
+                        .Builder()
+                        .setPosition(position)
+                        .setResumeState(RESUME_STATE_UNCHANGED)
+                        .build()
         );
     }
 
     @Override
-    public void destroy() {
-        if(media != null){
-            media.stop();
-        }
-        if(sessionManager != null){
-            sessionManager.endCurrentSession(true);
-        }
-    }
-
-    @Override
-    public void resume() {
-        media.play();
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return media.isPlaying();
+    public void resume(int position) {
+        media.seek(
+                new MediaSeekOptions
+                        .Builder()
+                        .setPosition(position)
+                        .setResumeState(RESUME_STATE_PLAY)
+                        .build()
+        );
     }
 
     public boolean isCasting(){
@@ -167,4 +144,15 @@ public class CastPlayer implements IAudioPlayer {
         }
         return 0;
     }
+
+    @Override
+    public void destroy() {
+        if(media != null){
+            media.stop();
+        }
+        if(sessionManager != null){
+            sessionManager.endCurrentSession(true);
+        }
+    }
+
 }

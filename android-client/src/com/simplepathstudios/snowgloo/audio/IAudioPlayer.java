@@ -6,10 +6,9 @@ interface IAudioPlayer {
     void play(MusicFile musicFile, int seekPosition);
     void stop();
     void pause();
-    void seek(int percent);
-    void destroy();
-    void resume();
-    boolean isPlaying();
+    void seek(int position);
+    void resume(int position);
     int getCurrentPosition();
     int getSongDuration();
+    void destroy();
 }

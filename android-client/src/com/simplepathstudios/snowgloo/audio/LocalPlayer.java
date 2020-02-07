@@ -4,18 +4,16 @@ import android.media.MediaPlayer;
 import android.util.Log;
 
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
-import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 
 public class LocalPlayer implements IAudioPlayer {
     private static final String TAG = "LocalPlayer";
     private MediaPlayer media;
-    private String currentSongId;
+    private MusicFile currentSong;
 
     public LocalPlayer(){
         try {
             media = new MediaPlayer();
             media.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
                     // If an error occurs, returning true prevents a call to the onCompletionListener
@@ -25,21 +23,15 @@ public class LocalPlayer implements IAudioPlayer {
 
             media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
-                    Log.d(TAG,"started playback from prepared listener");
+                    Log.d(TAG,"started playback from prepared listener for "+currentSong.Id);
                     media.start();
                 }
             });
             media.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    Log.d(TAG,"trying to play what comes after " + currentSong.Id);
                     AudioPlayer.getInstance().next();
-                }
-            });
-            media.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-                @Override
-
-                public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                    return false;
                 }
             });
         } catch (Exception e) {
@@ -49,13 +41,13 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public void play(MusicFile musicFile, int seekPosition) {
-        if(currentSongId == null || !currentSongId.equals(musicFile.Id)){
+        if(currentSong == null || !currentSong.Id.equals(musicFile.Id)){
             try{
                 media.reset();
                 media.setDataSource(musicFile.AudioUrl);
                 media.prepareAsync();
                 media.seekTo(seekPosition);
-                currentSongId = musicFile.Id;
+                currentSong = musicFile;
             } catch(Exception e){
                 Log.e(TAG, "An error occurred while playing",e);
             }
@@ -68,27 +60,29 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public void stop() {
-        media.stop();
+        if(media != null){
+            media.stop();
+        }
+
     }
 
     @Override
     public void pause() {
-        media.pause();
+        if(media != null){
+            media.pause();
+        }
+
     }
 
     @Override
-    public void seek(int percent) {
-        media.seekTo((int)(getSongDuration() * ((float)percent/100)));
+    public void seek(int position) {
+        media.seekTo(position);
     }
 
     @Override
-    public void resume() {
+    public void resume(int position) {
+        media.seekTo(position);
         media.start();
-    }
-
-    @Override
-    public boolean isPlaying(){
-        return media.isPlaying();
     }
 
     @Override

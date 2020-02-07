@@ -10,7 +10,7 @@ public class MusicQueue {
     public ArrayList<MusicFile> songs = new ArrayList<MusicFile>();
     public Integer currentIndex = null;
     public UpdateReason updateReason = UpdateReason.SERVER_RELOAD;
-    public boolean isPlaying;
+    public PlayerState playerState;
 
     public MusicFile getCurrent(){
         if(songs == null || currentIndex == null || songs.size() == 0 || currentIndex == -1 || currentIndex > songs.size() - 1 || currentIndex < 0) {
@@ -19,21 +19,12 @@ public class MusicQueue {
         return songs.get(currentIndex);
     }
 
-    public String contentHash(){
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            for(MusicFile file: songs){
-                md.update(file.Id.getBytes());
-            }
-            byte[] digest = md.digest();
-            return String.format("%d",songs.size()) + " - " + new String(digest);
-        } catch (NoSuchAlgorithmException e) {
-            return null;
-        }
+    public enum PlayerState {
+        PAUSED, PLAYING, IDLE
     }
 
     public enum UpdateReason{
-        SHUFFLE, CLEAR, ITEM_ADDED, ITEM_MOVED, ITEM_REMOVED, SERVER_RELOAD, USER_CHANGED_CURRENT_INDEX, TRACK_CHANGED, SERVER_FIRST_LOAD;
+        SHUFFLE, CLEAR, ITEM_ADDED, ITEM_MOVED, ITEM_REMOVED, SERVER_RELOAD, USER_CHANGED_CURRENT_INDEX, TRACK_CHANGED, SERVER_FIRST_LOAD, PLAYER_STATE_CHANGED;
 
         public static boolean shouldSeek(UpdateReason reason){
             switch(reason){

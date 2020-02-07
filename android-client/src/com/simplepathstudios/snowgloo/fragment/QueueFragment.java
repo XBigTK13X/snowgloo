@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG;
@@ -93,7 +94,6 @@ public class QueueFragment extends Fragment {
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                Log.d(TAG,"Music files have changed " + musicQueue.songs.size() + " because "+musicQueue.updateReason);
                 int scrollTarget = layoutManager.findFirstCompletelyVisibleItemPosition();
                 adapter.setData(musicQueue);
                 listView.setAdapter(adapter);
@@ -236,6 +236,7 @@ public class QueueFragment extends Fragment {
         @Override
         public void onClick(View v) {
             observableMusicQueue.setCurrentIndex(getAdapterPosition());
+            AudioPlayer.getInstance().play();
         }
     }
 

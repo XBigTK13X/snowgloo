@@ -1,9 +1,11 @@
 package com.simplepathstudios.snowgloo;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.lifecycle.Observer;
@@ -19,6 +21,7 @@ import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 public class SnowglooService extends Service {
 
     private static final String TAG = "SnowglooService";
+    private static final String WAKE_LOCK_TAG = "snowgloo:background_audio";
 
     public static SnowglooService __instance;
     public static SnowglooService getInstance(){
@@ -27,6 +30,8 @@ public class SnowglooService extends Service {
 
     AudioPlayer audioPlayer;
     CastContext castContext;
+    PowerManager powerManager;
+    PowerManager.WakeLock wakeLock;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -38,6 +43,9 @@ public class SnowglooService extends Service {
         super.onCreate();
         __instance = this;
         Log.d(TAG, "onCreate()");
+        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
+        wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
@@ -51,14 +59,9 @@ public class SnowglooService extends Service {
             @Override
             public void onCastStateChanged(int i) {
                 if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
-                    Log.d(TAG,"Cast state is now "+i+" the chromecast is disconnected.");
                     audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
                 }
-                else if(i == CastState.CONNECTING){
-                    Log.d(TAG,"Cast state is now "+i+" the chromecast is handshaking.");
-                }
                 else if(i == CastState.CONNECTED){
-                    Log.d(TAG,"Cast state is now "+i+" the chromecast is connected.");
                     audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
                 }
             }
@@ -67,7 +70,6 @@ public class SnowglooService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand()");
         return START_NOT_STICKY;
     }
 
@@ -76,6 +78,7 @@ public class SnowglooService extends Service {
         super.onTaskRemoved(rootIntent);
         Log.d(TAG, "Swiped away from the recents menu, close the activity");
         audioPlayer.destroy();
+        wakeLock.release();
         stopForeground(true);
         stopSelf();
     }
@@ -83,12 +86,10 @@ public class SnowglooService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy()");
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        Log.d(TAG, "onLowMemory()");
     }
 }

@@ -40,6 +40,7 @@ import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
+    private final int SEEK_BAR_UPDATE_MILLISECONDS = 350;
 
     private static MainActivity __instance;
 
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         __instance = this;
+        Util.setGlobalContext(getApplicationContext());
         observableMusicQueue = ObservableMusicQueue.getInstance();
 
         // Getting the cast context later than onStart can cause device discovery not to take place.
@@ -174,35 +176,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         seekBar = findViewById(R.id.seek_bar);
-        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
-            @Override
-            public void onChanged(MusicQueue musicQueue) {
-                queue = musicQueue;
-                playButton.setVisibility(musicQueue.isPlaying ? View.GONE : View.VISIBLE);
-                pauseButton.setVisibility(musicQueue.isPlaying ? View.VISIBLE : View.GONE);
-            }
-        });
-
-        seekHandler = new Handler();
         seekTime = findViewById(R.id.seek_time);
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(queue != null && queue.isPlaying && queue.currentIndex != null){
-                    int position = audioPlayer.getSongPosition();
-                    int duration = audioPlayer.getSongDuration();
-                    int completionPercent = (int)(100*((float)position/duration));
-                    seekBar.setProgress(completionPercent);
-                    if(position == 0 && duration == 0){
-                        seekTime.setText("Loading...");
-                    } else {
-                        seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
-                    }
-
-                }
-                seekHandler.postDelayed(this, 1000); //Update every second
-            }
-        });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -217,14 +191,54 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        seekHandler = new Handler();
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(queue != null){
+                    if(queue.playerState == MusicQueue.PlayerState.PLAYING){
+                        int position = audioPlayer.getSongPosition();
+                        int duration = audioPlayer.getSongDuration();
+                        int completionPercent = (int)(100*((float)position/duration));
+                        seekBar.setProgress(completionPercent);
+                        seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
+                    }
+                    if(queue.playerState == MusicQueue.PlayerState.PLAYING || queue.playerState == MusicQueue.PlayerState.PAUSED){
+                        seekBar.setVisibility(View.VISIBLE);
+                        seekTime.setVisibility(View.VISIBLE);
+                    }
+                }
+                seekHandler.postDelayed(this, SEEK_BAR_UPDATE_MILLISECONDS);
+            }
+        });
+
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                queue = musicQueue;
+                if(queue.playerState == MusicQueue.PlayerState.PLAYING){
+                    playButton.setVisibility(View.GONE);
+                    pauseButton.setVisibility(View.VISIBLE);
+                }
+                else if (queue.playerState == MusicQueue.PlayerState.PAUSED){
+                    playButton.setVisibility(View.VISIBLE);
+                    pauseButton.setVisibility(View.GONE);
+                }
+                else if (queue.playerState == MusicQueue.PlayerState.IDLE){
+                    playButton.setVisibility(View.VISIBLE);
+                    pauseButton.setVisibility(View.GONE);
+                    seekBar.setVisibility(View.INVISIBLE);
+                    seekTime.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
         observableMusicQueue.load();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        // TODO Is this causing the stutter while music is playing and resuming the activity?
-        Log.d(TAG, "Inflating chromecast menu");
         getMenuInflater().inflate(R.menu.menu, menu);
         CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         return true;
@@ -246,9 +260,5 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         Log.d(TAG, "Destroying");
-    }
-
-    private void showToast(int messageId) {
-        Toast.makeText(getApplicationContext(), messageId, Toast.LENGTH_LONG).show();
     }
 }
