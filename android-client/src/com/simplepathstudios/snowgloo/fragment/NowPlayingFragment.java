@@ -40,7 +40,12 @@ public class NowPlayingFragment extends Fragment {
                 Log.d(TAG, "Updating now playing track metadata");
                 MusicFile currentSong = musicQueue.getCurrent();
                 trackMetadataView.setText(currentSong.getMultiLineMetadata());
-                Picasso.get().load(currentSong.CoverArt).into(coverArt);
+                if(currentSong.CoverArt == null || currentSong.CoverArt.isEmpty()){
+                    coverArt.setVisibility(View.INVISIBLE);
+                } else {
+                    Picasso.get().load(currentSong.CoverArt).into(coverArt);
+                    coverArt.setVisibility(View.VISIBLE);
+                }
             }
         });
     }

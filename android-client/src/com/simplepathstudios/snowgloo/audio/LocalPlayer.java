@@ -9,6 +9,7 @@ public class LocalPlayer implements IAudioPlayer {
     private static final String TAG = "LocalPlayer";
     private MediaPlayer media;
     private MusicFile currentSong;
+    private int currentSeekPosition;
 
     public LocalPlayer(){
         try {
@@ -24,6 +25,7 @@ public class LocalPlayer implements IAudioPlayer {
             media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
                     Log.d(TAG,"started playback from prepared listener for "+currentSong.Id);
+                    media.seekTo(currentSeekPosition);
                     media.start();
                 }
             });
@@ -40,21 +42,25 @@ public class LocalPlayer implements IAudioPlayer {
     }
 
     @Override
+    public boolean isPlaying(){
+        if(media != null){
+            return media.isPlaying();
+        }
+        return false;
+    }
+
+    @Override
     public void play(MusicFile musicFile, int seekPosition) {
-        if(currentSong == null || !currentSong.Id.equals(musicFile.Id)){
+        if(musicFile != null){
             try{
+                currentSeekPosition = seekPosition;
                 media.reset();
                 media.setDataSource(musicFile.AudioUrl);
                 media.prepareAsync();
-                media.seekTo(seekPosition);
                 currentSong = musicFile;
             } catch(Exception e){
                 Log.e(TAG, "An error occurred while playing",e);
             }
-        }
-        else {
-            media.seekTo(seekPosition);
-            media.start();
         }
     }
 
@@ -81,8 +87,7 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public void resume(int position) {
-        media.seekTo(position);
-        media.start();
+       this.play(currentSong, position);
     }
 
     @Override

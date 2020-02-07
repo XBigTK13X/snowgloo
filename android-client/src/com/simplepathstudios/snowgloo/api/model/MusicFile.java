@@ -5,6 +5,7 @@ public class MusicFile {
         DisplayAlbum = "";
         DisplayArtist = "";
         Title = "No music playing";
+        Id = null;
     }};
 
     public String Album;
@@ -28,14 +29,22 @@ public class MusicFile {
 
     public String getMultiLineMetadata(){
         if(multiLineMetadata == null){
-            multiLineMetadata = String.format("%s\n%s\n%s", this.Title, this.DisplayAlbum, this.DisplayArtist);
+            if(Id == null){
+                multiLineMetadata = String.format("%s\n\n", this.Title);
+            } else {
+                multiLineMetadata = String.format("%s\n%s\n%s", this.Title, this.DisplayAlbum, this.DisplayArtist);
+            }
         }
         return multiLineMetadata;
     }
 
     public String getOneLineMetadata(){
         if(oneLineMetadata == null){
-            oneLineMetadata = String.format("%s - %s - %s", this.Title, this.DisplayAlbum, this.DisplayArtist);
+            if(Id == null){
+                oneLineMetadata = String.format("%s", this.Title);
+            } else {
+                oneLineMetadata = String.format("%s - %s - %s", this.Title, this.DisplayAlbum, this.DisplayArtist);
+            }
         }
         return oneLineMetadata;
     }

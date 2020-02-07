@@ -15,13 +15,10 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
-import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_PLAY;
 import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_UNCHANGED;
 import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_FINISHED;
-import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_PLAYING;
 
 public class CastPlayer implements IAudioPlayer {
     private static final String TAG = "CastPlayer";
@@ -45,6 +42,14 @@ public class CastPlayer implements IAudioPlayer {
                 .setMetadata(metadata)
                 .build();
 
+    }
+
+    @Override
+    public boolean isPlaying(){
+        if(media != null){
+            return media.isPlaying();
+        }
+        return false;
     }
 
     @Override

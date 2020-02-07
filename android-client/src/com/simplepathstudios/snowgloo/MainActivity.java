@@ -152,6 +152,11 @@ public class MainActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(queue.songs.size() > 0){
+                    if(queue.currentIndex == null){
+                        observableMusicQueue.setCurrentIndex(0);
+                    }
+                }
                 audioPlayer.play();
             }
         });

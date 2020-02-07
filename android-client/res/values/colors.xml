@@ -6,6 +6,7 @@
     <color name="white">#FFFFFF</color>
     <color name="gradient_gray_start">#505050</color>
     <color name="gradient_gray_end">#909090</color>
+    <color name="empty">#7A6488</color>
 
     <color name="primary">#AC03F4</color>
     <color name="primary_dark">#9302D1</color>

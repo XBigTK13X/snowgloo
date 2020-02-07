@@ -104,20 +104,34 @@ public class ObservableMusicQueue {
         });
     }
 
-    public void previousIndex(){
-        if(queue.currentIndex != null && queue.currentIndex > 0){
+    public boolean previousIndex(){
+        boolean result = true;
+        if(queue.currentIndex != null){
             queue.currentIndex -= 1;
+            queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
+            if(queue.currentIndex < 0){
+                queue.currentIndex = null;
+                queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
+                result = false;
+            }
         }
-        queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
         notifyObservers();
+        return result;
     }
 
-    public void nextIndex(){
-        if(queue.currentIndex != null && queue.songs != null && queue.songs.size() - 1 > queue.currentIndex){
+    public boolean nextIndex(){
+        boolean result = true;
+        if(queue.currentIndex != null && queue.songs != null){
             queue.currentIndex += 1;
+            queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
+            if(queue.currentIndex > queue.songs.size()-1){
+                queue.currentIndex = null;
+                queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
+                result = false;
+            }
         }
-        queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
         notifyObservers();
+        return result;
     }
 
     public void setCurrentIndex(Integer currentIndex){

@@ -11,4 +11,5 @@ interface IAudioPlayer {
     int getCurrentPosition();
     int getSongDuration();
     void destroy();
+    boolean isPlaying();
 }

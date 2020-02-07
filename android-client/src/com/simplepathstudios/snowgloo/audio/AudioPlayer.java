@@ -64,30 +64,32 @@ public class AudioPlayer {
     }
 
     public void handleUpdate(MusicQueue musicQueue){
-        if(musicQueue != null && musicQueue.currentIndex != null){
-            Log.d(TAG, "Music queue changed. currentIndex is " + musicQueue.currentIndex + " with "+musicQueue.songs.size()+ " songs playing on "+(currentPlayer == remotePlayer?"Chromecast":"Local Device"));
-            MusicFile musicFile = musicQueue.getCurrent();
-            if(musicFile != null && (musicQueue.updateReason == MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX || musicQueue.updateReason == MusicQueue.UpdateReason.SHUFFLE)){
+        queue = musicQueue;
+        if(queue != null && queue.currentIndex != null){
+            Log.d(TAG, "Music queue changed. currentIndex is " + queue.currentIndex + " with "+queue.songs.size()+ " songs playing on "+(currentPlayer == remotePlayer?"Chromecast":"Local Device"));
+            MusicFile musicFile = queue.getCurrent();
+            if(musicFile != null && (queue.updateReason == MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX || queue.updateReason == MusicQueue.UpdateReason.SHUFFLE)){
                 this.play();
             }
         }
-        if(musicQueue.updateReason == MusicQueue.UpdateReason.CLEAR){
+        if(queue.updateReason == MusicQueue.UpdateReason.CLEAR || queue.updateReason == MusicQueue.UpdateReason.OUT_OF_TRACKS){
             this.stop();
         }
-        queue = musicQueue;
     }
 
     public void play(){
         MusicFile song = queue.getCurrent();
-        if(song == null || currentSong == null || !song.Id.equals(currentSong.Id)){
+        if(song == null || currentSong == null || song.Id == null || !song.Id.equals(currentSong.Id)){
             currentSong = song;
             currentPlayer.play(song, 0);
+            observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
         else {
             int position = (int)(pausedDuration * ((float)lastSeekPercent/100));
             currentPlayer.resume(position);
+            observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
-        observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
+
     }
 
     public void pause(){
@@ -97,7 +99,7 @@ public class AudioPlayer {
     }
 
     public void stop(){
-        currentPlayer.stop();
+        currentPlayer.pause();
         observableMusicQueue.setPlayerState(MusicQueue.PlayerState.IDLE);
     }
     public int getSongPosition(){
@@ -117,13 +119,16 @@ public class AudioPlayer {
     }
 
     public void next(){
-        observableMusicQueue.nextIndex();
-        this.play();
+        if(observableMusicQueue.nextIndex()){
+            this.play();
+        }
     }
 
     public void previous(){
-        observableMusicQueue.previousIndex();
-        this.play();
+        if(observableMusicQueue.previousIndex()){
+            this.play();
+        }
+
     }
 
     public void destroy(){
