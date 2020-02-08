@@ -98,22 +98,26 @@ const register = router => {
     })
 
     router.post('/api/admin/log', async (request, response) => {
-        let logFile = log.getInstance(`client-${request.body.clientId}`)
-        let logs = await logFile.read()
-        if(!logs){
-            logs = {
-                entries: []
-            }
-        }
-        logs.entries.push(request.body.message)
-        response.send(await logFile.write(logs))
+        let memoryLog = log.getInstance(`${request.body.clientId}`)
+        response.send(await memoryLog.write(request.body.message))
     })
 
     router.get('/api/admin/log', async (request, response) => {
-        let logFile = log.getInstance(`client-${request.query.clientId}`)
         response.send({
-            logs: await logFile.read(logFile)
+            logs: log.getAll()
         })
+    })
+
+    router.post('/api/admin/log/persist', (request, response)=>{
+        log.persistAll()
+            .then(()=>{
+                response.send({})
+            })
+    })
+
+    router.delete('/api/admin/log', (request,response)=>{
+        log.wipeAll()
+        response.send({})
     })
 }
 

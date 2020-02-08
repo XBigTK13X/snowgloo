@@ -3,7 +3,7 @@
 let webApiUrl
 let castPollMilliseconds
 let debounceMilliseconds
-let clientVersion = '0.7.6-beta'
+let clientVersion = '0.7.8-beta'
 let buildDate = 'February 08, 2020'
 
 try {

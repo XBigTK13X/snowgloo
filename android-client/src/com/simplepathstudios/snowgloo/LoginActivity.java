@@ -25,8 +25,6 @@ public class LoginActivity extends AppCompatActivity{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Util.setGlobalContext(getApplicationContext());
-        // Getting the cast context later than onCreate can cause device discovery not to take place.
-        CastContext.getSharedInstance(this);
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {
             @Override

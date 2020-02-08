@@ -33,6 +33,8 @@ public class OptionsFragment extends Fragment {
     private TextView versionText;
     private TextView errorText;
     private TextView userText;
+    private Button debugLogToggle;
+    private TextView debugLogStatus;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -59,6 +61,8 @@ public class OptionsFragment extends Fragment {
                     prodRadio.setChecked(true);
                     devRadio.setChecked(false);
                 }
+                SnowglooSettings.EnableDebugLog = settings.EnableDebugLog;
+                debugLogStatus.setText("Debug logging is "+(SnowglooSettings.EnableDebugLog ? "enabled" : "disabled"));
             }
         });
 
@@ -114,6 +118,17 @@ public class OptionsFragment extends Fragment {
 
                     settingsViewModel.setServerUrl(SnowglooSettings.ProdServerUrl);
                 }
+            }
+        });
+
+        debugLogStatus = view.findViewById(R.id.debug_log_status);
+        debugLogStatus.setText("Debug logging is "+(SnowglooSettings.EnableDebugLog ? "enabled" : "disabled"));
+
+        debugLogToggle = view.findViewById(R.id.debug_log_toggle);
+        debugLogToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                settingsViewModel.setDebugLog(!SnowglooSettings.EnableDebugLog);
             }
         });
     }

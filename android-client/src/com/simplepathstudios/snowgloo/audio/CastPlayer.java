@@ -58,7 +58,7 @@ public class CastPlayer implements IAudioPlayer {
     @Override
     public void play(MusicFile musicFile, int seekPosition) {
         Util.log(TAG, "play " +musicFile + " "+seekPosition);
-        sessionManager = CastContext.getSharedInstance(MainActivity.getInstance()).getSessionManager();
+        sessionManager = MainActivity.getInstance().getCastContext().getSessionManager();
         castSession = sessionManager.getCurrentCastSession();
         if(castSession != null){
             Util.log(TAG, "Cast session is not null " +castSession.getSessionId());
@@ -70,9 +70,8 @@ public class CastPlayer implements IAudioPlayer {
                     Util.log(TAG, "Cast media status updated");
                     if(media != null){
                         MediaStatus mediaStatus = media.getMediaStatus();
-                        Util.log(TAG, "Media status is "+mediaStatus.getPlayerState() + " "+mediaStatus.getIdleReason());
                         if(mediaStatus != null){
-                            Util.log(TAG, "remote media status updated playerState=>"+mediaStatus.getPlayerState());
+                            Util.log(TAG, "Media status is "+mediaStatus.getPlayerState() + " "+mediaStatus.getIdleReason());
                             int playerState = mediaStatus.getPlayerState();
                             int idleReason = mediaStatus.getIdleReason();
                             if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
@@ -147,7 +146,6 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public int getCurrentPosition() {
-        Util.log(TAG, "getCurrentPosition");
         if(media != null && media.isPlaying()){
             return (int)media.getApproximateStreamPosition();
         }
@@ -156,7 +154,6 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public int getSongDuration() {
-        Util.log(TAG, "getSongDuration");
         if(media != null && media.isPlaying()){
             return (int)media.getStreamDuration();
         }

@@ -3,40 +3,25 @@ const fs = require('fs')
 const _ = require('lodash')
 const path = require('path')
 const mkdirp = require('mkdirp')
+const database  = require('./database')
 
 class Log {
     constructor(name) {
-        this.filePath = path.join(settings.databaseDirectory, `/log/${name}.json`)
-        let dirPath = path.dirname(this.filePath)
-        if (!fs.existsSync(dirPath)) {
-            mkdirp.sync(dirPath)
+        this.workingSet = {
+            entries: []
         }
     }
 
     read() {
         return new Promise((resolve, reject) => {
-            fs.access(this.filePath, err => {
-                if (err) {
-                    return resolve(null)
-                }
-                fs.readFile(this.filePath, 'utf8', (err, data) => {
-                    if (err) {
-                        return reject(err)
-                    }
-                    return resolve(JSON.parse(data))
-                })
-            })
+            resolve(this.workingSet)
         })
     }
 
-    write(logs) {
+    write(log) {
         return new Promise((resolve, reject) => {
-            fs.writeFile(this.filePath, JSON.stringify(logs, null, '\t'), 'utf8', err => {
-                if (err) {
-                    return reject(err)
-                }
-                return resolve()
-            })
+            this.workingSet.entries.push(log)
+            resolve(this.workingSet)
         })
     }
 }
@@ -50,6 +35,21 @@ let getInstance = name => {
     return instances[name]
 }
 
+let getAll = ()=>{
+    return instances
+}
+
+let wipeAll = () => {
+    instances = {}
+}
+
+let persistAll = () => {
+    return database.getInstance(`/log/${new Date().getTime()}.log`).write(instances)
+}
+
 module.exports = {
     getInstance,
+    getAll,
+    persistAll,
+    wipeAll
 }

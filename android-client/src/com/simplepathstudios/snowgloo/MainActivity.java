@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         return __instance;
     }
 
+    private CastContext castContext;
+
     private SettingsViewModel settingsViewModel;
     private ObservableMusicQueue observableMusicQueue;
     private MusicQueue queue;
@@ -67,11 +69,17 @@ public class MainActivity extends AppCompatActivity {
     private AudioPlayer audioPlayer;
     private Handler seekHandler;
 
+    public CastContext getCastContext(){
+        return castContext;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         __instance = this;
+        // If this is done too late, then it will fail to discover
+        castContext = CastContext.getSharedInstance(this);
+
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {

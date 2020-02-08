@@ -29,7 +29,6 @@ public class SnowglooService extends Service {
     }
 
     AudioPlayer audioPlayer;
-    CastContext castContext;
     PowerManager powerManager;
     PowerManager.WakeLock wakeLock;
 
@@ -55,19 +54,18 @@ public class SnowglooService extends Service {
             }
         });
 
-        castContext = CastContext.getSharedInstance(this);
-        castContext.addCastStateListener(new CastStateListener() {
+        MainActivity.getInstance().getCastContext().addCastStateListener(new CastStateListener() {
             @Override
             public void onCastStateChanged(int i) {
                 if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
-                    Util.log(TAG, "Cast session changed state to not connected / no devices available " +i);
+                    Util.log(TAG, "Cast session changed state to " +CastState.toString(i));
                     audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
                 }
                 else if(i == CastState.CONNECTED){
-                    Util.log(TAG, "Cast session changed state to connected");
+                    Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
                     audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
                 } else {
-                    Util.log(TAG, "Cast session changed state to " + i);
+                    Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
                 }
             }
         });

@@ -34,11 +34,9 @@ public class CastOptionsProvider implements OptionsProvider {
     @Override
     public CastOptions getCastOptions(Context context) {
         NotificationOptions notificationOptions = new NotificationOptions.Builder()
-                .setTargetActivityClassName(ExpandedControlsActivity.class.getName())
                 .build();
         CastMediaOptions mediaOptions = new CastMediaOptions.Builder()
                 .setNotificationOptions(notificationOptions)
-                .setExpandedControllerActivityClassName(ExpandedControlsActivity.class.getName())
                 .build();
 
         return new CastOptions.Builder()
@@ -50,16 +48,5 @@ public class CastOptionsProvider implements OptionsProvider {
     @Override
     public List<SessionProvider> getAdditionalSessionProviders(Context context) {
         return null;
-    }
-
-    private class ExpandedControlsActivity extends ExpandedControllerActivity {
-
-        @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            super.onCreateOptionsMenu(menu);
-            getMenuInflater().inflate(R.menu.expanded_controller, menu);
-            CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
-            return true;
-        }
     }
 }

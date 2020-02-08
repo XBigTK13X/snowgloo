@@ -27,6 +27,11 @@ td {
     padding: 10px;
 }
 
+.simple-input{
+    margin: 5px;
+    padding: 5px;
+}
+
 .page-wrapper {
     margin-bottom: 350px;
 }

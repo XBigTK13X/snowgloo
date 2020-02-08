@@ -51,4 +51,15 @@
         android:id="@+id/error_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/debug_log_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Toggle Debug Logging" />
+
+    <TextView
+        android:id="@+id/debug_log_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

@@ -11,6 +11,7 @@ public class LocalPlayer implements IAudioPlayer {
     private MediaPlayer media;
     private MusicFile currentSong;
     private int currentSeekPosition;
+    private boolean mediaPrepared;
 
     public LocalPlayer(){
         try {
@@ -27,6 +28,7 @@ public class LocalPlayer implements IAudioPlayer {
             media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
                     Util.log(TAG,"started playback from prepared listener for "+currentSong.Id);
+                    mediaPrepared = true;
                     media.seekTo(currentSeekPosition);
                     media.start();
                 }
@@ -45,7 +47,7 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public boolean isPlaying(){
-        if(media != null){
+        if(media != null && mediaPrepared){
             return media.isPlaying();
         }
         return false;
@@ -97,7 +99,7 @@ public class LocalPlayer implements IAudioPlayer {
     @Override
     public int getCurrentPosition() {
         try{
-            if(media != null && media.isPlaying()){
+            if(media != null && mediaPrepared &&  media.isPlaying()){
                 return media.getCurrentPosition();
             }
         } catch(Exception swallow){
@@ -108,7 +110,7 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public int getSongDuration(){
-        if(media != null && media.isPlaying()){
+        if(media != null && mediaPrepared && media.isPlaying()){
             return media.getDuration();
         }
         return 0;

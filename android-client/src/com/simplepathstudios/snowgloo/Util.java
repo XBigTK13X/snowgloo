@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Api;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 
 import java.text.SimpleDateFormat;
@@ -33,17 +34,27 @@ public class Util {
     }
 
     public static void log(String tag, String message){
-        String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-        String logEntry = String.format("%s - %s - %s : %s",System.currentTimeMillis(), timestamp,tag,message);
-        Log.d(tag, logEntry);
-        ApiClient.getInstance().log(logEntry).enqueue(new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) { }
-            @Override
-            public void onFailure(Call call, Throwable t) {
-                Log.e(TAG, "Unable to send log",t);
+        if(!SnowglooSettings.EnableDebugLog){
+            return;
+        }
+        try{
+            String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+            String logEntry = String.format("%s - %s - %s : %s",System.currentTimeMillis(), timestamp,tag,message);
+            Log.d(tag, logEntry);
+            if (ApiClient.getInstance().getCurrentUser() != null) {
+                ApiClient.getInstance().log(logEntry).enqueue(new Callback() {
+                    @Override
+                    public void onResponse(Call call, Response response) { }
+                    @Override
+                    public void onFailure(Call call, Throwable t) {
+                        Log.e(TAG, "Unable to send log",t);
+                    }
+                });
             }
-        });
+        } catch(Exception e){
+            Log.d(TAG, "An error occurred while logging",e);
+        }
+
     }
 
     public static void toast(String message){

@@ -111,10 +111,16 @@ class ApiClient {
         return this.get('admin/playlists/deleted')
     }
 
-    getLogs(clientId){
-        return this.httpClient.get('/admin/log', { params: { clientId } }).then(response => {
-            return response.data
-        })
+    getLogs(){
+        return this.get('/admin/log')
+    }
+
+    wipeLogs(){
+        return this.httpClient.delete('/admin/log')
+    }
+
+    persistLogs(){
+        return this.httpClient.post('/admin/log/persist')
     }
 }
 

@@ -18,6 +18,8 @@ public class SettingsViewModel extends ViewModel {
         settings.Preferences = preferences;
         settings.Username = settings.Preferences.getString("Username",null);
         settings.ServerUrl = settings.Preferences.getString("ServerUrl", SnowglooSettings.ProdServerUrl);
+         settings.EnableDebugLog = settings.Preferences.getBoolean("EnableDebugLog", false);
+        SnowglooSettings.EnableDebugLog = settings.EnableDebugLog;
         Data.setValue(settings);
     }
 
@@ -39,9 +41,20 @@ public class SettingsViewModel extends ViewModel {
         Data.setValue(settings);
     }
 
+    public void setDebugLog(boolean enabled){
+        Settings settings = Data.getValue();
+        settings.EnableDebugLog = enabled;
+        SharedPreferences.Editor editor = settings.Preferences.edit();
+        editor.putBoolean("EnableDebugLog", enabled);
+        editor.commit();
+        Data.setValue(settings);
+    }
+
+
     public class Settings {
         public String Username;
         public String ServerUrl;
         public SharedPreferences Preferences;
+        public boolean EnableDebugLog;
     }
 }
