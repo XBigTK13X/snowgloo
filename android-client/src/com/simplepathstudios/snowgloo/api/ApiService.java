@@ -10,6 +10,8 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import com.simplepathstudios.snowgloo.api.model.AdminLog;
+import com.simplepathstudios.snowgloo.api.model.AdminLogs;
 import com.simplepathstudios.snowgloo.api.model.AlbumList;
 import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
@@ -26,9 +28,6 @@ import com.simplepathstudios.snowgloo.api.model.UserList;
 
 
 public interface ApiService {
-    @GET("api/song/cover-art")
-    Call<CoverArt> getCoverArt(@Query("songFilePath") String songFilePath, @Query("albumCoverUrl") String albumCoverUrl);
-
     @GET("api/song/list")
     Call<List<MusicFile>> getSongList();
 
@@ -67,4 +66,10 @@ public interface ApiService {
 
     @GET("/api/playlist/view")
     Call<MusicPlaylist> getPlaylist(@Query("playlistId") String playlistId);
+
+    @POST("/api/admin/log")
+    Call<AdminLogs> writeLog(@Body AdminLog log);
+
+    @GET("/api/admin/log")
+    Call<AdminLogs> readLogs(@Query("clientId") String clientId);
 }

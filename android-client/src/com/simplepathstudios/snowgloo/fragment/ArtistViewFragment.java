@@ -62,7 +62,6 @@ public class ArtistViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "ArtistViewFragment initiated");
         artistName = getArguments().getString("Artist");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(artistName);
 

@@ -51,4 +51,9 @@ export default [
         url: '/search',
         component: pages.Search,
     },
+    {
+        name: 'admin-logs',
+        url: '/admin/logs',
+        component: pages.AdminLogs
+    }
 ]

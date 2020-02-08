@@ -1,7 +1,10 @@
 package com.simplepathstudios.snowgloo.api;
 
+import android.provider.Settings;
 import android.util.Log;
 
+import com.simplepathstudios.snowgloo.Util;
+import com.simplepathstudios.snowgloo.api.model.AdminLog;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
 
@@ -10,6 +13,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
+    private static final String TAG = "ApiClient";
     private static ApiClient __instance;
     public static ApiClient getInstance(){
         if(__instance == null){
@@ -24,6 +28,7 @@ public class ApiClient {
 
     private ApiService httpClient;
     private String username;
+    private String clientId;
     private ApiClient(String serverUrl, String username){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(serverUrl)
@@ -31,14 +36,18 @@ public class ApiClient {
                 .build();
         this.username = username;
         this.httpClient = retrofit.create(ApiService.class);
+        if(!username.isEmpty()){
+            this.clientId = String.format("%s - %s - %s",
+                    Settings.Secure.getString(Util.getGlobalContext().getContentResolver(),Settings.Secure.ANDROID_ID),
+                    android.os.Build.MODEL,
+                    username
+            );
+            Log.d(TAG, "Communicating with the server using clientId "+this.clientId);
+        }
     }
 
     public String getCurrentUser(){
         return username;
-    }
-
-    public Call getCoverArt(String songFilePath, String albumCoverUrl){
-        return this.httpClient.getCoverArt(songFilePath, albumCoverUrl);
     }
 
     public Call getQueue(){
@@ -89,5 +98,9 @@ public class ApiClient {
 
     public Call getPlaylists(){
         return this.httpClient.getPlaylists();
+    }
+
+    public Call log(String message){
+        return this.httpClient.writeLog(new AdminLog(message, clientId));
     }
 }

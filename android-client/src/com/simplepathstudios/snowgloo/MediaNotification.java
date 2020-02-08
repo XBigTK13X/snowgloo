@@ -27,9 +27,7 @@ public class MediaNotification {
     }
 
     public static void registerActivity(MainActivity mainActivity){
-        Log.d(TAG, "Setting up the notification manager");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.d(TAG, "Operating system supports notification channels.");
             __instance = new MediaNotification(mainActivity);
         }
     }

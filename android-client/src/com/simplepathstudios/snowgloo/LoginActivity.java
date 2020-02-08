@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.UserListViewModel;
@@ -23,7 +24,9 @@ public class LoginActivity extends AppCompatActivity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Util.setGlobalContext(getApplicationContext());
+        // Getting the cast context later than onCreate can cause device discovery not to take place.
+        CastContext.getSharedInstance(this);
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {
             @Override

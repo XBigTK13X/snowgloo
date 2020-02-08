@@ -21,7 +21,6 @@ public class SearchResultsViewModel extends ViewModel {
     }
 
     public void load(String query) {
-        Log.d("ServerInfoViewModel", "LoadingIndicator");
         if(query.isEmpty() || query.length() < 3){
             return;
         }
@@ -30,14 +29,12 @@ public class SearchResultsViewModel extends ViewModel {
 
             @Override
             public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
-                Log.d("SearchResultsViewModel.load", "Successful load");
                 LoadingIndicator.setLoading(false);
                 Data.setValue(response.body());
             }
 
             @Override
             public void onFailure(Call<SearchResults> call, Throwable t) {
-                Log.e("SearchResultsViewModel.load", "Failed load", t);
                 LoadingIndicator.setLoading(false);
             }
         });

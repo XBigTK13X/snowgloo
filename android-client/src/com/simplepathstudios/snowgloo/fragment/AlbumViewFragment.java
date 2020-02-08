@@ -63,7 +63,6 @@ public class AlbumViewFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "AlbumViewFragment initiated");
         albumSlug = getArguments().getString("AlbumSlug");
         albumDisplay = getArguments().getString("AlbumDisplay");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(albumDisplay);

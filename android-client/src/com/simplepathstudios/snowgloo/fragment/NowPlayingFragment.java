@@ -25,7 +25,6 @@ public class NowPlayingFragment extends Fragment {
     private ImageView coverArt;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "NowPlayingFragment initiated");
         return inflater.inflate(R.layout.now_playing_fragment, container, false);
     }
 
@@ -37,7 +36,6 @@ public class NowPlayingFragment extends Fragment {
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                Log.d(TAG, "Updating now playing track metadata");
                 MusicFile currentSong = musicQueue.getCurrent();
                 trackMetadataView.setText(currentSong.getMultiLineMetadata());
                 if(currentSong.CoverArt == null || currentSong.CoverArt.isEmpty()){

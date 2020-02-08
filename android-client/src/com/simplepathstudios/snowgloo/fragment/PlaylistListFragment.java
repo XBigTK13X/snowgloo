@@ -34,7 +34,6 @@ public class PlaylistListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "fragment initiated");
         return inflater.inflate(R.layout.playlist_list_fragment, container, false);
     }
     @Override

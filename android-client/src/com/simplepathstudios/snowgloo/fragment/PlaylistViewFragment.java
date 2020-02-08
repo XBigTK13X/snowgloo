@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
@@ -60,7 +61,6 @@ public class PlaylistViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "AlbumViewFragment initiated");
         playlistId = getArguments().getString("PlaylistId");
         playlistName = getArguments().getString("PlaylistName");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(playlistName);
@@ -80,10 +80,6 @@ public class PlaylistViewFragment extends Fragment {
         playlistViewModel.Data.observe(getViewLifecycleOwner(), new Observer<MusicPlaylist>() {
             @Override
             public void onChanged(MusicPlaylist playlist) {
-                Log.d(TAG,"Loaded album");
-                if(playlist != null && playlist.songs != null){
-                    Log.d(TAG, "Found "+playlist.songs.size()+" songs");
-                }
                 adapter.setData(playlist);
                 adapter.notifyDataSetChanged();
             }
@@ -104,7 +100,7 @@ public class PlaylistViewFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "Adding "+musicFile.Title + " to queue");
+            Util.log(TAG, "Adding "+musicFile.Title + " to queue");
             observableMusicQueue.addItem(musicFile);
         }
     }

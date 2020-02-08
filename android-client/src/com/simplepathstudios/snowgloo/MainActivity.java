@@ -70,16 +70,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         __instance = this;
-        Util.setGlobalContext(getApplicationContext());
-        observableMusicQueue = ObservableMusicQueue.getInstance();
-
-        // Getting the cast context later than onStart can cause device discovery not to take place.
-        CastContext.getSharedInstance(this);
-        MediaNotification.registerActivity(this);
-        audioPlayer = AudioPlayer.getInstance();
-        startService(new Intent(this, SnowglooService.class));
-
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {
@@ -96,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
         });
         SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();
         ApiClient.retarget(settings.ServerUrl, settings.Username);
+        Util.log(TAG,"====== Starting new app instance ======");
+        MediaNotification.registerActivity(this);
+        audioPlayer = AudioPlayer.getInstance();
+        startService(new Intent(this, SnowglooService.class));
 
         setContentView(R.layout.main_activity);
 
@@ -147,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        observableMusicQueue = ObservableMusicQueue.getInstance();
 
         playButton = findViewById(R.id.play_button);
         playButton.setOnClickListener(new View.OnClickListener() {
@@ -273,18 +271,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "Resuming");
+        Util.log(TAG, "Resuming");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "Pausing");
+        Util.log(TAG, "Pausing");
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-        Log.d(TAG, "Destroying");
+        Util.log(TAG, "Destroying");
     }
 }

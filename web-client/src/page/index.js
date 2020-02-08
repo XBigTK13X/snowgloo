@@ -1,5 +1,6 @@
 export default {
     Admin: require('./Admin').default,
+    AdminLogs: require('./AdminLogs').default,
     AlbumView: require('./AlbumView').default,
     ArtistView: require('./ArtistView').default,
     AlbumList: require('./AlbumList').default,

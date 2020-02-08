@@ -31,7 +31,6 @@ public class ArtistListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "ArtistListFragment initiated");
         return inflater.inflate(R.layout.artist_list_fragment, container, false);
     }
     @Override

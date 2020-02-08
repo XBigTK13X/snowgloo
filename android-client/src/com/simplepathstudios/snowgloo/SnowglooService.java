@@ -42,7 +42,7 @@ public class SnowglooService extends Service {
     public void onCreate() {
         super.onCreate();
         __instance = this;
-        Log.d(TAG, "onCreate()");
+        Util.log(TAG, "onCreate()");
         powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
         wakeLock.acquire();
@@ -50,6 +50,7 @@ public class SnowglooService extends Service {
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
+                Util.log(TAG, "Service updating audio player because "+musicQueue.updateReason);
                 audioPlayer.handleUpdate(musicQueue);
             }
         });
@@ -59,10 +60,14 @@ public class SnowglooService extends Service {
             @Override
             public void onCastStateChanged(int i) {
                 if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
+                    Util.log(TAG, "Cast session changed state to not connected / no devices available " +i);
                     audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
                 }
                 else if(i == CastState.CONNECTED){
+                    Util.log(TAG, "Cast session changed state to connected");
                     audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
+                } else {
+                    Util.log(TAG, "Cast session changed state to " + i);
                 }
             }
         });
@@ -76,7 +81,7 @@ public class SnowglooService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        Log.d(TAG, "Swiped away from the recents menu, close the activity");
+        Util.log(TAG, "Swiped away from the recents menu, close the activity");
         audioPlayer.destroy();
         wakeLock.release();
         stopForeground(true);

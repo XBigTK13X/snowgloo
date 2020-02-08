@@ -31,7 +31,6 @@ public class AlbumListFragment  extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "AlbumListFragment initiated");
         return inflater.inflate(R.layout.album_list_fragment, container, false);
     }
 

@@ -110,6 +110,12 @@ class ApiClient {
     getDeletedPlaylists() {
         return this.get('admin/playlists/deleted')
     }
+
+    getLogs(clientId){
+        return this.httpClient.get('/admin/log', { params: { clientId } }).then(response => {
+            return response.data
+        })
+    }
 }
 
 let instance

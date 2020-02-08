@@ -74,7 +74,6 @@ public class QueueFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "QueueFragment initiated");
         return inflater.inflate(R.layout.queue_fragment, container, false);
     }
 

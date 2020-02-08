@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 import settings from '../settings'
 
+import Comp from '../comp'
+
 export default class Admin extends Component {
     constructor(props) {
         super(props)
@@ -128,6 +130,7 @@ export default class Admin extends Component {
                 <button className="action-button" onClick={this.clearQueues}>
                     Clear all queues
                 </button>
+                <Comp.LinkButton to="admin-logs" text="View client logs" />
                 <br />
                 {status}
                 {systemInfo}

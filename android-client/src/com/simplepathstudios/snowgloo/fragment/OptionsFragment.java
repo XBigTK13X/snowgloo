@@ -37,7 +37,6 @@ public class OptionsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "OptionsFragment initiated");
         return inflater.inflate(R.layout.options_fragment, container, false);
     }
 
@@ -80,7 +79,7 @@ public class OptionsFragment extends Fragment {
         serverInfoViewModel.Error.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String error) {
-                Log.d(TAG, "An error occurred whie loading");
+                Log.d(TAG, "An error occurred while loading");
                 errorText.setText(error);
             }
         });

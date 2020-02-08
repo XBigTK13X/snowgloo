@@ -5,6 +5,15 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.simplepathstudios.snowgloo.api.ApiClient;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class Util {
     private static final String TAG = "Util";
     public static String songPositionToTimestamp(int position){
@@ -22,6 +31,21 @@ public class Util {
         }
         return __context;
     }
+
+    public static void log(String tag, String message){
+        String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+        String logEntry = String.format("%s - %s - %s : %s",System.currentTimeMillis(), timestamp,tag,message);
+        Log.d(tag, logEntry);
+        ApiClient.getInstance().log(logEntry).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) { }
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                Log.e(TAG, "Unable to send log",t);
+            }
+        });
+    }
+
     public static void toast(String message){
         Toast.makeText(getGlobalContext(), message, Toast.LENGTH_LONG).show();
     }

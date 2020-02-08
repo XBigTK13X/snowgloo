@@ -3,6 +3,7 @@ package com.simplepathstudios.snowgloo.audio;
 import android.media.MediaPlayer;
 import android.util.Log;
 
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 
 public class LocalPlayer implements IAudioPlayer {
@@ -17,6 +18,7 @@ public class LocalPlayer implements IAudioPlayer {
             media.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
+                    Util.log(TAG,"an error occurred in media "+what+" " +extra);
                     // If an error occurs, returning true prevents a call to the onCompletionListener
                     return true;
                 }
@@ -24,7 +26,7 @@ public class LocalPlayer implements IAudioPlayer {
 
             media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
-                    Log.d(TAG,"started playback from prepared listener for "+currentSong.Id);
+                    Util.log(TAG,"started playback from prepared listener for "+currentSong.Id);
                     media.seekTo(currentSeekPosition);
                     media.start();
                 }
@@ -32,7 +34,7 @@ public class LocalPlayer implements IAudioPlayer {
             media.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    Log.d(TAG,"trying to play what comes after " + currentSong.Id);
+                    Util.log(TAG,"trying to play what comes after " + currentSong.Id);
                     AudioPlayer.getInstance().next();
                 }
             });
@@ -82,7 +84,9 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public void seek(int position) {
-        media.seekTo(position);
+        if(media != null){
+            media.seekTo(position);
+        }
     }
 
     @Override

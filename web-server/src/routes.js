@@ -4,6 +4,7 @@ const musicQueue = require('./music-queue')
 const playlists = require('./playlists')
 const inspect = require('./inspect')
 const asset = require('./asset')
+const log = require('./log')
 
 const register = router => {
     router.get('/api/song/list', async (request, response) => {
@@ -93,6 +94,25 @@ const register = router => {
     router.get('/api/admin/playlists/deleted', async (request, response) => {
         response.send({
             playlists: await playlists.getDeleted(),
+        })
+    })
+
+    router.post('/api/admin/log', async (request, response) => {
+        let logFile = log.getInstance(`client-${request.body.clientId}`)
+        let logs = await logFile.read()
+        if(!logs){
+            logs = {
+                entries: []
+            }
+        }
+        logs.entries.push(request.body.message)
+        response.send(await logFile.write(logs))
+    })
+
+    router.get('/api/admin/log', async (request, response) => {
+        let logFile = log.getInstance(`client-${request.query.clientId}`)
+        response.send({
+            logs: await logFile.read(logFile)
         })
     })
 }

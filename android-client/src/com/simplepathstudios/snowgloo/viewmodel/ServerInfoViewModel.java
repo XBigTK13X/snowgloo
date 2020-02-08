@@ -25,12 +25,10 @@ public class ServerInfoViewModel extends ViewModel {
     }
 
     public void load() {
-        Log.d("ServerInfoViewModel", "LoadingIndicator");
         ApiClient.getInstance().getServerInfo().enqueue(new Callback<ServerInfo>() {
 
             @Override
             public void onResponse(Call<ServerInfo> call, Response<ServerInfo> response) {
-                Log.d("ServerInfoViewModel.load", "Successful load");
                 LoadingIndicator.setLoading(false);
                 Error.setValue(null);
                 Data.setValue(response.body());
@@ -38,7 +36,6 @@ public class ServerInfoViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<ServerInfo> call, Throwable t) {
-                Log.e("ServerInfoViewModel.load", "Failed load", t);
                 LoadingIndicator.setLoading(false);
                 Error.setValue("An error occurred while checking the server\n["+t.getMessage()+"]");
             }
