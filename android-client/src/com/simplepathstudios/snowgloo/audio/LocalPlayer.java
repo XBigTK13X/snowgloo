@@ -78,7 +78,7 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public void pause() {
-        if(media != null){
+        if(media != null && media.isPlaying()){
             media.pause();
         }
 

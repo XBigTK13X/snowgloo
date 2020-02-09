@@ -46,13 +46,6 @@ public class SnowglooService extends Service {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
-        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
-            @Override
-            public void onChanged(MusicQueue musicQueue) {
-                Util.log(TAG, "Service updating audio player because "+musicQueue.updateReason);
-                audioPlayer.handleUpdate(musicQueue);
-            }
-        });
 
         MainActivity.getInstance().getCastContext().addCastStateListener(new CastStateListener() {
             @Override

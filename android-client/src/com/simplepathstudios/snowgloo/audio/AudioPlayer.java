@@ -23,12 +23,12 @@ public class AudioPlayer {
     LocalPlayer localPlayer;
     CastPlayer remotePlayer;
     ObservableMusicQueue observableMusicQueue;
-    MusicQueue queue;
-    MusicFile currentSong;
     int pausedDuration = 0;
-    int lastSeekPosition;
+    int lastSeekPosition = 0;
     int lastDuration;
     int lastPosition;
+    MusicQueue.PlayerState playerState;
+    MusicFile currentSong;
 
     private AudioPlayer() {
         this.localPlayer = new LocalPlayer();
@@ -64,41 +64,24 @@ public class AudioPlayer {
             }
             currentPlayer = remotePlayer;
         }
-        if(queue.playerState == MusicQueue.PlayerState.PLAYING){
+        if(playerState == MusicQueue.PlayerState.PLAYING){
             Util.log(TAG, "Attempting to resume playback after swapping mode");
-            currentPlayer.play(queue.getCurrent(), seekPosition);
-        }
-    }
-
-    public void handleUpdate(MusicQueue musicQueue){
-        queue = musicQueue;
-        if(queue != null && queue.currentIndex != null){
-            Util.log(TAG, "Music queue changed because " + queue.updateReason + ". currentIndex is " + queue.currentIndex + " with "+queue.songs.size()+ " songs playing on "+(currentPlayer == remotePlayer?"Chromecast":"Local Device"));
-            MusicFile musicFile = queue.getCurrent();
-            if(musicFile != null && (queue.updateReason == MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX || queue.updateReason == MusicQueue.UpdateReason.SHUFFLE)){
-                Util.log(TAG, "Decided to call play from observer for reason "+queue.updateReason);
-                lastPosition = 0;
-                lastDuration = 0;
-                lastSeekPosition = 0;
-                this.play();
-            }
-        }
-        if(queue.updateReason == MusicQueue.UpdateReason.CLEAR || queue.updateReason == MusicQueue.UpdateReason.OUT_OF_TRACKS){
-            Util.log(TAG, "Deciding to stop because of reason " +queue.updateReason);
-            this.stop();
+            currentPlayer.play(currentSong, seekPosition);
         }
     }
 
     public void play(){
-        MusicFile song = queue.getCurrent();
-        if(song == null || currentSong == null || song.Id == null || !song.Id.equals(currentSong.Id)){
-            Util.log(TAG, "This seems like a new song, play from the beginning");
-            currentSong = song;
-            currentPlayer.play(song, 0);
+        MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
+        if((currentQueueSong != null && currentSong == null) || (!currentQueueSong.Id.equals(currentSong.Id))){
+            Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
+            currentSong = currentQueueSong;
+            lastPosition = 0;
+            lastDuration = 0;
+            currentPlayer.play(currentSong, 0);
             observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
         else {
-            Util.log(TAG, "This song was playing before, attempt to resume");
+            Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
             currentPlayer.resume(lastSeekPosition);
             observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
@@ -117,6 +100,7 @@ public class AudioPlayer {
         currentPlayer.pause();
         observableMusicQueue.setPlayerState(MusicQueue.PlayerState.IDLE);
     }
+
     public int getSongPosition(){
         int position = currentPlayer.getCurrentPosition();
         if(position == 0){
@@ -140,7 +124,7 @@ public class AudioPlayer {
     public void seekTo(int position){
         Util.log(TAG, "Updating last seek position to " + position);
         lastSeekPosition = position;
-        if(queue.playerState == MusicQueue.PlayerState.PLAYING){
+        if(playerState == MusicQueue.PlayerState.PLAYING){
             Util.log(TAG, "Since music is playing, apply the seek now");
             currentPlayer.seek(position);
         }
@@ -151,6 +135,8 @@ public class AudioPlayer {
         if(observableMusicQueue.nextIndex()){
             Util.log(TAG, "A new index was found, playing the next track");
             this.play();
+        } else {
+            this.stop();
         }
     }
 
@@ -159,8 +145,9 @@ public class AudioPlayer {
         if(observableMusicQueue.previousIndex()){
             Util.log(TAG, "A new index was found, playing the previous track");
             this.play();
+        } else {
+            this.stop();
         }
-
     }
 
     public void destroy(){

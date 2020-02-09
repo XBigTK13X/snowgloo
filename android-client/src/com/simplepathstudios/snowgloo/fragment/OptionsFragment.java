@@ -83,8 +83,10 @@ public class OptionsFragment extends Fragment {
         serverInfoViewModel.Error.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String error) {
-                Log.d(TAG, "An error occurred while loading");
-                errorText.setText(error);
+                if(error != null){
+                    Log.d(TAG, "An error occurred while loading "+error);
+                    errorText.setText(error);
+                }
             }
         });
 

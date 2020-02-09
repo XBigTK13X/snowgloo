@@ -44,6 +44,8 @@ public class QueueFragment extends Fragment {
     private ItemTouchHelper itemTouchHelper;
     private MenuItem clearQueueButton;
     private MenuItem shuffleQueueButton;
+    private boolean firstLoad;
+    private AudioPlayer audioPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,11 +57,15 @@ public class QueueFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.queue_action_menu, menu);
+
+        audioPlayer = AudioPlayer.getInstance();
+
         clearQueueButton = menu.findItem(R.id.clear_queue_button);
         clearQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 observableMusicQueue.clear();
+                audioPlayer.stop();
                 return false;
             }
         });
@@ -68,6 +74,7 @@ public class QueueFragment extends Fragment {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 observableMusicQueue.shuffle();
+                audioPlayer.play();
                 return false;
             }
         });
@@ -86,6 +93,8 @@ public class QueueFragment extends Fragment {
         itemTouchHelper= new ItemTouchHelper(new RecyclerViewCallback());
         itemTouchHelper.attachToRecyclerView(listView);
 
+        firstLoad = true;
+
         adapter = new QueueFragment.Adapter();
         listView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity());
@@ -97,8 +106,15 @@ public class QueueFragment extends Fragment {
                 int scrollTarget = layoutManager.findFirstCompletelyVisibleItemPosition();
                 adapter.setData(musicQueue);
                 listView.setAdapter(adapter);
-                if(musicQueue.updateReason == MusicQueue.UpdateReason.ITEM_MOVED){
-                    listView.scrollToPosition(scrollTarget);
+                if(firstLoad){
+                    if(musicQueue.currentIndex != null){
+                        listView.scrollToPosition(musicQueue.currentIndex);
+                    }
+                    firstLoad = false;
+                } else {
+                    if(musicQueue.updateReason == MusicQueue.UpdateReason.ITEM_MOVED){
+                        listView.scrollToPosition(scrollTarget);
+                    }
                 }
             }
         });

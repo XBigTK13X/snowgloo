@@ -238,6 +238,10 @@ public class ObservableMusicQueue {
         }
     }
 
+    public MusicQueue getQueue(){
+        return queue;
+    }
+
     private void notifyObservers(){
         notifyObservers(true);
     }
