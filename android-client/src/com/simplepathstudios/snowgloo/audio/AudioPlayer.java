@@ -26,7 +26,7 @@ public class AudioPlayer {
     MusicQueue queue;
     MusicFile currentSong;
     int pausedDuration = 0;
-    int lastSeekPercent;
+    int lastSeekPosition;
 
     private AudioPlayer() {
         this.localPlayer = new LocalPlayer();
@@ -94,7 +94,7 @@ public class AudioPlayer {
         }
         else {
             Util.log(TAG, "This song was playing before, attempt to resume");
-            int position = (int)(pausedDuration * ((float)lastSeekPercent/100));
+            int position = (int)(pausedDuration * ((float) lastSeekPosition /100));
             currentPlayer.resume(position);
             observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
@@ -121,12 +121,11 @@ public class AudioPlayer {
         return currentPlayer.getSongDuration();
     }
 
-    public void seekTo(int percent){
-        Util.log(TAG, "Updating last seek percent to "+percent);
-        lastSeekPercent = percent;
+    public void seekTo(int position){
+        Util.log(TAG, "Updating last seek position to " + position);
+        lastSeekPosition = position;
         if(queue.playerState == MusicQueue.PlayerState.PLAYING){
             Util.log(TAG, "Since music is playing, apply the seek now");
-            int position = (int)(getSongDuration() * ((float)percent/100));
             currentPlayer.seek(position);
         }
     }

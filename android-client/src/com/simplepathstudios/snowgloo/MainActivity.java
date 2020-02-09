@@ -190,6 +190,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        audioControlsNowPlaying = findViewById(R.id.audio_controls_now_playing);
+
+        audioControlsNowPlaying.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(currentLocation.getId() == R.id.now_playing_fragment){
+                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
+                    navController.navigate(R.id.queue_fragment);
+                } else {
+                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
+                    navController.navigate(R.id.now_playing_fragment);
+                }
+            }
+        });
+
         seekBar = findViewById(R.id.seek_bar);
         seekTime = findViewById(R.id.seek_time);
 
@@ -206,21 +221,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        audioControlsNowPlaying = findViewById(R.id.audio_controls_now_playing);
-
-        audioControlsNowPlaying.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(currentLocation.getId() == R.id.now_playing_fragment){
-                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
-                    navController.navigate(R.id.queue_fragment);
-                } else {
-                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
-                    navController.navigate(R.id.now_playing_fragment);
-                }
-            }
-        });
-
         seekHandler = new Handler();
         this.runOnUiThread(new Runnable() {
             @Override
@@ -229,8 +229,9 @@ public class MainActivity extends AppCompatActivity {
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING){
                         int position = audioPlayer.getSongPosition();
                         int duration = audioPlayer.getSongDuration();
-                        int completionPercent = (int)(100*((float)position/duration));
-                        seekBar.setProgress(completionPercent);
+                        seekBar.setMin(0);
+                        seekBar.setMax(duration);
+                        seekBar.setProgress(position);
                         seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
                     }
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING || queue.playerState == MusicQueue.PlayerState.PAUSED){
