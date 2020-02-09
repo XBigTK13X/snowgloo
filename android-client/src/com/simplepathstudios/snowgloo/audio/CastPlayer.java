@@ -25,12 +25,14 @@ public class CastPlayer implements IAudioPlayer {
     private SessionManager sessionManager;
     private CastSession castSession;
     private RemoteMediaClient media;
+    private Integer lastPlayerState;
+    private Integer lastIdleReason;
 
     public CastPlayer(){
     }
 
     private MediaInfo prepareMedia(MusicFile musicFile){
-        Util.log(TAG, "prepareMedia "+musicFile);
+        Util.log(TAG, "prepareMedia "+musicFile.Id);
         MediaMetadata metadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
         metadata.putString(MediaMetadata.KEY_TITLE, musicFile.Title);
         metadata.putString(MediaMetadata.KEY_ARTIST, musicFile.DisplayArtist);
@@ -55,7 +57,7 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public void play(MusicFile musicFile, int seekPosition) {
-        Util.log(TAG, "play " +musicFile + " "+seekPosition);
+        Util.log(TAG, "play " +musicFile.Id + " at position "+seekPosition);
         sessionManager = MainActivity.getInstance().getCastContext().getSessionManager();
         castSession = sessionManager.getCurrentCastSession();
         if(castSession != null){
@@ -65,13 +67,20 @@ public class CastPlayer implements IAudioPlayer {
             RemoteMediaClient.Listener idleListener = new RemoteMediaClient.Listener() {
                 @Override
                 public void onStatusUpdated() {
-                    Util.log(TAG, "Cast media status updated");
                     if(media != null){
                         MediaStatus mediaStatus = media.getMediaStatus();
                         if(mediaStatus != null){
-                            Util.log(TAG, "Media status is "+mediaStatus.getPlayerState() + " "+mediaStatus.getIdleReason());
                             int playerState = mediaStatus.getPlayerState();
                             int idleReason = mediaStatus.getIdleReason();
+                            if(lastIdleReason == null || lastPlayerState == null || playerState != lastPlayerState || lastIdleReason != idleReason){
+                                Util.log(TAG, "Media status is "+
+                                        Util.messageNumberToText(Util.MessageKind.CastPlayerState, playerState)
+                                        + " " +
+                                        Util.messageNumberToText(Util.MessageKind.CastPlayerIdleReason, idleReason));
+                                lastIdleReason = idleReason;
+                                lastPlayerState = playerState;
+                            }
+
                             if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
                                 Util.log(TAG, "Should be going to the next song after " + musicFile.Id);
                                 //noinspection deprecation
@@ -145,19 +154,19 @@ public class CastPlayer implements IAudioPlayer {
     }
 
     @Override
-    public int getCurrentPosition() {
+    public Integer getCurrentPosition() {
         if(media != null && media.isPlaying()){
             return (int)media.getApproximateStreamPosition();
         }
-        return 0;
+        return null;
     }
 
     @Override
-    public int getSongDuration() {
+    public Integer getSongDuration() {
         if(media != null && media.isPlaying()){
             return (int)media.getStreamDuration();
         }
-        return 0;
+        return null;
     }
 
     @Override

@@ -16,6 +16,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_CANCELED;
+import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_ERROR;
+import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_FINISHED;
+import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_INTERRUPTED;
+import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_NONE;
+import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_BUFFERING;
+import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_IDLE;
+import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_LOADING;
+import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_PAUSED;
+import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_PLAYING;
+import static com.google.android.gms.cast.MediaStatus.PLAYER_STATE_UNKNOWN;
+
 public class Util {
     private static final String TAG = "Util";
 
@@ -96,11 +108,12 @@ public class Util {
     }
 
     public enum MessageKind {
-        MediaPlayerErrorExtra, MediaPlayerError
+        MediaPlayerErrorExtra, CastPlayerState, CastPlayerIdleReason, MediaPlayerError
     }
-    public static String messageNumberToText(MessageKind messageKind, int errorCode){
+
+    public static String messageNumberToText(MessageKind messageKind, int messageCode){
         if(messageKind == MessageKind.MediaPlayerError){
-            switch(errorCode){
+            switch(messageCode){
                 case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
                     return "Media error server died";
                 case MediaPlayer.MEDIA_ERROR_UNKNOWN:
@@ -109,7 +122,7 @@ public class Util {
             }
         }
         if(messageKind == MessageKind.MediaPlayerErrorExtra){
-            switch(errorCode){
+            switch(messageCode){
                 case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
                     return "Media error unsupported";
                 case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
@@ -122,6 +135,40 @@ public class Util {
                     return "Media error low level system problem";
             }
         }
-        return "Unknown int "+errorCode+ " for messageKind "+messageKind.toString();
+        if(messageKind == MessageKind.CastPlayerState){
+            switch(messageCode){
+                case PLAYER_STATE_UNKNOWN:
+                    return "PLAYER_STATE_UNKNOWN";
+                case PLAYER_STATE_IDLE:
+                    return "PLAYER_STATE_IDLE";
+                case PLAYER_STATE_PLAYING:
+                    return "PLAYER_STATE_PLAYING";
+                case PLAYER_STATE_PAUSED:
+                    return "PLAYER_STATE_PAUSED";
+                case PLAYER_STATE_BUFFERING:
+                    return "PLAYER_STATE_BUFFERING";
+                case PLAYER_STATE_LOADING:
+                    return "PLAYER_STATE_LOADING";
+            }
+        }
+        if(messageKind == MessageKind.CastPlayerIdleReason){
+            switch(messageCode){
+                case IDLE_REASON_NONE:
+                    return "IDLE_REASON_NONE";
+                case IDLE_REASON_FINISHED:
+                    return "IDLE_REASON_FINISHED";
+                case IDLE_REASON_CANCELED:
+                    return "IDLE_REASON_CANCELED";
+                case IDLE_REASON_INTERRUPTED:
+                    return "IDLE_REASON_INTERRUPTED";
+                case IDLE_REASON_ERROR:
+                    return "IDLE_REASON_ERROR";
+            }
+        }
+        return "Unknown int "+ messageCode + " for messageKind "+messageKind.toString();
+    }
+
+    public static void debounce(String debounceId, Runnable runnable){
+        Debouncer.getInstance().debounce(debounceId,runnable, 300);
     }
 }

@@ -114,6 +114,8 @@ public class ObservableMusicQueue {
                 queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
                 result = false;
             }
+        } else {
+            result = false;
         }
         notifyObservers();
         return result;
@@ -121,7 +123,7 @@ public class ObservableMusicQueue {
 
     public boolean nextIndex(){
         boolean result = true;
-        if(queue.currentIndex != null && queue.songs != null){
+        if(queue.songs != null && queue.currentIndex != null){
             queue.currentIndex += 1;
             queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
             if(queue.currentIndex > queue.songs.size()-1){
@@ -129,6 +131,9 @@ public class ObservableMusicQueue {
                 queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
                 result = false;
             }
+        }
+        if(queue.currentIndex == null){
+            result = false;
         }
         notifyObservers();
         return result;

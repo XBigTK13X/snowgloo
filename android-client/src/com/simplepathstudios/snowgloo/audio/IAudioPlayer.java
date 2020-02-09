@@ -8,8 +8,8 @@ interface IAudioPlayer {
     void pause();
     void seek(int position);
     void resume(int position);
-    int getCurrentPosition();
-    int getSongDuration();
+    Integer getCurrentPosition();
+    Integer getSongDuration();
     void destroy();
     boolean isPlaying();
 }

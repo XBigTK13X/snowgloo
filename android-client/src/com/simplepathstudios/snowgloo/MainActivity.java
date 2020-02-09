@@ -218,7 +218,10 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(audioPlayer != null && fromUser){
                     audioPlayer.seekTo(progress);
-                    seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(progress), Util.songPositionToTimestamp(audioPlayer.getSongDuration())));
+                    Integer duration = audioPlayer.getSongDuration();
+                    if(duration != null){
+                        seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(progress), Util.songPositionToTimestamp(duration)));
+                    }
                 }
             }
         });
@@ -229,15 +232,20 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 if(queue != null){
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING){
-                        int position = audioPlayer.getSongPosition();
-                        int duration = audioPlayer.getSongDuration();
-                        seekBar.setMin(0);
-                        seekBar.setMax(duration);
-                        seekBar.setProgress(position);
-                        seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
+                        Integer position = audioPlayer.getSongPosition();
+                        Integer duration = audioPlayer.getSongDuration();
+                        if(position != null && duration != null){
+                            seekBar.setMin(0);
+                            seekBar.setMax(duration);
+                            seekBar.setProgress(position);
+                            seekBar.setVisibility(View.VISIBLE);
+                            seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
+                        } else {
+                            seekBar.setVisibility(View.INVISIBLE);
+                            seekTime.setText("Loading...");
+                        }
                     }
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING || queue.playerState == MusicQueue.PlayerState.PAUSED){
-                        seekBar.setVisibility(View.VISIBLE);
                         seekTime.setVisibility(View.VISIBLE);
                         audioControlsNowPlaying.setVisibility(View.VISIBLE);
                         audioControlsNowPlaying.setText(queue.getCurrent().getOneLineMetadata());

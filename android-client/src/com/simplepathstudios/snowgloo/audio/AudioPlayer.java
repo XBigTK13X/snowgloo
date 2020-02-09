@@ -23,12 +23,11 @@ public class AudioPlayer {
     LocalPlayer localPlayer;
     CastPlayer remotePlayer;
     ObservableMusicQueue observableMusicQueue;
-    int pausedDuration = 0;
-    int lastSeekPosition = 0;
-    int lastDuration;
-    int lastPosition;
+    Integer lastDuration;
+    Integer lastPosition;
     MusicQueue.PlayerState playerState;
     MusicFile currentSong;
+    boolean isSeeking = false;
 
     private AudioPlayer() {
         this.localPlayer = new LocalPlayer();
@@ -49,7 +48,7 @@ public class AudioPlayer {
             return;
         }
         Util.log(TAG, "Playback mode changed to "+mode);
-        int seekPosition = currentPlayer.getCurrentPosition();
+        Integer seekPosition = currentPlayer.getCurrentPosition();
         if(mode == PlaybackMode.LOCAL){
             if(currentPlayer == remotePlayer){
                 Util.log(TAG, "Playback in progress on remote, pausing");
@@ -64,7 +63,7 @@ public class AudioPlayer {
             }
             currentPlayer = remotePlayer;
         }
-        if(playerState == MusicQueue.PlayerState.PLAYING){
+        if(playerState == MusicQueue.PlayerState.PLAYING && seekPosition != null){
             Util.log(TAG, "Attempting to resume playback after swapping mode");
             currentPlayer.play(currentSong, seekPosition);
         }
@@ -76,18 +75,19 @@ public class AudioPlayer {
     }
 
     public void play(){
+        isSeeking = false;
         MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
         if((currentQueueSong != null && currentSong == null) || (!currentQueueSong.Id.equals(currentSong.Id))){
             Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
             currentSong = currentQueueSong;
-            lastPosition = 0;
-            lastDuration = 0;
+            lastPosition = null;
+            lastDuration = null;
             currentPlayer.play(currentSong, 0);
             setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
-        else {
+        else if(currentQueueSong.Id != null){
             Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
-            currentPlayer.resume(lastSeekPosition);
+            currentPlayer.resume(lastPosition);
             setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
 
@@ -95,30 +95,39 @@ public class AudioPlayer {
 
     public void pause(){
         Util.log(TAG, "Pausing audio and tracking the duration");
-        pausedDuration = this.getSongDuration();
+        isSeeking = false;
+        lastDuration = this.getSongDuration();
+        lastPosition = currentPlayer.getCurrentPosition();
         currentPlayer.pause();
         setPlayerState(MusicQueue.PlayerState.PAUSED);
     }
 
     public void stop(){
         Util.log(TAG, "Stopping audio by pausing the media handler");
+        isSeeking = false;
         currentPlayer.pause();
         setPlayerState(MusicQueue.PlayerState.IDLE);
     }
 
-    public int getSongPosition(){
-        int position = currentPlayer.getCurrentPosition();
-        if(position == 0){
+    public Integer getSongPosition(){
+        if(isSeeking){
+            return lastPosition;
+        }
+        Integer position = currentPlayer.getCurrentPosition();
+        if(position == null){
             return lastPosition;
         } else {
             lastPosition = position;
         }
-        return currentPlayer.getCurrentPosition();
+        return position;
     }
 
-    public int getSongDuration(){
-        int duration = currentPlayer.getSongDuration();
-        if(duration == 0){
+    public Integer getSongDuration(){
+        if(isSeeking){
+            return lastPosition;
+        }
+        Integer duration = currentPlayer.getSongDuration();
+        if(duration == null){
             return lastDuration;
         } else {
             lastDuration = duration;
@@ -127,11 +136,13 @@ public class AudioPlayer {
     }
 
     public void seekTo(int position){
+        isSeeking = true;
         Util.log(TAG, "Updating last seek position to " + position);
-        lastSeekPosition = position;
+        lastPosition = position;
         if(playerState == MusicQueue.PlayerState.PLAYING){
-            Util.log(TAG, "Since music is playing, apply the seek now");
+            Util.log(TAG, "Since music is playing, apply the seek right now to "+position);
             currentPlayer.seek(position);
+            isSeeking = false;
         }
     }
 
