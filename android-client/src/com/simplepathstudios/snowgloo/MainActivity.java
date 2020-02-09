@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
         // If this is done too late, then it will fail to discover
         castContext = CastContext.getSharedInstance(this);
 
+        Util.registerGlobalExceptionHandler();
+
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.settingsViewModel.initialize(this.getSharedPreferences("Snowgloo", Context.MODE_PRIVATE));
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {

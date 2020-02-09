@@ -1,13 +1,13 @@
 package com.simplepathstudios.snowgloo;
 
 import android.content.Context;
-
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.Api;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -17,15 +17,14 @@ import retrofit2.Response;
 
 public class Util {
     private static final String TAG = "Util";
-    public static String songPositionToTimestamp(int position){
-        int seconds = (position/1000) % 60;
-        int minutes = (position/(1000 *60)) % 60;
-        return String.format("%02d:%02d",minutes,seconds);
-    }
+
     private static Context __context;
+    private static Thread.UncaughtExceptionHandler __androidExceptionHandler;
+
     public static void setGlobalContext(Context context){
         __context = context;
     }
+
     public static Context getGlobalContext(){
         if(__context == null){
             Log.d(TAG,"Global context is null, it must be set before it is read");
@@ -33,11 +32,17 @@ public class Util {
         return __context;
     }
 
+    public static String songPositionToTimestamp(int position){
+        int seconds = (position/1000) % 60;
+        int minutes = (position/(1000 *60)) % 60;
+        return String.format("%02d:%02d",minutes,seconds);
+    }
+
     public static void log(String tag, String message){
-        if(!SnowglooSettings.EnableDebugLog){
-            return;
-        }
         try{
+            if(!SnowglooSettings.EnableDebugLog){
+                return;
+            }
             String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
             String logEntry = String.format("%s - %s - %s : %s",System.currentTimeMillis(), timestamp,tag,message);
             Log.d(tag, logEntry);
@@ -59,5 +64,33 @@ public class Util {
 
     public static void toast(String message){
         Toast.makeText(getGlobalContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    public static void registerGlobalExceptionHandler() {
+        if(__androidExceptionHandler == null){
+            __androidExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+
+            Thread.setDefaultUncaughtExceptionHandler(
+                    new Thread.UncaughtExceptionHandler() {
+                        @Override
+                        public void uncaughtException(
+                                Thread paramThread,
+                                Throwable paramThrowable
+                        ) {
+                            StringWriter stringWriter = new StringWriter();
+                            PrintWriter printWriter = new PrintWriter(stringWriter);
+                            paramThrowable.printStackTrace(printWriter);
+                            String stackTrace = stringWriter.toString();
+                            Util.log(TAG, "An error occurred " +paramThrowable.getMessage() +" => "+stackTrace);
+                            if (__androidExceptionHandler != null)
+                                __androidExceptionHandler.uncaughtException(
+                                        paramThread,
+                                        paramThrowable
+                                ); //Delegates to Android's error handling
+                            else
+                                System.exit(2); //Prevents the service/app from freezing
+                        }
+                    });
+        }
     }
 }
