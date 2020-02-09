@@ -27,6 +27,8 @@ public class AudioPlayer {
     MusicFile currentSong;
     int pausedDuration = 0;
     int lastSeekPosition;
+    int lastDuration;
+    int lastPosition;
 
     private AudioPlayer() {
         this.localPlayer = new LocalPlayer();
@@ -75,6 +77,9 @@ public class AudioPlayer {
             MusicFile musicFile = queue.getCurrent();
             if(musicFile != null && (queue.updateReason == MusicQueue.UpdateReason.USER_CHANGED_CURRENT_INDEX || queue.updateReason == MusicQueue.UpdateReason.SHUFFLE)){
                 Util.log(TAG, "Decided to call play from observer for reason "+queue.updateReason);
+                lastPosition = 0;
+                lastDuration = 0;
+                lastSeekPosition = 0;
                 this.play();
             }
         }
@@ -94,8 +99,7 @@ public class AudioPlayer {
         }
         else {
             Util.log(TAG, "This song was playing before, attempt to resume");
-            int position = (int)(pausedDuration * ((float) lastSeekPosition /100));
-            currentPlayer.resume(position);
+            currentPlayer.resume(lastSeekPosition);
             observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
 
@@ -114,11 +118,23 @@ public class AudioPlayer {
         observableMusicQueue.setPlayerState(MusicQueue.PlayerState.IDLE);
     }
     public int getSongPosition(){
+        int position = currentPlayer.getCurrentPosition();
+        if(position == 0){
+            return lastPosition;
+        } else {
+            lastPosition = position;
+        }
         return currentPlayer.getCurrentPosition();
     }
 
     public int getSongDuration(){
-        return currentPlayer.getSongDuration();
+        int duration = currentPlayer.getSongDuration();
+        if(duration == 0){
+            return lastDuration;
+        } else {
+            lastDuration = duration;
+        }
+        return duration;
     }
 
     public void seekTo(int position){

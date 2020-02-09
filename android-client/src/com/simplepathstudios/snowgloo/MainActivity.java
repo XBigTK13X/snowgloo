@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(audioPlayer != null && fromUser){
                     audioPlayer.seekTo(progress);
+                    seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(progress), Util.songPositionToTimestamp(audioPlayer.getSongDuration())));
                 }
             }
         });

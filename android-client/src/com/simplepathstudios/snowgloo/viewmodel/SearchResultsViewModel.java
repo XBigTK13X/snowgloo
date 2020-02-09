@@ -21,7 +21,7 @@ public class SearchResultsViewModel extends ViewModel {
     }
 
     public void load(String query) {
-        if(query.isEmpty() || query.length() < 3){
+        if(query.isEmpty() || query.length() == 0){
             return;
         }
         LoadingIndicator.setLoading(true);
