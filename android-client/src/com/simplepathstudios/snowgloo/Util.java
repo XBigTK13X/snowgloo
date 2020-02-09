@@ -1,6 +1,7 @@
 package com.simplepathstudios.snowgloo;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -92,5 +93,35 @@ public class Util {
                         }
                     });
         }
+    }
+
+    public enum MessageKind {
+        MediaPlayerErrorExtra, MediaPlayerError
+    }
+    public static String messageNumberToText(MessageKind messageKind, int errorCode){
+        if(messageKind == MessageKind.MediaPlayerError){
+            switch(errorCode){
+                case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                    return "Media error server died";
+                case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                    return "Media error unknown";
+
+            }
+        }
+        if(messageKind == MessageKind.MediaPlayerErrorExtra){
+            switch(errorCode){
+                case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                    return "Media error unsupported";
+                case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                    return "Media error timed out";
+                case MediaPlayer.MEDIA_ERROR_IO:
+                    return "Media error io";
+                case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                    return "Media error malformed";
+                case -2147483648:
+                    return "Media error low level system problem";
+            }
+        }
+        return "Unknown int "+errorCode+ " for messageKind "+messageKind.toString();
     }
 }

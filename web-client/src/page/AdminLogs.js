@@ -33,6 +33,11 @@ export default class AdminLogs extends Component{
 
     wipeLogs(){
         this.props.api.wipeLogs()
+        .then(()=>{
+            this.setState({
+                logs: {}
+            })
+        })
     }
 
     persistLogs(){
@@ -60,7 +65,7 @@ export default class AdminLogs extends Component{
             </label>
         ): null
 
-        let logs = this.state.clientId !== 'null' ? (
+        let logs = (this.state.clientId !== 'null' && this.state.logs[this.state.clientId]) ? (
             <div>
                 {this.state.logs[this.state.clientId].workingSet.entries.map(entry=>{
                     return <p>{entry}</p>

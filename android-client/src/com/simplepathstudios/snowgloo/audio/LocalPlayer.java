@@ -19,7 +19,7 @@ public class LocalPlayer implements IAudioPlayer {
             media.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    Util.log(TAG,"an error occurred in media "+what+" " +extra);
+                    Util.log(TAG,"an error occurred in media "+Util.messageNumberToText(Util.MessageKind.MediaPlayerError, what)+" " +Util.messageNumberToText(Util.MessageKind.MediaPlayerErrorExtra, extra));
                     // If an error occurs, returning true prevents a call to the onCompletionListener
                     return true;
                 }

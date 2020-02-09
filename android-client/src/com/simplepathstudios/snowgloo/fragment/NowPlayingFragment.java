@@ -16,6 +16,7 @@ import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public class NowPlayingFragment extends Fragment {
@@ -38,11 +39,18 @@ public class NowPlayingFragment extends Fragment {
             public void onChanged(MusicQueue musicQueue) {
                 MusicFile currentSong = musicQueue.getCurrent();
                 trackMetadataView.setText(currentSong.getMultiLineMetadata());
-                if(currentSong.CoverArt == null || currentSong.CoverArt.isEmpty()){
-                    coverArt.setVisibility(View.INVISIBLE);
-                } else {
-                    Picasso.get().load(currentSong.CoverArt).into(coverArt);
-                    coverArt.setVisibility(View.VISIBLE);
+                coverArt.setVisibility(View.INVISIBLE);
+                if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
+                    Picasso.get().load(currentSong.CoverArt).into(coverArt, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            coverArt.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                        }
+                    });
                 }
             }
         });
