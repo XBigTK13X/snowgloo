@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
                 if(currentLocation.getId() == R.id.now_playing_fragment){
                     NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
                     navController.navigate(R.id.queue_fragment);
+
                 } else {
                     NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
                     navController.navigate(R.id.now_playing_fragment);
