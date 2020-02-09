@@ -70,6 +70,11 @@ public class AudioPlayer {
         }
     }
 
+    private void setPlayerState(MusicQueue.PlayerState playerState){
+        this.playerState = playerState;
+        observableMusicQueue.setPlayerState(playerState);
+    }
+
     public void play(){
         MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
         if((currentQueueSong != null && currentSong == null) || (!currentQueueSong.Id.equals(currentSong.Id))){
@@ -78,12 +83,12 @@ public class AudioPlayer {
             lastPosition = 0;
             lastDuration = 0;
             currentPlayer.play(currentSong, 0);
-            observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
+            setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
         else {
             Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
             currentPlayer.resume(lastSeekPosition);
-            observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PLAYING);
+            setPlayerState(MusicQueue.PlayerState.PLAYING);
         }
 
     }
@@ -92,13 +97,13 @@ public class AudioPlayer {
         Util.log(TAG, "Pausing audio and tracking the duration");
         pausedDuration = this.getSongDuration();
         currentPlayer.pause();
-        observableMusicQueue.setPlayerState(MusicQueue.PlayerState.PAUSED);
+        setPlayerState(MusicQueue.PlayerState.PAUSED);
     }
 
     public void stop(){
         Util.log(TAG, "Stopping audio by pausing the media handler");
         currentPlayer.pause();
-        observableMusicQueue.setPlayerState(MusicQueue.PlayerState.IDLE);
+        setPlayerState(MusicQueue.PlayerState.IDLE);
     }
 
     public int getSongPosition(){
