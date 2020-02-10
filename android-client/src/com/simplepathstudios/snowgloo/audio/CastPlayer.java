@@ -79,13 +79,12 @@ public class CastPlayer implements IAudioPlayer {
                                         Util.messageNumberToText(Util.MessageKind.CastPlayerIdleReason, idleReason));
                                 lastIdleReason = idleReason;
                                 lastPlayerState = playerState;
-                            }
-
-                            if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
-                                Util.log(TAG, "Should be going to the next song after " + musicFile.Id);
-                                //noinspection deprecation
-                                media.removeListener(this);
-                                AudioPlayer.getInstance().next();
+                                if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
+                                    Util.log(TAG, "Should be going to the next song after " + musicFile.Id);
+                                    //noinspection deprecation
+                                    media.removeListener(this);
+                                    AudioPlayer.getInstance().next();
+                                }
                             }
                         }
                     }

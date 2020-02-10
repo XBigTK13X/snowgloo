@@ -13,18 +13,14 @@ export default class AdminLogs extends Component {
         this.selectClient = this.selectClient.bind(this)
         this.wipeLogs = this.wipeLogs.bind(this)
         this.persistLogs = this.persistLogs.bind(this)
+        this.refreshLogs = this.refreshLogs.bind(this)
     }
 
     componentDidMount() {
-        this.props.api.getLogs().then(result => {
-            this.setState({
-                logs: result.logs,
-            })
-        })
+        this.refreshLogs();
     }
 
     selectClient(e) {
-        console.log(e.target.value)
         this.setState({
             clientId: e.target.value,
         })
@@ -38,6 +34,14 @@ export default class AdminLogs extends Component {
         })
     }
 
+    refreshLogs(){
+        this.props.api.getLogs().then(result => {
+            this.setState({
+                logs: result.logs,
+            })
+        })
+    }
+
     persistLogs() {
         this.props.api.persistLogs()
     }
@@ -46,6 +50,7 @@ export default class AdminLogs extends Component {
         let err = this.state.err ? <p>{JSON.stringify(this.state.err)}</p> : null
 
         let clientPicker = !_.isEmpty(this.state.logs) ? (
+            <div>
             <label className="simple-input">
                 Select a client to view
                 <select className="simple-input" value={this.state.clientId} onChange={this.selectClient}>
@@ -59,12 +64,14 @@ export default class AdminLogs extends Component {
                     })}
                 </select>
             </label>
+            <button onClick={this.refreshLogs}>Refresh</button>
+            </div>
         ) : null
 
         let logs =
             this.state.clientId !== 'null' && this.state.logs[this.state.clientId] ? (
                 <div>
-                    {this.state.logs[this.state.clientId].workingSet.entries.map(entry => {
+                    {this.state.logs[this.state.clientId].workingSet.entries.reverse().map(entry => {
                         return <p>{entry}</p>
                     })}
                 </div>
