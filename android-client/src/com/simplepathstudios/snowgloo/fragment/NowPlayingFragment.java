@@ -22,7 +22,9 @@ import com.squareup.picasso.Picasso;
 public class NowPlayingFragment extends Fragment {
     private static final String TAG = "NowPlayingFragment";
 
-    private TextView trackMetadataView;
+    private TextView songTitle;
+    private TextView songAlbum;
+    private TextView songArtist;
     private ImageView coverArt;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -32,13 +34,17 @@ public class NowPlayingFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        trackMetadataView = view.findViewById(R.id.track_metadata);
+        songTitle = view.findViewById(R.id.song_title);
+        songAlbum = view.findViewById(R.id.song_album);
+        songArtist = view.findViewById(R.id.song_artist);
         coverArt = view.findViewById(R.id.cover_art);
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 MusicFile currentSong = musicQueue.getCurrent();
-                trackMetadataView.setText(currentSong.getMultiLineMetadata());
+                songTitle.setText(currentSong.Title);
+                songAlbum.setText(currentSong.Album);
+                songArtist.setText(currentSong.Artist);
                 coverArt.setVisibility(View.INVISIBLE);
                 if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
                     Picasso.get().load(currentSong.CoverArt).into(coverArt, new Callback() {

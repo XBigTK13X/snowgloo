@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/track_metadata"
+        android:id="@+id/song_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -15,18 +15,48 @@
         android:textAllCaps="false"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall" />
+
+    <TextView
+        android:id="@+id/song_album"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text=""
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall" />
+
+    <TextView
+        android:id="@+id/song_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text=""
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textStyle="bold"
         android:textAppearance="?android:attr/textAppearanceListItemSmall" />
 
     <ImageView
         android:id="@+id/cover_art"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="12"
         android:adjustViewBounds="true"
         android:background="@drawable/image_background"
         android:maxWidth="500dp"
         android:maxHeight="500dp"
-        android:padding="20dp"
+        android:padding="10dp"
         android:scaleType="fitCenter" />
 
 </LinearLayout>

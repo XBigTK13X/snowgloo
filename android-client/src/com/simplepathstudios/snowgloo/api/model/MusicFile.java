@@ -23,20 +23,8 @@ public class MusicFile {
     public String Id;
     public String LocalFilePath;
     private String oneLineMetadata;
-    private String multiLineMetadata;
 
     public MusicFile(){}
-
-    public String getMultiLineMetadata(){
-        if(multiLineMetadata == null){
-            if(Id == null){
-                multiLineMetadata = String.format("%s\n\n", this.Title);
-            } else {
-                multiLineMetadata = String.format("%s\n%s\n%s", this.Title, this.DisplayAlbum, this.DisplayArtist);
-            }
-        }
-        return multiLineMetadata;
-    }
 
     public String getOneLineMetadata(){
         if(oneLineMetadata == null){
