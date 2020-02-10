@@ -46,6 +46,7 @@ class Catalog {
             pass = 1
             this.buildingSet = {}
         }
+        let fileLookup = {}
         console.log('Reading catalog into memory')
         return new Promise((resolve, reject) => {
             this.database.read().then(databaseWorkingSet => {
@@ -96,7 +97,15 @@ class Catalog {
                             return true
                         })
                         .map(file => {
-                            return new MusicFile(file)
+                            let musicFile = new MusicFile(file)
+                            if(pass == 1){
+                                if(_.has(fileLookup,musicFile.Id)){
+                                    console.error("Duplicate file ID "+musicFile.LocalFilePath + " and "+fileLookup[musicFile.Id])
+                                } else {
+                                    fileLookup[musicFile.Id] = musicFile.LocalFilePath
+                                }
+                            }
+                            return musicFile
                         })
                         .sort((a, b) => {
                             if (a.Artist.toLowerCase() !== b.Artist.toLowerCase()) {
@@ -155,6 +164,9 @@ class Catalog {
                                             albumCoverArts[file.AlbumSlug] = file.AlbumCoverArt
                                         }
                                         file.CoverArt = file.EmbeddedCoverArt ? file.EmbeddedCoverArt : file.AlbumCoverArt
+                                        if(pass == 2 && !file.CoverArt){
+                                            console.error("No cover art found for "+file.LocalFilePath)
+                                        }
                                     })
                                     innerResolve()
                                 })

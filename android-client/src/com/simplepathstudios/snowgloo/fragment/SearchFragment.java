@@ -1,6 +1,8 @@
 package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -24,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
@@ -32,6 +35,8 @@ import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.SearchResultsViewModel;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
@@ -58,6 +63,34 @@ public class SearchFragment extends Fragment {
                 }
                 return false;
             }
+        });
+        searchQuery.addTextChangedListener(new TextWatcher() {
+            private Timer timer=new Timer();
+            private final long DELAY = 1000; // milliseconds
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                timer.cancel();
+                timer = new Timer();
+                timer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        searchResultsViewModel.load(s.toString());
+                                    }
+                                });
+                            }
+                        },
+                        DELAY
+                );
+
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         observableMusicQueue = ObservableMusicQueue.getInstance();

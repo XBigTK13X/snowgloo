@@ -167,8 +167,4 @@ public class Util {
         }
         return "Unknown int "+ messageCode + " for messageKind "+messageKind.toString();
     }
-
-    public static void debounce(String debounceId, Runnable runnable){
-        Debouncer.getInstance().debounce(debounceId,runnable, 300);
-    }
 }
