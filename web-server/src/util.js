@@ -7,6 +7,18 @@ const searchify = text => {
         .replace(/\s/g, '')
 }
 
+const alphabetize = (items, property) => {
+    if (property) {
+        return items.sort((a, b) => {
+            return a[property].toLowerCase() > b[property].toLowerCase() ? 1 : -1
+        })
+    }
+    return items.sort((a, b) => {
+        return a.toLowerCase() > b.toLowerCase() ? 1 : -1
+    })
+}
+
 module.exports = {
     searchify,
+    alphabetize
 }

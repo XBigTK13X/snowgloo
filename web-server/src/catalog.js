@@ -6,27 +6,15 @@ const settings = require('./settings')
 const database = require('./database')
 const util = require('./util')
 
+const Organizer = require('./organizer')
 const MusicFile = require('./music-file')
 const MusicAlbum = require('./music-album')
 const MusicArtist = require('./music-artist')
 
-const BUILD_PASSES = 2
-
-const alphabetize = (items, property) => {
-    if (property) {
-        return items.sort((a, b) => {
-            return a[property].toLowerCase() > b[property].toLowerCase() ? 1 : -1
-        })
-    }
-    return items.sort((a, b) => {
-        return a.toLowerCase() > b.toLowerCase() ? 1 : -1
-    })
-}
-
 class Catalog {
     constructor() {
-        this.mediaRoot = settings.mediaRoot
-        this.workingSet = {}
+        this.organizer = new Organizer(settings.mediaRoot)
+        this.media = {}
         this.database = database.getInstance('catalog')
         this.building = false
         this.rebuildCount = 0
@@ -34,200 +22,52 @@ class Catalog {
     }
 
     status() {
-        return {
-            building: this.building,
-            rebuildCount: this.rebuildCount,
-            totalCount: this.totalCount,
-        }
+        return this.organizer.status()
     }
 
-    build(force, pass) {
-        if (!pass) {
-            pass = 1
-            this.buildingSet = {}
-        }
-        let fileLookup = {}
-        console.log('Reading catalog into memory')
-        return new Promise((resolve, reject) => {
-            this.database.read().then(databaseWorkingSet => {
-                if (!force && pass === 1 && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
-                    console.log(`Using ${databaseWorkingSet.files.length} cached database results`)
-                    this.workingSet = databaseWorkingSet
-                    this.workingSet.files = this.workingSet.files.map(x => {
-                        let result = new MusicFile(x.LocalFilePath)
-                        result.CoverArt = x.CoverArt
-                        result.EmbeddedCoverArt = x.EmbeddedCoverArt
-                        result.AlbumCoverArt = x.AlbumCoverArt
+    build(force) {
+        return new Promise((resolve)=>{
+            console.log('Reading catalog into memory')
+            return this.database.read().then(persistedMedia => {
+                if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
+                    console.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
+                    this.media = persistedMedia
+                    this.media.songs.list = this.media.songs.list.map(song => {
+                        let result = new MusicFile(song.LocalFilePath)
+                        result.CoverArt = song.CoverArt
+                        result.EmbeddedCoverArt = song.EmbeddedCoverArt
+                        result.AlbumCoverArt = song.AlbumCoverArt
+                        this.media.songs.lookup[song.Id] = result
                         return result
                     })
-                    this.workingSet.albums.list.forEach(albumName => {
-                        const album = this.workingSet.albums.lookup[albumName]
-                        this.workingSet.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
+                    this.media.albums.list.forEach(albumName => {
+                        const album = this.media.albums.lookup[albumName]
+                        this.media.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
                     })
-                    this.workingSet.artists.list.forEach(artistName => {
-                        const artist = this.workingSet.artists.lookup[artistName]
-                        this.workingSet.artists.lookup[artistName] = new MusicArtist(artist)
+                    this.media.artists.list.forEach(artistName => {
+                        const artist = this.media.artists.lookup[artistName]
+                        this.media.artists.lookup[artistName] = new MusicArtist(artist)
                     })
-                    return resolve(this.workingSet.files)
+                    resolve(this.media)
                 }
-                let workingSet = this.buildingSet
-                let startTime = new Date().getTime()
-                this.building = true
-                this.rebuildCount = 0
-                this.totalCount = 0
-                console.log(`Rebuilding cache from files - Pass #${pass} out of ${BUILD_PASSES}`)
-                let coverArts = []
-                let albumCoverArts = {}
-                recurse(this.mediaRoot, (err, files) => {
-                    if (err) {
-                        return reject(err)
-                    }
-                    console.log(`Found ${files.length} files in the entire library`)
-                    files = files
-                        .filter(x => {
-                            if (x.includes('.jpg') || x.includes('.png') || x.includes('.jpeg')) {
-                                if (!x.toLowerCase().includes('small')) {
-                                    coverArts.push(x)
-                                }
-                                return false
-                            }
-                            if (!x.includes('.mp3')) {
-                                return false
-                            }
-                            return true
-                        })
-                        .map(file => {
-                            let musicFile = new MusicFile(file)
-                            if (pass == 1) {
-                                if (_.has(fileLookup, musicFile.Id)) {
-                                    console.error('Duplicate file ID ' + musicFile.LocalFilePath + ' and ' + fileLookup[musicFile.Id])
-                                } else {
-                                    fileLookup[musicFile.Id] = musicFile.LocalFilePath
-                                }
-                            }
-                            return musicFile
-                        })
-                        .sort((a, b) => {
-                            if (a.Artist.toLowerCase() !== b.Artist.toLowerCase()) {
-                                return a.Artist.toLowerCase() > b.Artist.toLowerCase() ? 1 : -1
-                            }
-                            if (a.Album.toLowerCase() !== b.Album.toLowerCase()) {
-                                return a.Album.toLowerCase() > b.Album.toLowerCase() ? 1 : -1
-                            }
-                            if (a.Disc !== b.Disc) {
-                                return a.Disc > b.Disc ? 1 : -1
-                            }
-                            return a.Track > b.Track ? 1 : -1
-                        })
-                    console.log(`Filtered down to ${files.length} songs to process`)
-
-                    let serialReads = Promise.resolve()
-                    if (pass === 2) {
-                        const batchSize = 8
-                        let promiseBatches = []
-                        for (let ii = 0; ii < files.length; ii += batchSize) {
-                            promiseBatches.push(() => {
-                                let internalPromises = []
-                                for (let jj = 0; jj < batchSize; jj++) {
-                                    if (ii + jj < files.length) {
-                                        internalPromises.push(files[ii + jj].parseMetadata())
-                                    }
-                                }
-                                return Promise.all(internalPromises)
-                            })
-                        }
-                        this.rebuildCount = 0
-                        this.totalCount = promiseBatches.length
-                        const notify = 100
-                        serialReads = promiseBatches.reduce((m, p) => {
-                            return m.then(v => {
-                                this.rebuildCount++
-                                if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount >= this.totalCount - 1) {
-                                    console.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
-                                }
-                                return Promise.all([...v, p()])
-                            })
-                        }, Promise.resolve([]))
-                    }
-
-                    serialReads
-                        .then(() => {
-                            return new Promise(innerResolve => {
-                                coverArts.forEach(coverArt => {
-                                    let artDir = path.dirname(coverArt)
-                                    files.forEach(file => {
-                                        if (_.has(albumCoverArts, file.AlbumSlug)) {
-                                            file.AlbumCoverArt = albumCoverArts[file.AlbumSlug]
-                                        }
-                                        if (file.LocalFilePath.includes(artDir)) {
-                                            file.AlbumCoverArt = `${settings.mediaServer}${coverArt}`
-                                            albumCoverArts[file.AlbumSlug] = file.AlbumCoverArt
-                                        }
-                                        file.CoverArt = file.EmbeddedCoverArt ? file.EmbeddedCoverArt : file.AlbumCoverArt
-                                        if (pass == 2 && !file.CoverArt) {
-                                            console.error('No cover art found for ' + file.LocalFilePath)
-                                        }
-                                    })
-                                    innerResolve()
-                                })
-                            })
-                        })
-                        .then(() => {
-                            workingSet = {
-                                files,
-                                albumCoverArts,
-                            }
-                        })
-                        .then(() => {
-                            let albums = {
-                                list: [],
-                                lookup: {},
-                            }
-                            workingSet.filesLookup = {}
-                            workingSet.files.forEach(file => {
-                                workingSet.filesLookup[file.Id] = file
-                                if (!_.has(albums.lookup, file.AlbumSlug)) {
-                                    const album = new MusicAlbum(file, workingSet.albumCoverArts[file.AlbumSlug])
-                                    if (album.ReleaseYear === 9999) {
-                                        throw new Error(`Album has no defined year ${JSON.stringify(file)}`)
-                                    }
-                                    albums.lookup[file.AlbumSlug] = album
-                                    albums.list.push(file.AlbumSlug)
-                                }
-                                albums.lookup[file.AlbumSlug].Songs.push(file)
-                            })
-                            albums.list = alphabetize(albums.list)
-                            workingSet.albums = albums
-                        })
-                        .then(() => {
-                            let artists = {
-                                list: [],
-                                lookup: {},
-                            }
-                            workingSet.files.forEach(file => {
-                                if (!_.has(artists.lookup, file.Artist)) {
-                                    artists.lookup[file.Artist] = new MusicArtist(file)
-                                    artists.list.push(file.Artist)
-                                }
-                            })
-                            artists.list = alphabetize(artists.list)
-                            workingSet.artists = artists
-                        })
-                        .then(() => {
-                            return this.database.write(workingSet)
-                        })
-                        .then(() => {
-                            let timeSpent = (new Date().getTime() - startTime) / 1000
-                            this.building = false
-                            console.log(`Finished pass #${pass} out of ${BUILD_PASSES} for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
-                            this.workingSet = workingSet
-                            resolve(this.workingSet)
-                            if (pass < BUILD_PASSES) {
-                                this.build(force, pass + 1)
-                            }
-                        })
-                })
-            })
+                else {
+                    console.log('Rebuilding the catalog from scratch')
+                    this.organizer = new Organizer(settings.mediaRoot)
+                    return this.organizer.shallow()
+                    .then((media=>{
+                        this.media = {...media}
+                        return this.organizer.deep()
+                    }))
+                    .then((media)=>{
+                        this.media = {...media};
+                        return this.database.write(this.media)
+                    })
+                    .then(()=>{
+                        console.log("Organized catalog persisted to disk");
+                        resolve(this.media)
+                    })
+                }
+            });
         })
     }
 
@@ -240,21 +80,21 @@ class Catalog {
                 Albums: [],
                 ItemCount: 0,
             }
-            this.workingSet.files.forEach(musicFile => {
-                if (musicFile.matches(query)) {
-                    results.Songs.push(musicFile)
+            this.media.songs.list.forEach(song => {
+                if (song.matches(query)) {
+                    results.Songs.push(song)
                     results.ItemCount++
                 }
             })
-            this.workingSet.albums.list.forEach(albumSlug => {
-                const album = this.workingSet.albums.lookup[albumSlug]
+            this.media.albums.list.forEach(albumSlug => {
+                const album = this.media.albums.lookup[albumSlug]
                 if (album.matches(query)) {
                     results.Albums.push(album)
                     results.ItemCount++
                 }
             })
-            this.workingSet.artists.list.forEach(artistName => {
-                const artist = this.workingSet.artists.lookup[artistName]
+            this.media.artists.list.forEach(artistName => {
+                const artist = this.media.artists.lookup[artistName]
                 if (artist.matches(query)) {
                     results.Artists.push(artist)
                     results.ItemCount++
@@ -267,12 +107,12 @@ class Catalog {
     getSongs(songIds) {
         return new Promise(resolve => {
             if (!songIds) {
-                return resolve(this.workingSet.files)
+                return resolve(this.media.songs.list)
             }
 
             return resolve(
                 songIds.map(songId => {
-                    return this.workingSet.filesLookup[songId]
+                    return this.media.songs.lookup[songId]
                 })
             )
         })
@@ -280,13 +120,13 @@ class Catalog {
 
     getArtists() {
         return new Promise(resolve => {
-            return resolve(this.workingSet.artists)
+            return resolve(this.media.artists.list)
         })
     }
 
     getAlbum(albumSlug) {
         return new Promise(resolve => {
-            let album = this.workingSet.albums.lookup[albumSlug]
+            let album = this.media.albums.lookup[albumSlug]
             return resolve(album)
         })
     }
@@ -294,9 +134,9 @@ class Catalog {
     getAlbums(artist) {
         return new Promise(resolve => {
             if (!artist) {
-                return resolve(this.workingSet.albums)
+                return resolve(this.media.albums.list)
             }
-            let albums = this.workingSet.albums
+            let albums = this.media.albums
             let albumList = albums.list
                 .filter(x => {
                     return albums.lookup[x].Artist === artist

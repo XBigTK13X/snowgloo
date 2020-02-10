@@ -6,7 +6,7 @@ catalog
         return playlists.build(catalog)
     })
     .catch(err => {
-        console.err('Unable to build the catalog', { err })
+        console.error('Unable to build the catalog', { err })
     })
 
 const fs = require('fs')
