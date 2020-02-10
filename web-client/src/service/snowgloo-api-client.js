@@ -111,15 +111,15 @@ class ApiClient {
         return this.get('admin/playlists/deleted')
     }
 
-    getLogs(){
+    getLogs() {
         return this.get('/admin/log')
     }
 
-    wipeLogs(){
+    wipeLogs() {
         return this.httpClient.delete('/admin/log')
     }
 
-    persistLogs(){
+    persistLogs() {
         return this.httpClient.post('/admin/log/persist')
     }
 }

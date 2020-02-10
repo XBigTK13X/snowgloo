@@ -43,27 +43,28 @@ class MusicFile {
         let trackAndTitle = parts[parts.length - 1].split('.')
         trackAndTitle.pop()
         trackAndTitle = trackAndTitle.join('.')
-        if (!trackAndTitle.includes(' - ')) {
-            this.Title = trackAndTitle
+        let titleParts = trackAndTitle.split(' - ')
+        if (titleParts[0].includes('D')) {
+            let discAndTrackParts = titleParts[0].split('D')[1].split('T')
+            this.Disc = parseInt(discAndTrackParts[0], 10)
+            this.Track = parseInt(discAndTrackParts[1], 10)
+            this.Title = titleParts[1]
         } else {
-            let titleParts = trackAndTitle.split(' - ')
-            if (titleParts[0].includes('D')) {
-                let discAndTrackParts = titleParts[0].split('D')[1].split('T')
-                this.Disc = parseInt(discAndTrackParts[0], 10)
-                this.Track = parseInt(discAndTrackParts[1], 10)
-                this.Title = titleParts[1]
-            } else {
-                this.Disc = 1
-                this.Track = parseInt(titleParts[0], 10)
-                let parts2 = trackAndTitle.split(' - ')
-                parts2.shift()
-                this.Title = parts2.join(' - ')
-            }
-            if (this.Kind === 'Compilation') {
-                let hasOriginalArtist = titleParts.length === 3
-                this.Title = titleParts[1]
-                this.DisplayArtist = hasOriginalArtist ? titleParts[2] : this.Album
-            }
+            this.Disc = 1
+            this.Track = parseInt(titleParts[0], 10)
+            let parts2 = trackAndTitle.split(' - ')
+            parts2.shift()
+            this.Title = parts2.join(' - ')
+        }
+        if (this.Kind === 'Compilation') {
+            let hasOriginalArtist = titleParts.length === 3
+            this.Title = titleParts[1]
+            this.DisplayArtist = hasOriginalArtist ? titleParts[2] : this.Album
+        }
+        if(this.DisplayAlbum.includes('Vol. ')){
+            let albumParts = this.DisplayAlbum.split(' - ')
+            albumParts.shift()
+            this.DisplayAlbum = albumParts.join(' - ')
         }
         this.Album = this.Album.trim()
         this.Artist = this.Artist.trim()
@@ -79,34 +80,39 @@ class MusicFile {
     }
 
     parseMetadata() {
-        return new Promise(resolve=>{
-            inspect.audio(this.LocalFilePath).then(data => {
-                if (data.error) {
-                    console.error(this.LocalFilePath, data.error)
-                    throw data.error
-                }
-                this.Info = data
-                if(this.EmbeddedCoverArt){
-                    return resolve()
-                }
-                return inspect.embeddedArt(this.LocalFilePath)
-                    .then((embeddedArt)=>{
-                        if(!embeddedArt){
+        return new Promise(resolve => {
+            inspect
+                .audio(this.LocalFilePath)
+                .then(data => {
+                    if (data.error) {
+                        console.error(this.LocalFilePath, data.error)
+                        throw data.error
+                    }
+                    if (data && data.format && data.format.duration) {
+                        this.AudioDuration = data.format.duration
+                    }
+                    if (this.EmbeddedCoverArt) {
+                        return resolve()
+                    }
+                    return inspect.embeddedArt(this.LocalFilePath).then(embeddedArt => {
+                        if (!embeddedArt) {
                             return resolve()
                         }
                         let imageName = `${this.Id}.${embeddedArt.extension}`
-                        return asset.getInstance(imageName).write(embeddedArt.content)
-                        .then(()=>{
+                        let imageAsset = asset.getInstance(imageName)
+                        if (imageAsset.exists()) {
+                            return resolve()
+                        }
+                        return imageAsset.write(embeddedArt.content).then(() => {
                             this.EmbeddedCoverArt = `${settings.mediaServer}/snowgloo/${imageName}`
                             resolve()
                         })
                     })
-            })
-            .catch(err=>{
-                resolve()
-            })
+                })
+                .catch(err => {
+                    resolve()
+                })
         })
-
     }
 
     matches(query) {

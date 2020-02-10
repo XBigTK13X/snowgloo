@@ -94,7 +94,7 @@ export default class Search extends Component {
         ) : null
         return (
             <div>
-            <h1>Search</h1>
+                <h1>Search</h1>
                 <input className="large-text-input" autoFocus={true} type="text" value={this.state.query} onChange={this.onChange} />
                 <br />
                 {results}

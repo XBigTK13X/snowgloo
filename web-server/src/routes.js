@@ -23,7 +23,7 @@ const register = router => {
     router.get('/api/artist/view', async (request, response) => {
         let result = {
             albums: await catalog.getAlbums(decodeURIComponent(request.query.artist)),
-            artist: request.query.artist
+            artist: request.query.artist,
         }
         response.send(result)
     })
@@ -104,18 +104,17 @@ const register = router => {
 
     router.get('/api/admin/log', async (request, response) => {
         response.send({
-            logs: log.getAll()
+            logs: log.getAll(),
         })
     })
 
-    router.post('/api/admin/log/persist', (request, response)=>{
-        log.persistAll()
-            .then(()=>{
-                response.send({})
-            })
+    router.post('/api/admin/log/persist', (request, response) => {
+        log.persistAll().then(() => {
+            response.send({})
+        })
     })
 
-    router.delete('/api/admin/log', (request,response)=>{
+    router.delete('/api/admin/log', (request, response) => {
         log.wipeAll()
         response.send({})
     })

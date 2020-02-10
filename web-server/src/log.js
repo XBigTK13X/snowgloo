@@ -3,12 +3,12 @@ const fs = require('fs')
 const _ = require('lodash')
 const path = require('path')
 const mkdirp = require('mkdirp')
-const database  = require('./database')
+const database = require('./database')
 
 class Log {
     constructor(name) {
         this.workingSet = {
-            entries: []
+            entries: [],
         }
     }
 
@@ -35,7 +35,7 @@ let getInstance = name => {
     return instances[name]
 }
 
-let getAll = ()=>{
+let getAll = () => {
     return instances
 }
 
@@ -51,5 +51,5 @@ module.exports = {
     getInstance,
     getAll,
     persistAll,
-    wipeAll
+    wipeAll,
 }

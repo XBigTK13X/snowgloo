@@ -54,6 +54,6 @@ export default [
     {
         name: 'admin-logs',
         url: '/admin/logs',
-        component: pages.AdminLogs
-    }
+        component: pages.AdminLogs,
+    },
 ]

@@ -24,7 +24,7 @@ export default class ArtistList extends Component {
         }
         return (
             <div>
-            <h1>Albums ({this.state.albums.list.length})</h1>
+                <h1>Albums ({this.state.albums.list.length})</h1>
                 <Comp.AlbumPicker albums={this.state.albums} />
             </div>
         )

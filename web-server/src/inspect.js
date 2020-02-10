@@ -32,7 +32,7 @@ const audio = path => {
     })
 }
 
-const embeddedArt = (path) => {
+const embeddedArt = path => {
     return new Promise((resolve, reject) => {
         jsmediatags.read(path, {
             onSuccess: function(tags) {
@@ -42,7 +42,7 @@ const embeddedArt = (path) => {
                 }
                 resolve({
                     content: Buffer.from(picture.data),
-                    extension: picture.format.split('/')[1]
+                    extension: picture.format.split('/')[1],
                 })
             },
             onError: function(error) {

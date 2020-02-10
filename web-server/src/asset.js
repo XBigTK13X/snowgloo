@@ -13,6 +13,10 @@ class Asset {
         }
     }
 
+    exists() {
+        return fs.existsSync(this.filePath)
+    }
+
     read() {
         return new Promise((resolve, reject) => {
             fs.access(this.filePath, err => {

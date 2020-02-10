@@ -63,7 +63,7 @@ export default class ArtistView extends Component {
         this.props.api.getArtist(this.props.$stateParams.artist).then(result => {
             this.setState({
                 albums: result.albums,
-                artist: decodeURIComponent(result.artist)
+                artist: decodeURIComponent(result.artist),
             })
         })
     }
@@ -75,7 +75,7 @@ export default class ArtistView extends Component {
 
         return (
             <div>
-            <h1>Artist - {this.state.artist}</h1>
+                <h1>Artist - {this.state.artist}</h1>
                 <MicroModal
                     trigger={handleOpen => (
                         <button className="icon-button" onClick={handleOpen} title="Add to queue">

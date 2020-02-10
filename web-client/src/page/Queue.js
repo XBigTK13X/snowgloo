@@ -17,9 +17,7 @@ export default class Home extends Component {
         if (!this.props.queuedSongs || !this.props.queuedSongs.length) {
             return (
                 <div>
-                <h1>
-                    {this.props.user}'s Queue
-                </h1>
+                    <h1>{this.props.user}'s Queue</h1>
                     <p>{this.props.user} has no music queued up.</p>
                 </div>
             )
