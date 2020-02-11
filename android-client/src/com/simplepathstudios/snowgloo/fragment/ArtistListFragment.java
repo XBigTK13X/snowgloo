@@ -38,6 +38,7 @@ public class ArtistListFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         listElement = view.findViewById(R.id.artist_list);
         adapter = new Adapter();
         listElement.setAdapter(adapter);
@@ -51,7 +52,10 @@ public class ArtistListFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         });
-        viewModel.load();
+        Bundle arguments = getArguments();
+        if(arguments != null){
+            viewModel.load(arguments.getString("Category"));
+        }
     }
     private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

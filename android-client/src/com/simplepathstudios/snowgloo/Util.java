@@ -107,6 +107,7 @@ public class Util {
         }
     }
 
+
     public enum MessageKind {
         MediaPlayerErrorExtra, CastPlayerState, CastPlayerIdleReason, MediaPlayerError
     }

@@ -56,10 +56,6 @@ class Organizer {
             list: [],
             lookup: {}
         }
-        this.artists = {
-            list: [],
-            lookup: {}
-        },
         this.categories = {
             list: [],
             lookup: {}
@@ -91,13 +87,12 @@ class Organizer {
                     return this.organizeAlbums()
                 })
                 .then(()=>{
-                    return this.organizeArtists()
+                    return this.organizeCategories()
                 })
                 .then(()=>{
                     let result = {
                         songs: this.songs,
                         albums: this.albums,
-                        artists: this.artists,
                         categories: this.categories
                     }
                     let timeSpent = (new Date().getTime() - this.startTime) / 1000
@@ -199,7 +194,7 @@ class Organizer {
             return promiseBatches.reduce((m, p) => {
                 return m.then(v => {
                     this.rebuildCount++
-                    if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount - 1) {
+                    if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount) {
                         console.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
                     }
                     return Promise.all([...v, p()])
@@ -250,15 +245,26 @@ class Organizer {
         })
     }
 
-    organizeArtists(){
+    organizeCategories(){
         return new Promise(resolve=>{
-            this.songs.list.forEach(song => {
-                if (!_.has(this.artists.lookup, song.Artist)) {
-                    this.artists.lookup[song.Artist] = new MusicArtist(song)
-                    this.artists.list.push(song.Artist)
+            this.songs.list.forEach(song=>{
+                if(!_.has(this.categories.lookup,song.Kind)){
+                    this.categories.lookup[song.Kind] = {
+                        artists: {
+                            list: [],
+                            lookup: {}
+                        }
+                    }
+                    this.categories.list.push(song.Kind)
+                }
+                if(!_.has(this.categories.lookup[song.Kind].artists.lookup, song.Artist)){
+                    this.categories.lookup[song.Kind].artists.list.push(song.Artist)
+                    this.categories.lookup[song.Kind].artists.lookup[song.Artist] = new MusicArtist(song)
                 }
             })
-            this.artists.list = util.alphabetize(this.artists.list)
+            this.categories.list.forEach(category=>{
+                this.categories.lookup[category].artists.list = util.alphabetize(this.categories.lookup[category].artists.list)
+            })
             resolve()
         })
     }

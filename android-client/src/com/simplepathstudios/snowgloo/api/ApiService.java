@@ -35,7 +35,7 @@ public interface ApiService {
     Call<AlbumList> getAlbumList();
 
     @GET("api/artist/list")
-    Call<ArtistList> getArtistList();
+    Call<ArtistList> getArtistList(@Query("category") String category);
 
     @GET("api/artist/view")
     Call<ArtistView> getArtist(@Query("artist") String artist);

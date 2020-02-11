@@ -18,7 +18,7 @@ const register = router => {
         response.send(result)
     })
     router.get('/api/artist/list', async (request, response) => {
-        response.send(await catalog.getArtists())
+        response.send(await catalog.getArtists(request.query.category))
     })
     router.get('/api/artist/view', async (request, response) => {
         let result = {

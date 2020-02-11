@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+
     <item android:id="@+id/now_playing_fragment"
         android:title="Now Playing" />
     <item android:id="@+id/queue_fragment"
@@ -7,11 +10,22 @@
     <item android:id="@+id/search_fragment"
         android:title="Search" />
     <item android:id="@+id/playlist_list_fragment"
-        android:title="Playlists" />
-    <item android:id="@+id/artist_list_fragment"
-        android:title="Artists" />
+        android:title="Playlist" />
     <item android:id="@+id/album_list_fragment"
-        android:title="Albums" />
+        android:title="Album" />
+    <item android:id="@+id/anime_list"
+        android:title="Anime" />
+    <item android:id="@+id/artist_list"
+        android:title="Artist" />
+    <item android:id="@+id/compilation_list"
+        android:title="Compilation" />
+    <item android:id="@+id/disney_list"
+        android:title="Disney" />
+    <item android:id="@+id/game_list"
+        android:title="Game" />
+    <item android:id="@+id/movie_list"
+        android:title="Movie" />
     <item android:id="@+id/options_fragment"
         android:title="Options" />
+    </group>
 </menu>

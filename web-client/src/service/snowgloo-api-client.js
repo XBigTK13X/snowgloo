@@ -27,8 +27,10 @@ class ApiClient {
         return this.get('album/list')
     }
 
-    getArtists() {
-        return this.get('artist/list')
+    getArtists(category) {
+        return this.httpClient.get('artist/list',{params: {category}}).then(response=>{
+            return response.data
+        })
     }
 
     getArtist(artist) {

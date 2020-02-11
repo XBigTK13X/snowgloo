@@ -38,7 +38,6 @@
     <fragment
         android:id="@+id/artist_list_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.ArtistListFragment"
-        android:label="Artists"
         tools:layout="@layout/artist_list_fragment">
         <action
             android:id="@+id/action_artist_list_fragment_to_artist_view_fragment"

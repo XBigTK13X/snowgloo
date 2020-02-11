@@ -19,9 +19,9 @@ public class ArtistListViewModel extends ViewModel {
         Data = new MutableLiveData<ArtistList>();
     }
 
-    public void load(){
+    public void load(String category){
         LoadingIndicator.setLoading(true);
-        ApiClient.getInstance().getArtistList().enqueue(new Callback< ArtistList >(){
+        ApiClient.getInstance().getArtistList(category).enqueue(new Callback< ArtistList >(){
 
             @Override
             public void onResponse(Call<ArtistList> call, Response<ArtistList> response) {

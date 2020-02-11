@@ -13,7 +13,7 @@ export default [
     },
     {
         name: 'artist-list',
-        url: '/artist/list',
+        url: '/artist/list/:category',
         component: pages.ArtistList,
     },
     {

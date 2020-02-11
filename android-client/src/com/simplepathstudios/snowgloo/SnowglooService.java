@@ -47,21 +47,24 @@ public class SnowglooService extends Service {
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
 
-        MainActivity.getInstance().getCastContext().addCastStateListener(new CastStateListener() {
-            @Override
-            public void onCastStateChanged(int i) {
-                if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
-                    Util.log(TAG, "Cast session changed state to " +CastState.toString(i));
-                    audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+        CastContext castContext = MainActivity.getInstance().getCastContext();
+        if(castContext != null){
+            castContext.addCastStateListener(new CastStateListener() {
+                @Override
+                public void onCastStateChanged(int i) {
+                    if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
+                        Util.log(TAG, "Cast session changed state to " +CastState.toString(i));
+                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                    }
+                    else if(i == CastState.CONNECTED){
+                        Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
+                    } else {
+                        Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                    }
                 }
-                else if(i == CastState.CONNECTED){
-                    Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
-                    audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
-                } else {
-                    Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
-                }
-            }
-        });
+            });
+        }
     }
 
     @Override

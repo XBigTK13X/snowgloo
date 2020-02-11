@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -36,7 +38,7 @@ import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private final String TAG = "MainActivity";
     private final int SEEK_BAR_UPDATE_MILLISECONDS = 350;
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private CastContext castContext;
+    private NavController navController;
+    private NavigationView navigationView;
 
     private SettingsViewModel settingsViewModel;
     private ObservableMusicQueue observableMusicQueue;
@@ -55,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
     private ProgressBar loadingView;
     private ImageButton previousButton;
     private ImageButton playButton;
@@ -76,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_activity);
         __instance = this;
         // If this is done too late, then it will fail to discover
         castContext = CastContext.getSharedInstance(this);
-
         Util.registerGlobalExceptionHandler();
 
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
@@ -103,17 +106,15 @@ public class MainActivity extends AppCompatActivity {
         audioPlayer = AudioPlayer.getInstance();
         startService(new Intent(this, SnowglooService.class));
 
-        setContentView(R.layout.main_activity);
-
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
 
         loadingView = findViewById(R.id.loading_indicator);
         LoadingIndicator.setProgressBar(loadingView);
 
-        NavController navController = Navigation.findNavController(this,R.id.nav_host_fragment);
         drawerLayout = findViewById(R.id.main_activity_layout);
+        navigationView = findViewById(R.id.nav_view);
+        navController = Navigation.findNavController(this,R.id.nav_host_fragment);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.queue_fragment,
                 R.id.album_list_fragment,
@@ -127,17 +128,69 @@ public class MainActivity extends AppCompatActivity {
                 R.id.now_playing_fragment)
                 .setDrawerLayout(drawerLayout)
                 .build();
-        navigationView = findViewById(R.id.nav_view);
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 CharSequence name = destination.getLabel();
                 currentLocation = destination;
-                toolbar.setTitle(name);
+                if(arguments != null && arguments.size() > 0){
+                    String category = arguments.getString("Category");
+                    if(category != null){
+                        getSupportActionBar().setTitle(category);
+                    } else {
+                        getSupportActionBar().setTitle(name);
+                    }
+                } else{
+                    getSupportActionBar().setTitle(name);
+                }
+
             }
         });
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                Bundle bundle = new Bundle();
+                boolean skipArtistList = false;
+                switch (menuItem.getItemId()) {
+                    case R.id.anime_list:
+                        bundle.putString("Category","Anime");
+                        break;
+                    case R.id.artist_list:
+                        bundle.putString("Category","Artist");
+                        break;
+                    case R.id.compilation_list:
+                        bundle.putString("Artist","Compilation");
+                        skipArtistList = true;
+                        break;
+                    case R.id.disney_list:
+                        bundle.putString("Artist","Disney");
+                        skipArtistList = true;
+                        break;
+                    case R.id.game_list:
+                        bundle.putString("Category","Game");
+                        break;
+                    case R.id.movie_list:
+                        bundle.putString("Artist","Movie");
+                        skipArtistList = true;
+                        break;
+
+                }
+                if(bundle.size() > 0){
+                    if(skipArtistList){
+                        navController.navigate(R.id.artist_view_fragment,bundle);
+                    } else {
+                        navController.navigate(R.id.artist_list_fragment,bundle);
+                    }
+
+                } else {
+                    navController.navigate(menuItem.getItemId());
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
 
         // Hide the keyboard if touch event outside keyboard (better search experience)
         findViewById(R.id.main_activity_layout).setOnTouchListener(new View.OnTouchListener() {
@@ -191,16 +244,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         audioControlsNowPlaying = findViewById(R.id.audio_controls_now_playing);
-
         audioControlsNowPlaying.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(currentLocation.getId() == R.id.now_playing_fragment){
-                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
                     navController.navigate(R.id.queue_fragment);
 
                 } else {
-                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
                     navController.navigate(R.id.now_playing_fragment);
                 }
             }

@@ -7,17 +7,9 @@ class MusicFile {
     constructor(path) {
         const parts = path.split('/')
         this.LocalFilePath = path
-        this.Id = this.LocalFilePath.replace(settings.mediaRoot, '').replace(/#/g, '%23')
         this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
-        this.Kind = 'Artist'
+        this.Kind = path.replace(settings.mediaRoot,'').split('/')[1]
         this.SubKind = null
-        if (path.includes('/Anime/')) {
-            this.Kind = 'Anime'
-        } else if (path.includes('/Game')) {
-            this.Kind = 'Game'
-        } else if (path.includes('/Compilation')) {
-            this.Kind = 'Compilation'
-        }
         this.CoverArt = null
         this.AlbumCoverArt = null
         this.EmbeddedCoverArt = null

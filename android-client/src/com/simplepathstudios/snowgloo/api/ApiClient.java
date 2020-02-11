@@ -60,8 +60,8 @@ public class ApiClient {
         return this.httpClient.setQueue(this.username, payload);
     }
 
-    public Call getArtistList(){
-        return this.httpClient.getArtistList();
+    public Call getArtistList(String category){
+        return this.httpClient.getArtistList(category);
     }
 
     public Call getArtistView(String artist){

@@ -40,14 +40,14 @@ class Catalog {
                         this.media.songs.lookup[song.Id] = result
                         return result
                     })
-                    this.media.albums.list.forEach(albumName => {
-                        const album = this.media.albums.lookup[albumName]
-                        this.media.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
-                    })
-                    this.media.artists.list.forEach(artistName => {
-                        const artist = this.media.artists.lookup[artistName]
-                        this.media.artists.lookup[artistName] = new MusicArtist(artist)
-                    })
+                    // this.media.albums.list.forEach(albumName => {
+                    //     const album = this.media.albums.lookup[albumName]
+                    //     this.media.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
+                    // })
+                    // this.media.artists.list.forEach(artistName => {
+                    //     const artist = this.media.artists.lookup[artistName]
+                    //     this.media.artists.lookup[artistName] = new MusicArtist(artist)
+                    // })
                     resolve(this.media)
                 }
                 else {
@@ -118,9 +118,12 @@ class Catalog {
         })
     }
 
-    getArtists() {
+    getArtists(category) {
         return new Promise(resolve => {
-            return resolve(this.media.artists)
+            if(!_.has(this.media.categories.lookup, category)){
+                return null
+            }
+            return resolve(this.media.categories.lookup[category].artists)
         })
     }
 
@@ -136,7 +139,7 @@ class Catalog {
             if (!artist) {
                 return resolve(this.media.albums)
             }
-            let albums = this.media.albums
+            let albums = {...this.media.albums}
             let albumList = albums.list
                 .filter(x => {
                     return albums.lookup[x].Artist === artist

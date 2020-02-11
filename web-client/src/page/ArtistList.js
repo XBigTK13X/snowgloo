@@ -11,7 +11,7 @@ export default class AlbumList extends Component {
     }
 
     componentDidMount() {
-        this.props.api.getArtists().then(result => {
+        this.props.api.getArtists(this.props.$stateParams.category).then(result => {
             this.setState({
                 artists: result.list,
             })
@@ -20,11 +20,11 @@ export default class AlbumList extends Component {
 
     render() {
         if (!this.state.artists) {
-            return null
+            return "No entries found for this category"
         }
         return (
             <div>
-                <h1>Artists ({this.state.artists.length})</h1>
+                <h1>{this.props.$stateParams.category} ({this.state.artists.length})</h1>
                 <div className="list-grid">
                     {this.state.artists.map((artist, artistIndex) => {
                         return <Comp.ArtistListItem key={artistIndex} artist={artist} />
