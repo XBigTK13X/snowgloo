@@ -16,10 +16,11 @@
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.3",
     "moment": "^2.24.0",
+    "object-hash": "^2.0.2",
     "recursive-readdir": "^2.2.2",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
     "mocha": "^7.0.1"
-    }
+  }
 }

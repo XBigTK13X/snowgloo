@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const hash = require('object-hash')
 
 const searchify = text => {
     return _.deburr(text)
@@ -18,7 +19,12 @@ const alphabetize = (items, property) => {
     })
 }
 
+const contentHash = (content)=>{
+    return hash(content,{algorithm:'md5'})
+}
+
 module.exports = {
     searchify,
-    alphabetize
+    alphabetize,
+    contentHash
 }

@@ -43,29 +43,33 @@ class MusicFile {
         let trackAndTitle = parts[parts.length - 1].split('.')
         trackAndTitle.pop()
         trackAndTitle = trackAndTitle.join('.')
-        let titleParts = trackAndTitle.split(' - ')
-        if (titleParts[0].includes('D')) {
-            let discAndTrackParts = titleParts[0].split('D')[1].split('T')
-            this.Disc = parseInt(discAndTrackParts[0], 10)
-            this.Track = parseInt(discAndTrackParts[1], 10)
-            this.Title = titleParts[1]
-        } else {
-            this.Disc = 1
-            this.Track = parseInt(titleParts[0], 10)
-            let parts2 = trackAndTitle.split(' - ')
-            parts2.shift()
-            this.Title = parts2.join(' - ')
+        this.Title = trackAndTitle
+        if(trackAndTitle.includes(' - ')){
+            let titleParts = trackAndTitle.split(' - ')
+            if (titleParts[0].includes('D')) {
+                let discAndTrackParts = titleParts[0].split('D')[1].split('T')
+                this.Disc = parseInt(discAndTrackParts[0], 10)
+                this.Track = parseInt(discAndTrackParts[1], 10)
+                this.Title = titleParts[1]
+            } else {
+                this.Disc = 1
+                this.Track = parseInt(titleParts[0], 10)
+                let parts2 = trackAndTitle.split(' - ')
+                parts2.shift()
+                this.Title = parts2.join(' - ')
+            }
+            if (this.Kind === 'Compilation') {
+                let hasOriginalArtist = titleParts.length === 3
+                this.Title = titleParts[1]
+                this.DisplayArtist = hasOriginalArtist ? titleParts[2] : this.Album
+            }
+            if(this.DisplayAlbum.includes('Vol. ')){
+                let albumParts = this.DisplayAlbum.split(' - ')
+                albumParts.shift()
+                this.DisplayAlbum = albumParts.join(' - ')
+            }
         }
-        if (this.Kind === 'Compilation') {
-            let hasOriginalArtist = titleParts.length === 3
-            this.Title = titleParts[1]
-            this.DisplayArtist = hasOriginalArtist ? titleParts[2] : this.Album
-        }
-        if(this.DisplayAlbum.includes('Vol. ')){
-            let albumParts = this.DisplayAlbum.split(' - ')
-            albumParts.shift()
-            this.DisplayAlbum = albumParts.join(' - ')
-        }
+
         this.Album = this.Album.trim()
         this.Artist = this.Artist.trim()
         this.Title = this.Title.trim()
@@ -88,19 +92,31 @@ class MusicFile {
                         console.error(this.LocalFilePath, data.error)
                         throw data.error
                     }
-                    if (data && data.format && data.format.duration) {
-                        this.AudioDuration = data.format.duration
+                    if (data) {
+                        if(data.format){
+                            this.AudioDuration = data.format.duration
+                            if(data.format.tags){
+                                this.ReplayGain = {
+                                        AlbumGain: data.format.tags.replaygain_album_gain,
+                                        AlbumPeak: data.format.tags.replaygain_album_peak,
+                                        TrackGain: data.format.tags.replaygain_track_gain,
+                                        TrackPeak: data.format.tags.replaygain_track_peak
+
+                                }
+                            }
+                        }
+                        if(data.streams && data.streams[1] && data.streams[1].width){
+                            this.HasEmbeddedArt = true
+                        }
                     }
-                    if (this.EmbeddedCoverArt) {
+                    if (this.EmbeddedCoverArt || !this.HasEmbeddedArt) {
                         return resolve()
                     }
                     return inspect.embeddedArt(this.LocalFilePath).then(embeddedArt => {
-                        if (!embeddedArt) {
-                            return resolve()
-                        }
-                        let imageName = `${this.Id}.${embeddedArt.extension}`
+                        let imageName = `${this.AlbumSlug}-${util.contentHash(embeddedArt.content)}.${embeddedArt.extension}`
                         let imageAsset = asset.getInstance(imageName)
                         if (imageAsset.exists()) {
+                            this.EmbeddedCoverArt = `${settings.mediaServer}/snowgloo/${imageName}`
                             return resolve()
                         }
                         return imageAsset.write(embeddedArt.content).then(() => {

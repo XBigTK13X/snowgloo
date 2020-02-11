@@ -120,7 +120,7 @@ class Catalog {
 
     getArtists() {
         return new Promise(resolve => {
-            return resolve(this.media.artists.list)
+            return resolve(this.media.artists)
         })
     }
 
@@ -134,7 +134,7 @@ class Catalog {
     getAlbums(artist) {
         return new Promise(resolve => {
             if (!artist) {
-                return resolve(this.media.albums.list)
+                return resolve(this.media.albums)
             }
             let albums = this.media.albums
             let albumList = albums.list

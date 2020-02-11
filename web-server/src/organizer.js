@@ -199,7 +199,7 @@ class Organizer {
             return promiseBatches.reduce((m, p) => {
                 return m.then(v => {
                     this.rebuildCount++
-                    if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount >= this.totalCount - 1) {
+                    if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount - 1) {
                         console.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
                     }
                     return Promise.all([...v, p()])
@@ -214,22 +214,21 @@ class Organizer {
     assignCoverArt(){
         return new Promise(resolve => {
             this.coverArts.list.forEach(coverArt => {
-                let artDir = path.dirname(coverArt)
-                this.songs.list.forEach(song => {
-                    if (_.has(this.coverArts.lookup, song.AlbumSlug)) {
-                        song.AlbumCoverArt = this.coverArts.lookup[song.AlbumSlug]
-                    }
-                    if (song.LocalFilePath.includes(artDir)) {
-                        song.AlbumCoverArt = `${settings.mediaServer}${coverArt}`
-                        this.coverArts.lookup[song.AlbumSlug] = song.AlbumCoverArt
-                    }
-                    song.CoverArt = song.EmbeddedCoverArt ? song.EmbeddedCoverArt : song.AlbumCoverArt
-                    if (this.depth === DEEP && !song.CoverArt) {
-                        //console.error('No cover art found for ' + song.LocalFilePath)
-                    }
-                })
-                resolve()
+                let artFile = new MusicFile(coverArt)
+                if(!_.has(this.coverArts.lookup, artFile.AlbumSlug)){
+                    this.coverArts.lookup[artFile.AlbumSlug] = `${settings.mediaServer}${coverArt}`
+                }
             })
+            this.songs.list.forEach(song => {
+                if (_.has(this.coverArts.lookup, song.AlbumSlug)) {
+                    song.AlbumCoverArt = this.coverArts.lookup[song.AlbumSlug]
+                }
+                song.CoverArt = song.EmbeddedCoverArt ? song.EmbeddedCoverArt : song.AlbumCoverArt
+                if (this.depth === DEEP && !song.CoverArt) {
+                    console.error('No cover art found for ' + song.LocalFilePath)
+                }
+            })
+            resolve()
         })
     }
 
