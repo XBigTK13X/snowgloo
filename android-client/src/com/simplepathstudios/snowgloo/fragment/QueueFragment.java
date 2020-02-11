@@ -2,7 +2,6 @@ package com.simplepathstudios.snowgloo.fragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,8 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
@@ -36,16 +35,19 @@ import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG;
 
 public class QueueFragment extends Fragment {
     static final String TAG = "QueueFragment";
+    static final int FIRST_SCREEN_ROWS = 8;
+    static final int CENTER_BUFFER = 5;
 
     private QueueFragment.Adapter adapter;
     private ObservableMusicQueue observableMusicQueue;
     private LinearLayoutManager layoutManager;
+    private NestedScrollView scrollView;
     private RecyclerView listView;
     private ItemTouchHelper itemTouchHelper;
     private MenuItem clearQueueButton;
     private MenuItem shuffleQueueButton;
-    private boolean firstLoad;
     private AudioPlayer audioPlayer;
+    private Integer requestedScrollPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,35 +91,45 @@ public class QueueFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        scrollView = view.findViewById(R.id.scroll_view);
         listView = view.findViewById(R.id.music_queue);
         itemTouchHelper= new ItemTouchHelper(new RecyclerViewCallback());
         itemTouchHelper.attachToRecyclerView(listView);
-
-        firstLoad = true;
 
         adapter = new QueueFragment.Adapter();
         listView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity());
         listView.setLayoutManager(layoutManager);
+        Bundle arguments = getArguments();
+        if(arguments != null){
+            requestedScrollPosition = arguments.getInt("ScrollToItemIndex");
+        }
         observableMusicQueue = ObservableMusicQueue.getInstance();
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                int scrollTarget = layoutManager.findFirstCompletelyVisibleItemPosition();
                 adapter.setData(musicQueue);
                 listView.setAdapter(adapter);
-                if(firstLoad){
-                    if(musicQueue.currentIndex != null){
-                        listView.scrollToPosition(musicQueue.currentIndex);
-                    }
-                    firstLoad = false;
-                } else {
-                    if(musicQueue.updateReason == MusicQueue.UpdateReason.ITEM_MOVED){
-                        listView.scrollToPosition(scrollTarget);
-                    }
-                }
             }
         });
+
+        if(requestedScrollPosition != null && adapter.getItemCount() > requestedScrollPosition) {
+            // TODO This is a workaround to ensure the recyclerview is populated before scrolling.
+            // There should be a better way, but this is the only way I could get it working.
+            listView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(requestedScrollPosition > FIRST_SCREEN_ROWS){
+                        requestedScrollPosition -= CENTER_BUFFER;
+                    } else {
+                        requestedScrollPosition = 0;
+                    }
+                    View child = listView.getChildAt(requestedScrollPosition);
+                    scrollView.scrollTo(0, (int)child.getY());
+                    requestedScrollPosition = null;
+                }
+            }, 0);
+        }
     }
 
     public void onResume(){

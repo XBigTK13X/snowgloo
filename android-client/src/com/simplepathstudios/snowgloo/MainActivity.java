@@ -248,7 +248,9 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 if(currentLocation.getId() == R.id.now_playing_fragment){
-                    navController.navigate(R.id.queue_fragment);
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("ScrollToItemIndex",queue.currentIndex);
+                    navController.navigate(R.id.queue_fragment, bundle);
 
                 } else {
                     navController.navigate(R.id.now_playing_fragment);
