@@ -9,6 +9,7 @@ import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
+import com.simplepathstudios.snowgloo.api.model.Playlist;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.squareup.picasso.Picasso;
 
@@ -258,5 +259,12 @@ public class ObservableMusicQueue {
         for(Observer<MusicQueue> observer: observers){
             observer.onChanged(queue);
         }
+    }
+
+    public Call saveQueueAsPlaylist(String playlistName) {
+        Playlist playlist = new Playlist();
+        playlist.name = playlistName;
+        playlist.songs = queue.songs;
+        return ApiClient.getInstance().savePlaylist(playlist);
     }
 }

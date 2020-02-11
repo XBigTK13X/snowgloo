@@ -3,8 +3,12 @@ package com.simplepathstudios.snowgloo.fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -23,6 +27,7 @@ import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylistListItem;
 import com.simplepathstudios.snowgloo.api.model.PlaylistList;
+import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ArtistListViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.PlaylistListViewModel;
 
@@ -32,11 +37,37 @@ public class PlaylistListFragment extends Fragment {
     private Adapter adapter;
     private LinearLayoutManager layoutManager;
     private PlaylistListViewModel viewModel;
+    private MenuItem createPlaylistButton;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.playlist_list_action_menu, menu);
+
+        createPlaylistButton = menu.findItem(R.id.create_playlist_button);
+        createPlaylistButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                SaveQueueAsNewPlaylistFragment dialogFragment = new SaveQueueAsNewPlaylistFragment(getLayoutInflater(), viewModel);
+                dialogFragment.show(getChildFragmentManager(),"save-queue-as-playlist-dialog");
+                return false;
+            }
+        });
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.playlist_list_fragment, container, false);
     }
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
