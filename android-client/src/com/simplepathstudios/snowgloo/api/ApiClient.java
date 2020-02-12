@@ -5,9 +5,9 @@ import android.util.Log;
 
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.AdminLog;
+import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
-import com.simplepathstudios.snowgloo.api.model.Playlist;
 import com.simplepathstudios.snowgloo.api.model.PlaylistPayload;
 
 import retrofit2.Call;
@@ -106,7 +106,7 @@ public class ApiClient {
         return this.httpClient.writeLog(new AdminLog(message, clientId));
     }
 
-    public Call savePlaylist(Playlist playlist) {
+    public Call savePlaylist(MusicPlaylist playlist) {
         PlaylistPayload playlistPayload = new PlaylistPayload();
         playlistPayload.playlist = playlist;
         return this.httpClient.savePlaylist(playlistPayload);

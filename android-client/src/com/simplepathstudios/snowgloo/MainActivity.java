@@ -76,6 +76,14 @@ public class MainActivity extends AppCompatActivity{
         return castContext;
     }
 
+    public void setActionBarTitle(String title){
+        getSupportActionBar().setTitle(title);
+    }
+
+    public void setActionBarSubtitle(String subtitle){
+        getSupportActionBar().setSubtitle(subtitle);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,6 +139,7 @@ public class MainActivity extends AppCompatActivity{
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                getSupportActionBar().setSubtitle("");
                 CharSequence name = destination.getLabel();
                 currentLocation = destination;
                 if(arguments != null && arguments.size() > 0){
@@ -336,6 +345,7 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+
         getMenuInflater().inflate(R.menu.menu, menu);
         CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         return true;

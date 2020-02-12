@@ -1,7 +1,7 @@
 package com.simplepathstudios.snowgloo.fragment;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
@@ -50,13 +51,13 @@ public class AlbumViewFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+
         inflater.inflate(R.menu.add_to_queue_action_menu, menu);
         addToQueueButton = menu.findItem(R.id.add_to_queue_button);
-        addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        Util.confirmMenuAction(addToQueueButton, "Add album to queue?", new DialogInterface.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public void onClick(DialogInterface dialog, int which) {
                 observableMusicQueue.addItems(albumViewModel.Data.getValue().album.Songs);
-                return false;
             }
         });
     }
@@ -65,7 +66,8 @@ public class AlbumViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         albumSlug = getArguments().getString("AlbumSlug");
         albumDisplay = getArguments().getString("AlbumDisplay");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(albumDisplay);
+        MainActivity.getInstance().setActionBarTitle(albumDisplay);
+        MainActivity.getInstance().setActionBarSubtitle("Album");
         return inflater.inflate(R.layout.album_view_fragment, container, false);
     }
 

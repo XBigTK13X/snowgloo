@@ -1,8 +1,11 @@
 package com.simplepathstudios.snowgloo;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.simplepathstudios.snowgloo.api.ApiClient;
@@ -52,8 +55,12 @@ public class Util {
     }
 
     public static void log(String tag, String message){
+        Util.log(tag, message, false);
+    }
+
+    public static void log(String tag, String message, boolean force){
         try{
-            if(!SnowglooSettings.EnableDebugLog){
+            if(!SnowglooSettings.EnableDebugLog &&!force){
                 return;
             }
             String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
@@ -94,7 +101,7 @@ public class Util {
                             PrintWriter printWriter = new PrintWriter(stringWriter);
                             paramThrowable.printStackTrace(printWriter);
                             String stackTrace = stringWriter.toString();
-                            Util.log(TAG, "An error occurred " +paramThrowable.getMessage() +" => "+stackTrace);
+                            Util.log(TAG, "An error occurred " +paramThrowable.getMessage() +" => "+stackTrace, true);
                             if (__androidExceptionHandler != null)
                                 __androidExceptionHandler.uncaughtException(
                                         paramThread,
@@ -107,6 +114,25 @@ public class Util {
         }
     }
 
+    public static void confirmMenuAction(MenuItem menuItem, String message, DialogInterface.OnClickListener confirmListener){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.getInstance());
+        builder.setMessage(message);
+        builder.setPositiveButton("Yes", confirmListener);
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return false;
+            }
+        });
+    }
 
     public enum MessageKind {
         MediaPlayerErrorExtra, CastPlayerState, CastPlayerIdleReason, MediaPlayerError

@@ -16,12 +16,10 @@ import com.simplepathstudios.snowgloo.api.model.AlbumList;
 import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
-import com.simplepathstudios.snowgloo.api.model.CoverArt;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
-import com.simplepathstudios.snowgloo.api.model.Playlist;
 import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.api.model.PlaylistPayload;
 import com.simplepathstudios.snowgloo.api.model.SearchResults;
@@ -76,5 +74,5 @@ public interface ApiService {
     Call<AdminLogs> readLogs(@Query("clientId") String clientId);
 
     @POST("/api/playlist")
-    Call<Playlist> savePlaylist(@Body PlaylistPayload playlist);
+    Call<MusicPlaylist> savePlaylist(@Body PlaylistPayload playlist);
 }

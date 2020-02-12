@@ -56,7 +56,7 @@ public class AddArtistToQueueDialogFragment extends DialogFragment {
         }};
         possibleItems = getResources().getStringArray(R.array.album_kinds);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Add what kinds of albums?")
+        builder.setTitle("Add to the queue?")
                 .setMultiChoiceItems(R.array.album_kinds, new boolean[]{true,true,false,false},
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override

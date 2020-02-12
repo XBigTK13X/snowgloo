@@ -7,11 +7,9 @@ import androidx.lifecycle.Observer;
 import com.simplepathstudios.snowgloo.LoadingIndicator;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
-import com.simplepathstudios.snowgloo.api.model.Playlist;
-import com.simplepathstudios.snowgloo.audio.AudioPlayer;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -262,9 +260,28 @@ public class ObservableMusicQueue {
     }
 
     public Call saveQueueAsPlaylist(String playlistName) {
-        Playlist playlist = new Playlist();
+        MusicPlaylist playlist = new MusicPlaylist();
         playlist.name = playlistName;
         playlist.songs = queue.songs;
+        if(playlist.songs.size() > 0){
+            return ApiClient.getInstance().savePlaylist(playlist);
+        }
+        return null;
+    }
+
+    public Call updatePlaylistFromQueue(String playlistId, String playlistName){
+        if(queue.songs.size() > 0){
+            MusicPlaylist playlist = new MusicPlaylist();
+            playlist.name = playlistName;
+            playlist.id = playlistId;
+            playlist.songs = queue.songs;
+            return ApiClient.getInstance().savePlaylist(playlist);
+        }
+        return null;
+    }
+
+    public Call renamePlaylist(MusicPlaylist playlist, String newName){
+        playlist.name = newName;
         return ApiClient.getInstance().savePlaylist(playlist);
     }
 }

@@ -1,7 +1,6 @@
 package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +46,7 @@ public class ArtistViewFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+
         inflater.inflate(R.menu.add_to_queue_action_menu, menu);
         addToQueueButton = menu.findItem(R.id.add_to_queue_button);
         addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -63,7 +63,8 @@ public class ArtistViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         artistName = getArguments().getString("Artist");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(artistName);
+        MainActivity.getInstance().setActionBarTitle(artistName);
+        MainActivity.getInstance().setActionBarSubtitle("Artist");
 
         artistViewViewModel = new ViewModelProvider(this).get(ArtistViewViewModel.class);
         observableMusicQueue = ObservableMusicQueue.getInstance();

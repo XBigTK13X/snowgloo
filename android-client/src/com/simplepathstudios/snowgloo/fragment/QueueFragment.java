@@ -1,6 +1,7 @@
 package com.simplepathstudios.snowgloo.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
@@ -58,26 +60,25 @@ public class QueueFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+
         inflater.inflate(R.menu.queue_action_menu, menu);
 
         audioPlayer = AudioPlayer.getInstance();
 
         clearQueueButton = menu.findItem(R.id.clear_queue_button);
-        clearQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        Util.confirmMenuAction(clearQueueButton, "Clear the queue?", new DialogInterface.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public void onClick(DialogInterface dialog, int which) {
                 observableMusicQueue.clear();
                 audioPlayer.stop();
-                return false;
             }
         });
         shuffleQueueButton = menu.findItem(R.id.shuffle_queue_button);
-        shuffleQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        Util.confirmMenuAction(shuffleQueueButton, "Shuffle the queue?", new DialogInterface.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public void onClick(DialogInterface dialog, int which) {
                 observableMusicQueue.shuffle();
                 audioPlayer.play();
-                return false;
             }
         });
     }

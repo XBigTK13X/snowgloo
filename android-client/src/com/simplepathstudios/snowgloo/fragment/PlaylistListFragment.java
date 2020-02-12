@@ -48,6 +48,7 @@ public class PlaylistListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+
         inflater.inflate(R.menu.playlist_list_action_menu, menu);
 
         createPlaylistButton = menu.findItem(R.id.create_playlist_button);

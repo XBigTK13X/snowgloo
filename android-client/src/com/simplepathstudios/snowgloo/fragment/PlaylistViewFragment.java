@@ -1,7 +1,8 @@
 package com.simplepathstudios.snowgloo.fragment;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,6 +28,10 @@ import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.PlaylistViewViewModel;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PlaylistViewFragment extends Fragment {
     private final String TAG = "PlaylistViewFragment";
@@ -37,6 +44,8 @@ public class PlaylistViewFragment extends Fragment {
     private PlaylistViewFragment.Adapter adapter;
     private LinearLayoutManager layoutManager;
     private MenuItem addToQueueButton;
+    private MenuItem renamePlaylistButton;
+    private MenuItem updatePlaylistButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,12 +56,16 @@ public class PlaylistViewFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.add_to_queue_action_menu, menu);
+
+        inflater.inflate(R.menu.playlist_view_action_menu, menu);
         addToQueueButton = menu.findItem(R.id.add_to_queue_button);
-        addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        updatePlaylistButton = menu.findItem(R.id.update_playlist_button);
+        renamePlaylistButton = menu.findItem(R.id.rename_playlist_button);
+        UpdatePlaylistNameFragment dialogFragment = new UpdatePlaylistNameFragment(getLayoutInflater(), playlistViewModel);
+        renamePlaylistButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                observableMusicQueue.addItems(playlistViewModel.Data.getValue().songs);
+                dialogFragment.show(getChildFragmentManager(),"rename-playlist-dialog");
                 return false;
             }
         });
@@ -63,7 +76,8 @@ public class PlaylistViewFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         playlistId = getArguments().getString("PlaylistId");
         playlistName = getArguments().getString("PlaylistName");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(playlistName);
+        MainActivity.getInstance().setActionBarTitle(playlistName);
+        MainActivity.getInstance().setActionBarSubtitle("Playlist");
         return inflater.inflate(R.layout.playlist_view_fragment, container, false);
     }
 
@@ -80,14 +94,40 @@ public class PlaylistViewFragment extends Fragment {
         playlistViewModel.Data.observe(getViewLifecycleOwner(), new Observer<MusicPlaylist>() {
             @Override
             public void onChanged(MusicPlaylist playlist) {
+                MainActivity.getInstance().setActionBarTitle(playlist.name);
+                Util.confirmMenuAction(addToQueueButton, "Add " + playlist.songs.size() + " songs to queue?", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        observableMusicQueue.addItems(playlist.songs);
+                    }
+                });
+                Util.confirmMenuAction(updatePlaylistButton, "Save current queue as playlist '" + playlist.name + "'?", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Call runUpdate = observableMusicQueue.updatePlaylistFromQueue(playlist.id, playlistName);
+                        if(runUpdate != null){
+                            runUpdate.enqueue(new Callback() {
+                                @Override
+                                public void onResponse(Call call, Response response) {
+                                    playlistViewModel.load(playlist.id);
+                                }
+
+                                @Override
+                                public void onFailure(Call call, Throwable t) {
+
+                                }
+                            });
+                        }
+                    }
+                });
                 adapter.setData(playlist);
-                adapter.notifyDataSetChanged();
+                listElement.setAdapter(adapter);
             }
         });
         playlistViewModel.load(playlistId);
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnCreateContextMenuListener {
 
         public final TextView textView;
         public MusicFile musicFile;
@@ -96,12 +136,41 @@ public class PlaylistViewFragment extends Fragment {
             super(textView);
             this.textView = textView;
             textView.setOnClickListener(this);
+            itemView.setOnCreateContextMenuListener(this);
         }
 
         @Override
         public void onClick(View v) {
             Util.log(TAG, "Adding "+musicFile.Title + " to queue");
             observableMusicQueue.addItem(musicFile);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v,
+                                        ContextMenu.ContextMenuInfo menuInfo) {
+            MenuItem viewAlbumAction = menu.add("View Album");
+            viewAlbumAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("AlbumSlug", musicFile.AlbumSlug);
+                    bundle.putString("AlbumDisplay", musicFile.Album + " ("+musicFile.ReleaseYear+")");
+                    navController.navigate(R.id.album_view_fragment, bundle);
+                    return false;
+                }
+            });
+            MenuItem viewArtistAction = menu.add("View Artist");
+            viewArtistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Artist", musicFile.Artist);
+                    navController.navigate(R.id.artist_view_fragment, bundle);
+                    return false;
+                }
+            });
         }
     }
     private class Adapter extends RecyclerView.Adapter<PlaylistViewFragment.ViewHolder> {
