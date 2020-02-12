@@ -32,6 +32,7 @@ class Catalog {
                 if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
                     console.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
                     this.media = persistedMedia
+                    //Need to rehydrate class instances from JSON, otherwise instance methods won't work (i.e. search)
                     this.media.songs.list = this.media.songs.list.map(song => {
                         let result = new MusicFile(song.LocalFilePath)
                         result.CoverArt = song.CoverArt
@@ -40,14 +41,16 @@ class Catalog {
                         this.media.songs.lookup[song.Id] = result
                         return result
                     })
-                    // this.media.albums.list.forEach(albumName => {
-                    //     const album = this.media.albums.lookup[albumName]
-                    //     this.media.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
-                    // })
-                    // this.media.artists.list.forEach(artistName => {
-                    //     const artist = this.media.artists.lookup[artistName]
-                    //     this.media.artists.lookup[artistName] = new MusicArtist(artist)
-                    // })
+                    this.media.albums.list.forEach(albumName => {
+                        const album = this.media.albums.lookup[albumName]
+                        this.media.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
+                    })
+                    this.media.categories.list.forEach(category=>{
+                        this.media.categories.lookup[category].artists.list.forEach(artistName => {
+                            const artist = this.media.categories.lookup[category].artists.lookup[artistName]
+                            this.media.categories.lookup[category].artists.lookup[artistName] = new MusicArtist(artist)
+                        })
+                    })
                     resolve(this.media)
                 }
                 else {
@@ -93,12 +96,14 @@ class Catalog {
                     results.ItemCount++
                 }
             })
-            this.media.artists.list.forEach(artistName => {
-                const artist = this.media.artists.lookup[artistName]
-                if (artist.matches(query)) {
-                    results.Artists.push(artist)
-                    results.ItemCount++
-                }
+            this.media.categories.list.forEach(category=>{
+                this.media.categories.lookup[category].artists.list.forEach(artistName => {
+                    const artist = this.media.categories.lookup[category].artists.lookup[artistName]
+                    if (artist.matches(query)) {
+                        results.Artists.push(artist)
+                        results.ItemCount++
+                    }
+                })
             })
             resolve(results)
         })

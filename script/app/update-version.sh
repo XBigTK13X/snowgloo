@@ -1,7 +1,8 @@
 #! /bin/bash
 
 if [ -z $1 ]; then
-  echo "First argument of version string is required"
+  echo "First argument of version string is required, current version is below"
+  cat ./web-server/src/settings.js | grep serverVersion
   exit 1
 fi
 

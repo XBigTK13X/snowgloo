@@ -13,9 +13,9 @@ export default class AlbumListItem extends Component {
                     <div className="list-item">
                         <Comp.CoverArt imageUrl={this.props.album.CoverArt} />
                         <p className="truncate">
-                            {this.props.album.Album} ({this.props.album.ReleaseYear})
+                            {this.props.album.DisplayAlbum} ({this.props.album.ReleaseYear})
                         </p>
-                        <p className="truncate">{this.props.album.Artist}</p>
+                        <p className="truncate">{this.props.album.DisplayArtist}</p>
                     </div>
                 </a>
             </Comp.Href>
