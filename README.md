@@ -8,7 +8,7 @@ A cool place to chill and listen to music.
 
 I wanted a media app that did two things.
 
-1. Rely on a file-system of organized music instead of a database
+1. Rely on a file system of organized music instead of a database
 2. Android support from the ground up
 
 There are a lot of open source options for playing music. Of the dozens I tried, [Ampache](https://github.com/ampache/ampache) and [Airsonic](https://github.com/airsonic/airsonic) were the closest in usability to what I wanted. They are supported by a large community, and that shows in their user experience. They are clunky and try to do a little bit of everything to please a large user base.

@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.navigation.NavController;
@@ -12,11 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.api.model.AlbumList;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
-import com.simplepathstudios.snowgloo.fragment.AlbumListFragment;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {
@@ -32,16 +33,32 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
 
     @Override
     public AlbumAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.small_list_item, parent, false);
-        return new AlbumAdapter.ViewHolder(v);
+        LinearLayout layout = (LinearLayout) LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.album_list_item, parent, false);
+        return new AlbumAdapter.ViewHolder(layout);
     }
 
     @Override
     public void onBindViewHolder(AlbumAdapter.ViewHolder holder, int position) {
         holder.musicAlbum = this.data.get(position);
-        TextView view = holder.textView;
-        view.setText(holder.musicAlbum.Album + " - " + holder.musicAlbum.Artist);
+        TextView album = holder.albumText;
+        album.setText(holder.musicAlbum.Album);
+        TextView artist = holder.artistText;
+        artist.setText(holder.musicAlbum.Artist);
+        TextView year = holder.yearText;
+        year.setText(holder.musicAlbum.ReleaseYear);
+        if(holder.musicAlbum.CoverArt != null && !holder.musicAlbum.CoverArt.isEmpty()){
+            Picasso.get().load(holder.musicAlbum.CoverArt).into(holder.coverArt, new Callback() {
+                @Override
+                public void onSuccess() {
+                    holder.coverArt.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                }
+            });
+        }
     }
 
     @Override
@@ -53,14 +70,19 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        public final TextView textView;
         public MusicAlbum musicAlbum;
+        public TextView yearText;
+        public TextView albumText;
+        public TextView artistText;
+        public ImageView coverArt;
 
-        public ViewHolder(TextView textView) {
-            super(textView);
-            this.textView = textView;
-            textView.setOnClickListener(this);
+        public ViewHolder(LinearLayout layout) {
+            super(layout);
+            this.yearText = layout.findViewById(R.id.year);
+            this.albumText = layout.findViewById(R.id.album);
+            this.artistText = layout.findViewById(R.id.artist);
+            this.coverArt = layout.findViewById(R.id.cover_art);
+            itemView.setOnClickListener(this);
         }
 
         @Override
