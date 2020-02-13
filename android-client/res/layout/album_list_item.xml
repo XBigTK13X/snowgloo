@@ -39,7 +39,9 @@
             android:paddingEnd="5dp"
             android:singleLine="true"
             android:text="Placeholder to see button alignment what the"
-            android:textSize="14sp" />
+            android:textColor="@android:color/primary_text_light"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
