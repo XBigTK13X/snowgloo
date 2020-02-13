@@ -8,14 +8,20 @@ const searchify = text => {
         .replace(/\s/g, '')
 }
 
+const sortify = text => {
+    return text
+        .toLowerCase()
+        .replace('the ','')
+}
+
 const alphabetize = (items, property) => {
     if (property) {
         return items.sort((a, b) => {
-            return a[property].toLowerCase() > b[property].toLowerCase() ? 1 : -1
+            return sortify(a[property]) > sortify(b[property]) ? 1 : -1
         })
     }
     return items.sort((a, b) => {
-        return a.toLowerCase() > b.toLowerCase() ? 1 : -1
+        return sortify(a) > sortify(b) ? 1 : -1
     })
 }
 
@@ -25,6 +31,7 @@ const contentHash = (content)=>{
 
 module.exports = {
     searchify,
+    sortify,
     alphabetize,
     contentHash
 }

@@ -32,16 +32,16 @@ public class AddArtistToQueueDialogFragment extends DialogFragment {
 
         @Override
         public int compare(MusicFile o1, MusicFile o2) {
-            if(o1.ReleaseYear != o2.ReleaseYear){
+            if(!o1.ReleaseYear.equals(o2.ReleaseYear)){
                 return o1.ReleaseYear > o2.ReleaseYear ? 1 : -1;
             }
-            if(o1.ReleaseYearSort != o2.ReleaseYearSort){
+            if(!o1.ReleaseYearSort.equals(o2.ReleaseYearSort)){
                 return o1.ReleaseYearSort > o2.ReleaseYearSort ? 1 : -1;
             }
             if(!o1.Album.equalsIgnoreCase(o2.Album)){
                 return o1.Album.compareTo(o2.Album);
             }
-            if(o1.Disc != o2.Disc){
+            if(!o1.Disc.equals(o2.Disc)){
                 return o1.Disc > o2.Disc ? 1 : -1;
             }
             return o1.Track > o2.Track ? 1 : -1;
