@@ -77,20 +77,21 @@ public class AudioPlayer {
     public void play(){
         isSeeking = false;
         MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
-        if((currentQueueSong != null && currentSong == null) || (!currentQueueSong.Id.equals(currentSong.Id))){
-            Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
-            currentSong = currentQueueSong;
-            lastPosition = null;
-            lastDuration = null;
-            currentPlayer.play(currentSong, 0);
-            setPlayerState(MusicQueue.PlayerState.PLAYING);
+        if(currentQueueSong.Id != null){
+            if(currentSong == null || !currentQueueSong.Id.equals(currentSong.Id)){
+                Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
+                currentSong = currentQueueSong;
+                lastPosition = null;
+                lastDuration = null;
+                currentPlayer.play(currentSong, 0);
+                setPlayerState(MusicQueue.PlayerState.PLAYING);
+            }
+            else if(currentQueueSong.Id != null){
+                Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
+                currentPlayer.resume(lastPosition);
+                setPlayerState(MusicQueue.PlayerState.PLAYING);
+            }
         }
-        else if(currentQueueSong.Id != null){
-            Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
-            currentPlayer.resume(lastPosition);
-            setPlayerState(MusicQueue.PlayerState.PLAYING);
-        }
-
     }
 
     public void pause(){

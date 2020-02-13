@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.adapter.AlbumAdapter;
+import com.simplepathstudios.snowgloo.adapter.ArtistAdapter;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
 import com.simplepathstudios.snowgloo.api.model.MusicAlbum;
 import com.simplepathstudios.snowgloo.viewmodel.ArtistViewViewModel;
@@ -83,7 +85,7 @@ public class ArtistViewFragment extends Fragment {
                         TextView listKindText = listView.findViewById(R.id.list_kind);
                         listKindText.setText(String.format("%s (%d)",listKind,artistView.albums.lists.get(listKind).size()));
                         RecyclerView listElement = listView.findViewById(R.id.album_list);
-                        ArtistViewFragment.Adapter adapter = new ArtistViewFragment.Adapter();
+                        AlbumAdapter adapter = new AlbumAdapter();
                         listElement.setAdapter(adapter);
                         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                         listElement.setLayoutManager(layoutManager);
@@ -102,58 +104,5 @@ public class ArtistViewFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         artistViewViewModel.load(artistName);
-    }
-
-    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        public final TextView textView;
-        public MusicAlbum album;
-
-        public ViewHolder(TextView textView) {
-            super(textView);
-            this.textView = textView;
-            textView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
-            Bundle bundle = new Bundle();
-            bundle.putString("AlbumSlug", album.AlbumSlug);
-            bundle.putString("AlbumDisplay", album.Album + " ("+album.ReleaseYear+")");
-            navController.navigate(R.id.album_view_fragment, bundle);
-        }
-    }
-    private class Adapter extends RecyclerView.Adapter<ArtistViewFragment.ViewHolder> {
-        private ArrayList<MusicAlbum> data;
-        public Adapter(){
-            this.data = null;
-        }
-
-        public void setData(ArrayList<MusicAlbum> data){
-            this.data = data;
-        }
-
-        @Override
-        public ArtistViewFragment.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.small_list_item, parent, false);
-            return new ArtistViewFragment.ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(ArtistViewFragment.ViewHolder holder, int position) {
-            holder.album = this.data.get(position);
-            TextView view = holder.textView;
-            view.setText(holder.album.Album + " ("+holder.album.ReleaseYear+")");
-        }
-
-        @Override
-        public int getItemCount() {
-            if(this.data == null){
-                return 0;
-            }
-            return this.data.size();
-        }
     }
 }

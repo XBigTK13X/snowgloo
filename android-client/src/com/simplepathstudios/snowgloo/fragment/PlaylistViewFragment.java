@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.Util;
+import com.simplepathstudios.snowgloo.adapter.SongAdapter;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
@@ -41,7 +42,7 @@ public class PlaylistViewFragment extends Fragment {
     private String playlistId;
     private String playlistName;
     private RecyclerView listElement;
-    private PlaylistViewFragment.Adapter adapter;
+    private SongAdapter adapter;
     private LinearLayoutManager layoutManager;
     private MenuItem addToQueueButton;
     private MenuItem renamePlaylistButton;
@@ -86,7 +87,7 @@ public class PlaylistViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         observableMusicQueue = ObservableMusicQueue.getInstance();
         listElement = view.findViewById(R.id.playlist_songs);
-        adapter = new PlaylistViewFragment.Adapter();
+        adapter = new SongAdapter();
         listElement.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity());
         listElement.setLayoutManager(layoutManager);
@@ -120,89 +121,10 @@ public class PlaylistViewFragment extends Fragment {
                         }
                     }
                 });
-                adapter.setData(playlist);
+                adapter.setData(playlist.songs);
                 listElement.setAdapter(adapter);
             }
         });
         playlistViewModel.load(playlistId);
-    }
-
-    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnCreateContextMenuListener {
-
-        public final TextView textView;
-        public MusicFile musicFile;
-
-        public ViewHolder(TextView textView) {
-            super(textView);
-            this.textView = textView;
-            textView.setOnClickListener(this);
-            itemView.setOnCreateContextMenuListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            Util.log(TAG, "Adding "+musicFile.Title + " to queue");
-            observableMusicQueue.addItem(musicFile);
-        }
-
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View v,
-                                        ContextMenu.ContextMenuInfo menuInfo) {
-            MenuItem viewAlbumAction = menu.add("View Album");
-            viewAlbumAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("AlbumSlug", musicFile.AlbumSlug);
-                    bundle.putString("AlbumDisplay", musicFile.Album + " ("+musicFile.ReleaseYear+")");
-                    navController.navigate(R.id.album_view_fragment, bundle);
-                    return false;
-                }
-            });
-            MenuItem viewArtistAction = menu.add("View Artist");
-            viewArtistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("Artist", musicFile.Artist);
-                    navController.navigate(R.id.artist_view_fragment, bundle);
-                    return false;
-                }
-            });
-        }
-    }
-    private class Adapter extends RecyclerView.Adapter<PlaylistViewFragment.ViewHolder> {
-        private MusicPlaylist data;
-        public Adapter(){
-            this.data = null;
-        }
-
-        public void setData(MusicPlaylist data){
-            this.data = data;
-        }
-
-        @Override
-        public PlaylistViewFragment.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.small_list_item, parent, false);
-            return new PlaylistViewFragment.ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(PlaylistViewFragment.ViewHolder holder, int position) {
-            holder.musicFile = this.data.songs.get(position);
-            TextView view = holder.textView;
-            view.setText(holder.musicFile.Title);
-        }
-
-        @Override
-        public int getItemCount() {
-            if(this.data == null || this.data.songs== null){
-                return 0;
-            }
-            return this.data.songs.size();
-        }
     }
 }
