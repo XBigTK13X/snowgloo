@@ -90,6 +90,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                         ColorUtils.setAlphaComponent(
                                 title.getCurrentTextColor(),
                                 position == ObservableMusicQueue.getInstance().getQueue().currentIndex ? 255 : 100));
+                album.setTextColor(
+                        ColorUtils.setAlphaComponent(
+                                title.getCurrentTextColor(),
+                                position == ObservableMusicQueue.getInstance().getQueue().currentIndex ? 255 : 100));
+                artist.setTextColor(
+                        ColorUtils.setAlphaComponent(
+                                title.getCurrentTextColor(),
+                                position == ObservableMusicQueue.getInstance().getQueue().currentIndex ? 255 : 100));
             }
         }
     }
