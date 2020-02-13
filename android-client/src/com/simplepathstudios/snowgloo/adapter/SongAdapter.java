@@ -85,19 +85,21 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         TextView artist= holder.artistText;
         artist.setText(holder.musicFile.DisplayArtist);
         if(kind == Kind.QUEUE){
-            if(ObservableMusicQueue.getInstance().getQueue().currentIndex != null){
+            Integer currentIndex = ObservableMusicQueue.getInstance().getQueue().currentIndex;
+            if(currentIndex != null){
+                boolean isSelected = position == currentIndex;
                 title.setTextColor(
                         ColorUtils.setAlphaComponent(
                                 title.getCurrentTextColor(),
-                                position == ObservableMusicQueue.getInstance().getQueue().currentIndex ? 255 : 100));
+                                isSelected ? 255 : 100));
                 album.setTextColor(
                         ColorUtils.setAlphaComponent(
-                                title.getCurrentTextColor(),
-                                position == ObservableMusicQueue.getInstance().getQueue().currentIndex ? 255 : 100));
+                                album.getCurrentTextColor(),
+                                isSelected ? 255 : 100));
                 artist.setTextColor(
                         ColorUtils.setAlphaComponent(
-                                title.getCurrentTextColor(),
-                                position == ObservableMusicQueue.getInstance().getQueue().currentIndex ? 255 : 100));
+                                artist.getCurrentTextColor(),
+                                isSelected ? 255 : 100));
             }
         }
     }
