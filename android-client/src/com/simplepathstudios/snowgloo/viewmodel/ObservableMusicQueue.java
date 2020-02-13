@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.Observer;
 
 import com.simplepathstudios.snowgloo.LoadingIndicator;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
@@ -185,13 +186,15 @@ public class ObservableMusicQueue {
 
     public void addItems(ArrayList<MusicFile> items){
         if(items == null){
-            return;
+            return ;
         }
+        int foundCount = 0;
         for(MusicFile item : items){
             boolean found = false;
             for(MusicFile song : queue.songs){
                 if(song.Id.equalsIgnoreCase(item.Id)) {
                     found = true;
+                    foundCount++;
                     break;
                 }
             }
@@ -203,6 +206,15 @@ public class ObservableMusicQueue {
         queue.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
         queue.currentIndex = queue.currentIndex == null ? queue.songs.size() - items.size():queue.currentIndex;
         notifyObservers();
+        if(foundCount == 0){
+            Util.toast("All songs added to queue.");
+        }
+        else if(foundCount == items.size()) {
+            Util.toast("No songs added, they are already queued up.");
+        }
+        else {
+            Util.toast("Added " + (items.size() - foundCount) + " songs that weren't already queued up.");
+        }
     }
 
     public void addItem(MusicFile item){
@@ -223,6 +235,11 @@ public class ObservableMusicQueue {
         queue.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
         queue.currentIndex = queue.currentIndex == null ? queue.songs.size() - 1 : queue.currentIndex;
         notifyObservers();
+        if(!found){
+            Util.toast("Added to the queue.");
+        } else {
+            Util.toast("Not added to queue because it is already there.");
+        }
     }
 
     public void shuffle(){

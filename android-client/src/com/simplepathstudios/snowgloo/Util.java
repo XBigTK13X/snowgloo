@@ -82,8 +82,13 @@ public class Util {
 
     }
 
+    private static Toast lastToast;
     public static void toast(String message){
-        Toast.makeText(getGlobalContext(), message, Toast.LENGTH_LONG).show();
+        if(lastToast != null){
+            lastToast.cancel();
+        }
+        lastToast = Toast.makeText(getGlobalContext(), message, Toast.LENGTH_SHORT);
+        lastToast.show();
     }
 
     public static void registerGlobalExceptionHandler() {
