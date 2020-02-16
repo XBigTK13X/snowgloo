@@ -42,7 +42,8 @@ class MusicFile {
                 let discAndTrackParts = titleParts[0].split('D')[1].split('T')
                 this.Disc = parseInt(discAndTrackParts[0], 10)
                 this.Track = parseInt(discAndTrackParts[1], 10)
-                this.Title = titleParts[1]
+                titleParts.shift()
+                this.Title = titleParts.join(' - ')                
             } else {
                 this.Disc = 1
                 this.Track = parseInt(titleParts[0], 10)

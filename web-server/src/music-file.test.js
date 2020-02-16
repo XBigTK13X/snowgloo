@@ -10,7 +10,8 @@ const GameSong  = new MusicFile('media/trove/media/music/Game/Wii U/Rayman Legen
 const MovieSong = new MusicFile('/media/trove/media/music/Movie/La La Land (2016)/001 - Another Day of Sun.mp3')
 const MultiDiscSong = new MusicFile('/media/trove/media/music/Game/Nintendo Switch/The Legend of Zelda Breath of the Wild (2018)/D03T31 - Urbosa and the Divine Beast.mp3')
 const SmashBrosSong = new MusicFile('/media/trove/media/music/Game/Smash Bros/Vol. 35 - Fatal Fury (2018)/001 - Haremar Faith Capoeira School - Song of the Fight (Believers Will Be Saved) - FATAL FURY.mp3"')
-
+const GameSongIdCollisionFirst = new MusicFile('/media/trove/media/music/Game/SNES/Super Mario All-Stars (1993)/D02T001 - Title - Super Mario Bros. 2.mp3')
+const GameSongIdCollisionSecond = new MusicFile('/media/trove/media/music/Game/SNES/Super Mario All-Stars (1993)/D01T001 - Title - Super Mario Bros..mp3')
 
 describe('MusicFile', function() {
     describe('Anime', function(){
@@ -53,7 +54,9 @@ describe('MusicFile', function() {
             assert.equal(GameSong.Title, 'Score Recap')
             assert.equal(GameSong.DisplayAlbum,"Rayman Legends")
             assert.equal(GameSong.DisplayArtist,"Wii U")
-
+        })
+        it('should use extra file info to prevent song ID collision', function(){
+            assert.notEqual(GameSongIdCollisionFirst.Id, GameSongIdCollisionSecond.Id)
         })
     })
     describe('Movie', function(){
