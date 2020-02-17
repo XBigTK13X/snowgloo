@@ -143,7 +143,7 @@ class Organizer {
                     if (_.has(this.songs.lookup, song.Id)) {
                         console.error('Duplicate song ID ' + song.LocalFilePath + ' and ' + this.songs.lookup[song.Id])
                     } else {
-                        this.songs.lookup[song.Id] = song.LocalFilePath
+                        this.songs.lookup[song.Id] = song
                     }
                 }
                 return song
