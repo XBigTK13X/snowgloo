@@ -24,7 +24,7 @@ export default class AudioPlayer extends Component {
         this.state = {
             sound: null,
             playerState: STATE.PREPARE,
-            src: [],
+            song: null,
             progressValue: 0,
             currentPos: '0:00',
             // TODO Save this in localStorage
@@ -43,7 +43,7 @@ export default class AudioPlayer extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.src !== this.props.src) {
+        if (prevProps.song.Id !== this.props.song.Id) {
             this.setupPlayer()
         }
     }
@@ -73,15 +73,15 @@ export default class AudioPlayer extends Component {
     }
 
     setupPlayer = () => {
-        if (!this.props.src || this.props.src[0] === this.state.src[0]) {
+        if (!this.props.song || (this.state.song && this.props.song.Id === this.state.song.Id)) {
             return
         }
 
         this.destroySound().then(() => {
-            const { src, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
+            const { song, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
 
             let sound = new Howl({
-                src,
+                src:[song.AudioUrl],
                 format,
                 autoplay: true,
                 html5: true,
@@ -105,7 +105,7 @@ export default class AudioPlayer extends Component {
                 playerState: STATE.PREPARE,
                 progressValue: 0,
                 currentPos: '0:00',
-                src,
+                song
             })
         })
     }
@@ -200,6 +200,7 @@ export default class AudioPlayer extends Component {
     }
 
     changeVolume = volume => {
+
         this.state.sound.volume(Math.round(volume) / 100)
 
         this.setState({

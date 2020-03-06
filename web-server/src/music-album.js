@@ -2,6 +2,9 @@ const util = require('./util')
 
 class MusicAlbum {
     constructor(musicFile, coverArtUrl) {
+        if(!musicFile){
+            return this
+        }
         this.Album = musicFile.Album
         this.DisplayAlbum = musicFile.DisplayAlbum
         this.DisplayArtist = musicFile.DisplayArtist
@@ -14,6 +17,11 @@ class MusicAlbum {
         this.ReleaseYearSort = musicFile.ReleaseYearSort
         this.Songs = musicFile.Songs || []
         this.SubKind = musicFile.SubKind
+    }
+
+    rehydrate(instance){
+        Object.assign(this, instance)
+        return this
     }
 
     matches(query) {

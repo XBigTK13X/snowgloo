@@ -5,6 +5,9 @@ const asset = require('./asset')
 
 class MusicFile {
     constructor(path) {
+        if(!path){
+            return this
+        }
         const parts = path.split('/')
         this.LocalFilePath = path
         this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
@@ -43,7 +46,7 @@ class MusicFile {
                 this.Disc = parseInt(discAndTrackParts[0], 10)
                 this.Track = parseInt(discAndTrackParts[1], 10)
                 titleParts.shift()
-                this.Title = titleParts.join(' - ')                
+                this.Title = titleParts.join(' - ')
             } else {
                 this.Disc = 1
                 this.Track = parseInt(titleParts[0], 10)
@@ -76,6 +79,11 @@ class MusicFile {
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
+    rehydrate(instance){
+        Object.assign(this, instance)
+        return this
+    }
+
     parseMetadata() {
         return new Promise(resolve => {
             inspect
@@ -88,15 +96,6 @@ class MusicFile {
                     if (data) {
                         if(data.format){
                             this.AudioDuration = data.format.duration
-                            if(data.format.tags){
-                                this.ReplayGain = {
-                                        AlbumGain: data.format.tags.replaygain_album_gain,
-                                        AlbumPeak: data.format.tags.replaygain_album_peak,
-                                        TrackGain: data.format.tags.replaygain_track_gain,
-                                        TrackPeak: data.format.tags.replaygain_track_peak
-
-                                }
-                            }
                         }
                         if(data.streams && data.streams[1] && data.streams[1].width){
                             this.HasEmbeddedArt = true

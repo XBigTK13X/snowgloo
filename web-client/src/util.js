@@ -41,5 +41,5 @@ const secondsToTimeStamp = seconds => {
 
 export default {
     secondsToTimeStamp,
-    trackPad,
+    trackPad
 }

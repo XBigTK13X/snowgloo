@@ -26,7 +26,7 @@ class Organizer {
         return {
             building: this.building,
             rebuildCount: this.rebuildCount,
-            totalCount: this.totalCount,
+            totalCount: this.totalCount
         }
     }
 

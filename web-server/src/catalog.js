@@ -34,21 +34,18 @@ class Catalog {
                     this.media = persistedMedia
                     //Need to rehydrate class instances from JSON, otherwise instance methods won't work (i.e. search)
                     this.media.songs.list = this.media.songs.list.map(song => {
-                        let result = new MusicFile(song.LocalFilePath)
-                        result.CoverArt = song.CoverArt
-                        result.EmbeddedCoverArt = song.EmbeddedCoverArt
-                        result.AlbumCoverArt = song.AlbumCoverArt
+                        let result = new MusicFile().rehydrate(song)
                         this.media.songs.lookup[song.Id] = result
                         return result
                     })
                     this.media.albums.list.forEach(albumName => {
-                        const album = this.media.albums.lookup[albumName]
-                        this.media.albums.lookup[albumName] = new MusicAlbum(album, album.CoverArt)
+                        const album = new MusicAlbum().rehydrate(this.media.albums.lookup[albumName])
+                        this.media.albums.lookup[albumName] = album
                     })
                     this.media.categories.list.forEach(category=>{
                         this.media.categories.lookup[category].artists.list.forEach(artistName => {
-                            const artist = this.media.categories.lookup[category].artists.lookup[artistName]
-                            this.media.categories.lookup[category].artists.lookup[artistName] = new MusicArtist(artist)
+                            const artist = new MusicArtist().rehydrate(this.media.categories.lookup[category].artists.lookup[artistName])
+                            this.media.categories.lookup[category].artists.lookup[artistName] = artist
                         })
                     })
                     resolve(this.media)
