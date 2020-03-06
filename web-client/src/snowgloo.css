@@ -90,18 +90,6 @@ input[type='range']:focus {
     height: 40px;
 }
 
-.google-cast {
-    width: 24px;
-    height: 24px;
-    padding: 5px;
-    margin-left: 10px;
-}
-
-.google-cast:hover {
-    background-color: #cca0d8;
-    border-radius: 4px;
-}
-
 .nav-button {
     margin: 5px;
     padding: 5px;

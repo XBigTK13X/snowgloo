@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay, faPause, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from './'
-import service from '../service'
 
 const STATE = {
     PREPARE: 'PREPARE',
@@ -87,7 +86,7 @@ export default class AudioPlayer extends Component {
                 html5: true,
             })
 
-            sound.volume(this.props.isCasting ? 0 : this.state.volume)
+            sound.volume(this.state.volume)
 
             sound.once('load', this.readyToPlay)
 
@@ -133,7 +132,6 @@ export default class AudioPlayer extends Component {
     playbackPlay = () => {
         const { sound } = this.state
         sound.play()
-        service.googleCast.playOrPause()
         this.setState({
             playerState: STATE.PLAYING,
         })
@@ -145,7 +143,6 @@ export default class AudioPlayer extends Component {
         if (this.stepInterval) {
             clearInterval(this.stepInterval)
         }
-        service.googleCast.playOrPause()
         this.setState({
             playerState: STATE.PAUSE,
         })
@@ -167,7 +164,6 @@ export default class AudioPlayer extends Component {
         let percent = value / 100
         let timeLocation = sound.duration() * percent
         sound.seek(timeLocation)
-        service.googleCast.seek(timeLocation)
         let currentSeek = sound.seek() || 0
         this.setState({
             progressValue: value,
