@@ -57,53 +57,58 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public void play(MusicFile musicFile, int seekPosition) {
-        Util.log(TAG, "play " +musicFile.Id + " at position "+seekPosition);
-        sessionManager = MainActivity.getInstance().getCastContext().getSessionManager();
-        castSession = sessionManager.getCurrentCastSession();
-        if(castSession != null){
-            Util.log(TAG, "Cast session is not null " +castSession.getSessionId());
-            media = castSession.getRemoteMediaClient();
-            @SuppressWarnings("deprecation")
-            RemoteMediaClient.Listener idleListener = new RemoteMediaClient.Listener() {
-                @Override
-                public void onStatusUpdated() {
-                    if(media != null){
-                        MediaStatus mediaStatus = media.getMediaStatus();
-                        if(mediaStatus != null){
-                            int playerState = mediaStatus.getPlayerState();
-                            int idleReason = mediaStatus.getIdleReason();
-                            if(lastIdleReason == null || lastPlayerState == null || playerState != lastPlayerState || lastIdleReason != idleReason){
-                                Util.log(TAG, "Media status is "+
-                                        Util.messageNumberToText(Util.MessageKind.CastPlayerState, playerState)
-                                        + " " +
-                                        Util.messageNumberToText(Util.MessageKind.CastPlayerIdleReason, idleReason));
-                                lastIdleReason = idleReason;
-                                lastPlayerState = playerState;
-                                if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
-                                    Util.log(TAG, "Should be going to the next song after " + musicFile.Id);
-                                    //noinspection deprecation
-                                    media.removeListener(this);
-                                    AudioPlayer.getInstance().next();
+        try{
+            Util.log(TAG, "play " +musicFile.Id + " at position "+seekPosition);
+            sessionManager = MainActivity.getInstance().getCastContext().getSessionManager();
+            castSession = sessionManager.getCurrentCastSession();
+            if(castSession != null){
+                Util.log(TAG, "Cast session is not null " +castSession.getSessionId());
+                media = castSession.getRemoteMediaClient();
+                @SuppressWarnings("deprecation")
+                RemoteMediaClient.Listener idleListener = new RemoteMediaClient.Listener() {
+                    @Override
+                    public void onStatusUpdated() {
+                        if(media != null){
+                            MediaStatus mediaStatus = media.getMediaStatus();
+                            if(mediaStatus != null){
+                                int playerState = mediaStatus.getPlayerState();
+                                int idleReason = mediaStatus.getIdleReason();
+                                if(lastIdleReason == null || lastPlayerState == null || playerState != lastPlayerState || lastIdleReason != idleReason){
+                                    Util.log(TAG, "Media status is "+
+                                            Util.messageNumberToText(Util.MessageKind.CastPlayerState, playerState)
+                                            + " " +
+                                            Util.messageNumberToText(Util.MessageKind.CastPlayerIdleReason, idleReason));
+                                    lastIdleReason = idleReason;
+                                    lastPlayerState = playerState;
+                                    if(playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED){
+                                        Util.log(TAG, "Should be going to the next song after " + musicFile.Id);
+                                        //noinspection deprecation
+                                        media.removeListener(this);
+                                        AudioPlayer.getInstance().next();
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                @Override
-                public void onMetadataUpdated() { }
-                @Override
-                public void onQueueStatusUpdated() {}
-                @Override
-                public void onPreloadStatusUpdated() {}
-                @Override
-                public void onSendingRemoteMediaRequest() {}
-                @Override
-                public void onAdBreakStatusUpdated() {}
-            };
-            //noinspection deprecation
-            media.addListener(idleListener);
-            //noinspection deprecation
-            media.load(prepareMedia(musicFile), true, seekPosition);
+                    @Override
+                    public void onMetadataUpdated() { }
+                    @Override
+                    public void onQueueStatusUpdated() {}
+                    @Override
+                    public void onPreloadStatusUpdated() {}
+                    @Override
+                    public void onSendingRemoteMediaRequest() {}
+                    @Override
+                    public void onAdBreakStatusUpdated() {}
+                };
+                //noinspection deprecation
+                media.addListener(idleListener);
+                //noinspection deprecation
+                media.load(prepareMedia(musicFile), true, seekPosition);
+            }
+        }
+        catch(Exception e){
+            Util.log(TAG, e.getMessage());
         }
     }
 
@@ -154,9 +159,13 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public Integer getCurrentPosition() {
-        if(media != null && media.isPlaying()){
-            return (int)media.getApproximateStreamPosition();
+        try{
+            if(media != null && media.isPlaying()){
+                return (int)media.getApproximateStreamPosition();
+            }
+        } catch(Exception swallow){
         }
+
         return null;
     }
 

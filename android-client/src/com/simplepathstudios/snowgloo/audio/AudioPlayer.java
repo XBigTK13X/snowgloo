@@ -3,6 +3,7 @@ package com.simplepathstudios.snowgloo.audio;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 public class AudioPlayer {
@@ -51,21 +52,35 @@ public class AudioPlayer {
         Integer seekPosition = currentPlayer.getCurrentPosition();
         if(mode == PlaybackMode.LOCAL){
             if(currentPlayer == remotePlayer){
-                Util.log(TAG, "Playback in progress on remote, pausing");
-                remotePlayer.pause();
+                try {
+                    Util.log(TAG, "Playback in progress on remote, pausing");
+                    remotePlayer.pause();
+                } catch(Exception e){
+                    Util.log(TAG, e.getMessage());
+                }
             }
             currentPlayer = localPlayer;
         }
         else if(mode == PlaybackMode.REMOTE) {
             if(currentPlayer == localPlayer){
-                Util.log(TAG, "Playback in progress on local, pausing");
-                localPlayer.pause();
+                try{
+                    Util.log(TAG, "Playback in progress on local, pausing");
+                    localPlayer.pause();
+                }
+                catch(Exception e){
+                    Util.log(TAG, e.getMessage());
+                }
             }
             currentPlayer = remotePlayer;
         }
         if(playerState == MusicQueue.PlayerState.PLAYING && seekPosition != null){
-            Util.log(TAG, "Attempting to resume playback after swapping mode");
-            currentPlayer.play(currentSong, seekPosition);
+            try{
+                Util.log(TAG, "Attempting to resume playback after swapping mode");
+                currentPlayer.play(currentSong, seekPosition);
+            } catch(Exception e){
+                Util.log(TAG, e.getMessage());
+            }
+
         }
     }
 
@@ -75,46 +90,63 @@ public class AudioPlayer {
     }
 
     public void play(){
-        isSeeking = false;
-        MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
-        if(currentQueueSong.Id != null){
-            if(currentSong == null || !currentQueueSong.Id.equals(currentSong.Id)){
-                Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
-                currentSong = currentQueueSong;
-                lastPosition = null;
-                lastDuration = null;
-                currentPlayer.play(currentSong, 0);
-                setPlayerState(MusicQueue.PlayerState.PLAYING);
+        try{
+            isSeeking = false;
+            MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
+            if(currentQueueSong.Id != null){
+                if(currentSong == null || !currentQueueSong.Id.equals(currentSong.Id)){
+                    Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
+                    currentSong = currentQueueSong;
+                    lastPosition = null;
+                    lastDuration = null;
+                    currentPlayer.play(currentSong, 0);
+                    setPlayerState(MusicQueue.PlayerState.PLAYING);
+                }
+                else if(currentQueueSong.Id != null){
+                    Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
+                    currentPlayer.resume(lastPosition);
+                    setPlayerState(MusicQueue.PlayerState.PLAYING);
+                }
             }
-            else if(currentQueueSong.Id != null){
-                Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
-                currentPlayer.resume(lastPosition);
-                setPlayerState(MusicQueue.PlayerState.PLAYING);
-            }
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
         }
     }
 
     public void pause(){
-        Util.log(TAG, "Pausing audio and tracking the duration");
-        isSeeking = false;
-        lastDuration = this.getSongDuration();
-        lastPosition = currentPlayer.getCurrentPosition();
-        currentPlayer.pause();
-        setPlayerState(MusicQueue.PlayerState.PAUSED);
+        try {
+            Util.log(TAG, "Pausing audio and tracking the duration");
+            isSeeking = false;
+            lastDuration = this.getSongDuration();
+            lastPosition = currentPlayer.getCurrentPosition();
+            currentPlayer.pause();
+            setPlayerState(MusicQueue.PlayerState.PAUSED);
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
+        }
     }
 
     public void stop(){
-        Util.log(TAG, "Stopping audio by pausing the media handler");
-        isSeeking = false;
-        currentPlayer.pause();
-        setPlayerState(MusicQueue.PlayerState.IDLE);
+        try{
+            Util.log(TAG, "Stopping audio by pausing the media handler");
+            isSeeking = false;
+            currentPlayer.pause();
+            setPlayerState(MusicQueue.PlayerState.IDLE);
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
+        }
     }
 
     public Integer getSongPosition(){
         if(isSeeking){
             return lastPosition;
         }
-        Integer position = currentPlayer.getCurrentPosition();
+        Integer position = null;
+        try {
+            position = currentPlayer.getCurrentPosition();
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
+        }
         if(position == null){
             return lastPosition;
         } else {
@@ -127,7 +159,12 @@ public class AudioPlayer {
         if(isSeeking){
             return lastPosition;
         }
-        Integer duration = currentPlayer.getSongDuration();
+        Integer duration = null;
+        try {
+            duration = currentPlayer.getSongDuration();
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
+        }
         if(duration == null){
             return lastDuration;
         } else {
@@ -137,39 +174,56 @@ public class AudioPlayer {
     }
 
     public void seekTo(int position){
-        isSeeking = true;
-        Util.log(TAG, "Updating last seek position to " + position);
-        lastPosition = position;
-        if(playerState == MusicQueue.PlayerState.PLAYING){
-            Util.log(TAG, "Since music is playing, apply the seek right now to "+position);
-            currentPlayer.seek(position);
-            isSeeking = false;
+        try{
+            isSeeking = true;
+            Util.log(TAG, "Updating last seek position to " + position);
+            lastPosition = position;
+            if(playerState == MusicQueue.PlayerState.PLAYING){
+                Util.log(TAG, "Since music is playing, apply the seek right now to "+position);
+                currentPlayer.seek(position);
+                isSeeking = false;
+            }
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
         }
     }
 
     public void next(){
-        Util.log(TAG, "Maybe going to the next track");
-        if(observableMusicQueue.nextIndex()){
-            Util.log(TAG, "A new index was found, playing the next track");
-            this.play();
-        } else {
-            this.stop();
+        try {
+            Util.log(TAG, "Maybe going to the next track");
+            if(observableMusicQueue.nextIndex()){
+                Util.log(TAG, "A new index was found, playing the next track");
+                this.play();
+            } else {
+                this.stop();
+            }
+        } catch(Exception e){
+             Util.log(TAG, e.getMessage());
         }
     }
 
     public void previous(){
-        Util.log(TAG, "Maybe going to the previous track");
-        if(observableMusicQueue.previousIndex()){
-            Util.log(TAG, "A new index was found, playing the previous track");
-            this.play();
-        } else {
-            this.stop();
+        try {
+            Util.log(TAG, "Maybe going to the previous track");
+            if(observableMusicQueue.previousIndex()){
+                Util.log(TAG, "A new index was found, playing the previous track");
+                this.play();
+            } else {
+                this.stop();
+            }
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
         }
     }
 
     public void destroy(){
-        Util.log(TAG, "Destroying the audio player");
-        localPlayer.destroy();
-        remotePlayer.destroy();
+        try {
+            Util.log(TAG, "Destroying the audio player");
+            localPlayer.destroy();
+            remotePlayer.destroy();
+        } catch(Exception e){
+            Util.log(TAG, e.getMessage());
+        }
+
     }
 }
