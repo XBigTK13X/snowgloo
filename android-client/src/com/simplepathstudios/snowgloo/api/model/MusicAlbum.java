@@ -5,6 +5,8 @@ import android.os.Bundle;
 import java.util.ArrayList;
 
 public class MusicAlbum {
+    public String DisplayAlbum;
+    public String DisplayArtist;
     public String Album;
     public String Artist;
     public String ReleaseYear;

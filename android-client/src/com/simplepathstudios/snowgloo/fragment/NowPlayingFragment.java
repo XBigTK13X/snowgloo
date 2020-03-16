@@ -43,8 +43,8 @@ public class NowPlayingFragment extends Fragment {
             public void onChanged(MusicQueue musicQueue) {
                 MusicFile currentSong = musicQueue.getCurrent();
                 songTitle.setText(currentSong.Title);
-                songAlbum.setText(currentSong.Album);
-                songArtist.setText(currentSong.Artist);
+                songAlbum.setText(currentSong.DisplayAlbum);
+                songArtist.setText(currentSong.DisplayArtist);
                 coverArt.setVisibility(View.INVISIBLE);
                 if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
                     Picasso.get().load(currentSong.CoverArt).into(coverArt, new Callback() {

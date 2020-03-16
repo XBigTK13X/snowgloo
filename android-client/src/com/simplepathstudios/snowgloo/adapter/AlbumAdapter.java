@@ -42,9 +42,9 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     public void onBindViewHolder(AlbumAdapter.ViewHolder holder, int position) {
         holder.musicAlbum = this.data.get(position);
         TextView album = holder.albumText;
-        album.setText(holder.musicAlbum.Album);
+        album.setText(holder.musicAlbum.DisplayAlbum);
         TextView artist = holder.artistText;
-        artist.setText(holder.musicAlbum.Artist);
+        artist.setText(holder.musicAlbum.DisplayArtist);
         TextView year = holder.yearText;
         year.setText(holder.musicAlbum.ReleaseYear);
         if(holder.musicAlbum.CoverArt != null && !holder.musicAlbum.CoverArt.isEmpty()){
