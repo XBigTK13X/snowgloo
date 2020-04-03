@@ -227,14 +227,21 @@ public class MainActivity extends AppCompatActivity{
                         observableMusicQueue.setCurrentIndex(0);
                     }
                 }
-                audioPlayer.play();
+                // Sometimes the MediaPlayer in Android crashes without any useful message. This is a janky workaround for that.
+                if(!audioPlayer.play()){
+                    audioPlayer.refreshLocalPlayer();
+                    audioPlayer.play();
+                }
             }
         });
         pauseButton = findViewById(R.id.pause_button);
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioPlayer.pause();
+                if(!audioPlayer.pause()){
+                    audioPlayer.refreshLocalPlayer();
+                    audioPlayer.pause();
+                }
             }
         });
         nextButton = findViewById(R.id.next_button);

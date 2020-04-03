@@ -84,12 +84,19 @@ public class AudioPlayer {
         }
     }
 
+    public void refreshLocalPlayer(){
+        if(currentPlayer == localPlayer){
+            currentPlayer.destroy();
+            localPlayer = new LocalPlayer();
+        }
+    }
+
     private void setPlayerState(MusicQueue.PlayerState playerState){
         this.playerState = playerState;
         observableMusicQueue.setPlayerState(playerState);
     }
 
-    public void play(){
+    public boolean play(){
         try{
             isSeeking = false;
             MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
@@ -108,12 +115,14 @@ public class AudioPlayer {
                     setPlayerState(MusicQueue.PlayerState.PLAYING);
                 }
             }
+            return true;
         } catch(Exception e){
             Util.log(TAG, e.getMessage());
+            return false;
         }
     }
 
-    public void pause(){
+    public boolean pause(){
         try {
             Util.log(TAG, "Pausing audio and tracking the duration");
             isSeeking = false;
@@ -121,8 +130,10 @@ public class AudioPlayer {
             lastPosition = currentPlayer.getCurrentPosition();
             currentPlayer.pause();
             setPlayerState(MusicQueue.PlayerState.PAUSED);
+            return true;
         } catch(Exception e){
             Util.log(TAG, e.getMessage());
+            return false;
         }
     }
 
