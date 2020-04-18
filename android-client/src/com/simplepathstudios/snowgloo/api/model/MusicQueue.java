@@ -25,31 +25,5 @@ public class MusicQueue {
 
     public enum UpdateReason{
         SHUFFLE, CLEAR, ITEM_ADDED, ITEM_MOVED, ITEM_REMOVED, SERVER_RELOAD, USER_CHANGED_CURRENT_INDEX, TRACK_CHANGED, SERVER_FIRST_LOAD, PLAYER_STATE_CHANGED, OUT_OF_TRACKS;
-
-        public static boolean shouldSeek(UpdateReason reason){
-            switch(reason){
-                case ITEM_MOVED:
-                case ITEM_REMOVED:
-                case ITEM_ADDED:
-                case SERVER_FIRST_LOAD:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public static boolean shouldPlay(UpdateReason reason){
-            switch(reason){
-                case ITEM_ADDED:
-                case ITEM_MOVED:
-                case ITEM_REMOVED:
-                case USER_CHANGED_CURRENT_INDEX:
-                case TRACK_CHANGED:
-                case SHUFFLE:
-                    return true;
-                default:
-                    return false;
-            }
-        }
     }
 }

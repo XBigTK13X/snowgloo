@@ -22,6 +22,9 @@ import retrofit2.Response;
 import static com.simplepathstudios.snowgloo.api.model.MusicQueue.UpdateReason.PLAYER_STATE_CHANGED;
 
 public class ObservableMusicQueue {
+    public enum RepeatMode{
+        None,One,All
+    }
     private static ObservableMusicQueue __instance;
     public static ObservableMusicQueue getInstance(){
         if(__instance == null){
@@ -33,11 +36,31 @@ public class ObservableMusicQueue {
     private MusicQueue queue;
     private boolean firstLoad;
     private ArrayList<Observer<MusicQueue>> observers;
+    private RepeatMode repeatMode;
 
     public ObservableMusicQueue(){
         observers = new ArrayList<>();
         queue = MusicQueue.EMPTY;
         this.firstLoad = true;
+        repeatMode = RepeatMode.None;
+    }
+
+    public void cycleRepeatMode(){
+        switch (repeatMode){
+            case None:
+                repeatMode = RepeatMode.One;
+                break;
+            case One:
+                repeatMode = RepeatMode.All;
+                break;
+            case All:
+                repeatMode = RepeatMode.None;
+                break;
+        }
+    }
+
+    public RepeatMode getRepeatMode(){
+        return repeatMode;
     }
 
     public void observe(Observer<MusicQueue> observer){
@@ -107,12 +130,19 @@ public class ObservableMusicQueue {
     public boolean previousIndex(){
         boolean result = true;
         if(queue.currentIndex != null){
-            queue.currentIndex -= 1;
-            queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
-            if(queue.currentIndex < 0){
-                queue.currentIndex = null;
-                queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
-                result = false;
+            if(repeatMode != RepeatMode.One){
+                queue.currentIndex -= 1;
+                queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
+                if(queue.currentIndex < 0){
+                    if(repeatMode == RepeatMode.All){
+                        queue.currentIndex = queue.songs.size() - 1;
+                    }
+                    else {
+                        queue.currentIndex = null;
+                        queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
+                        result = false;
+                    }
+                }
             }
         } else {
             result = false;
@@ -124,12 +154,18 @@ public class ObservableMusicQueue {
     public boolean nextIndex(){
         boolean result = true;
         if(queue.songs != null && queue.currentIndex != null){
-            queue.currentIndex += 1;
-            queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
-            if(queue.currentIndex > queue.songs.size()-1){
-                queue.currentIndex = null;
-                queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
-                result = false;
+            if(repeatMode != RepeatMode.One) {
+                queue.currentIndex += 1;
+                queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
+                if (queue.currentIndex > queue.songs.size() - 1) {
+                    if (repeatMode == RepeatMode.All) {
+                        queue.currentIndex = 0;
+                    } else {
+                        queue.currentIndex = null;
+                        queue.updateReason = MusicQueue.UpdateReason.OUT_OF_TRACKS;
+                        result = false;
+                    }
+                }
             }
         }
         if(queue.currentIndex == null){

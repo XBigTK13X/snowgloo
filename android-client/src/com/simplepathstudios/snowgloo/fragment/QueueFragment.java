@@ -36,6 +36,7 @@ public class QueueFragment extends Fragment {
     private RecyclerView listView;
     private MenuItem clearQueueButton;
     private MenuItem shuffleQueueButton;
+    private MenuItem changeRepeatModeButton;
     private AudioPlayer audioPlayer;
     private Integer requestedScrollPosition;
 
@@ -67,6 +68,26 @@ public class QueueFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 observableMusicQueue.shuffle();
                 audioPlayer.play();
+            }
+        });
+        changeRepeatModeButton = menu.findItem(R.id.repeat_button);
+        changeRepeatModeButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                ObservableMusicQueue.getInstance().cycleRepeatMode();
+                switch(ObservableMusicQueue.getInstance().getRepeatMode()){
+                    case None:
+                        changeRepeatModeButton.setIcon(R.drawable.ic_play_once_black_24dp);
+                        break;
+                    case One:
+                        changeRepeatModeButton.setIcon(R.drawable.ic_repeat_one_black_24dp);
+                        break;
+                    case All:
+                        changeRepeatModeButton.setIcon(R.drawable.ic_repeat_all_black_24dp);
+                        break;
+                }
+
+                return false;
             }
         });
     }

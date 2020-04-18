@@ -102,11 +102,15 @@ public class AudioPlayer {
     }
 
     public boolean play(){
+        return this.play(false);
+    }
+
+    public boolean play(boolean startOver){
         try{
             isSeeking = false;
             MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
             if(currentQueueSong.Id != null){
-                if(currentSong == null || !currentQueueSong.Id.equals(currentSong.Id)){
+                if(startOver || (currentSong == null || !currentQueueSong.Id.equals(currentSong.Id))){
                     Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
                     currentSong = currentQueueSong;
                     lastPosition = null;
@@ -209,7 +213,7 @@ public class AudioPlayer {
             Util.log(TAG, "Maybe going to the next track");
             if(observableMusicQueue.nextIndex()){
                 Util.log(TAG, "A new index was found, playing the next track");
-                this.play();
+                this.play(true);
             } else {
                 this.stop();
             }
@@ -223,7 +227,7 @@ public class AudioPlayer {
             Util.log(TAG, "Maybe going to the previous track");
             if(observableMusicQueue.previousIndex()){
                 Util.log(TAG, "A new index was found, playing the previous track");
-                this.play();
+                this.play(true);
             } else {
                 this.stop();
             }
