@@ -44,6 +44,15 @@ public class AudioPlayer {
         this.observableMusicQueue = ObservableMusicQueue.getInstance();
     }
 
+    public boolean isPlaying(){
+        try{
+            return currentPlayer.isPlaying();
+        } catch(Exception swallow){
+
+        }
+        return false;
+    }
+
     public void setPlaybackMode(PlaybackMode mode){
         if((mode == PlaybackMode.LOCAL && currentPlayer == localPlayer) ||(mode == PlaybackMode.REMOTE && currentPlayer == remotePlayer)){
             return;

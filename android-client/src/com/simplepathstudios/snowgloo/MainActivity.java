@@ -299,6 +299,13 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void run() {
                 if(queue != null){
+                    if(AudioPlayer.getInstance().isPlaying()){
+                        playButton.setVisibility(View.GONE);
+                        pauseButton.setVisibility(View.VISIBLE);
+                    } else {
+                        playButton.setVisibility(View.VISIBLE);
+                        pauseButton.setVisibility(View.GONE);
+                    }
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING){
                         Integer position = audioPlayer.getSongPosition();
                         Integer duration = audioPlayer.getSongDuration();
