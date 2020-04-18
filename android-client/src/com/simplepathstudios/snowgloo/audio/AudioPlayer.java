@@ -68,7 +68,7 @@ public class AudioPlayer {
                     try{
                         localPlayer.pause();
                     } catch(Exception swallow){
-                        
+
                     }
 
                 }

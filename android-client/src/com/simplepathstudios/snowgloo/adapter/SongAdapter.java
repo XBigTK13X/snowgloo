@@ -21,8 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.squareup.picasso.Callback;
@@ -183,6 +183,24 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                     return false;
                 }
             });
+            if(kind == Kind.QUEUE){
+                MenuItem playNextAction = menu.add("Play Next");
+                playNextAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        Integer songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
+                        Integer currentIndex = ObservableMusicQueue.getInstance().getQueue().currentIndex;
+                        if(currentIndex == null){
+                            currentIndex = 0;
+                        }
+                        if(songIndex == null){
+                            songIndex = 0;
+                        }
+                        ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex + 1);
+                        return false;
+                    }
+                });
+            }
         }
     }
 

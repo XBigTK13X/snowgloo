@@ -148,6 +148,15 @@ public class ObservableMusicQueue {
         notifyObservers();
     }
 
+    public Integer getIndex(MusicFile musicFile){
+        for(int ii =0 ; ii < queue.songs.size(); ii++){
+            if(queue.songs.get(ii).Id.equalsIgnoreCase(musicFile.Id)){
+                return ii;
+            }
+        }
+        return null;
+    }
+
     public void removeItem(int position){
         queue.songs.remove(position);
         if(queue.currentIndex != null){
@@ -164,7 +173,7 @@ public class ObservableMusicQueue {
     }
 
     public void moveItem(MusicFile item, int fromPosition, int toPosition) {
-        if(fromPosition != toPosition){
+        if(fromPosition != toPosition && toPosition < queue.songs.size()){
             queue.songs.remove(fromPosition);
             queue.songs.add(toPosition,item);
             if(queue.currentIndex != null){
