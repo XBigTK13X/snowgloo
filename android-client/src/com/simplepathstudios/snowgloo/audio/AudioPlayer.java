@@ -228,13 +228,8 @@ public class AudioPlayer {
     }
 
     public void destroy(){
-        try {
-            Util.log(TAG, "Destroying the audio player");
-            localPlayer.destroy();
-            remotePlayer.destroy();
-        } catch(Exception e){
-            Util.log(TAG, e.getMessage());
-        }
-
+        Util.log(TAG, "Destroying the audio players");
+        localPlayer.destroy();
+        remotePlayer.destroy();
     }
 }

@@ -179,13 +179,16 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public void destroy() {
-        Util.log(TAG, "destroy");
-        if(media != null){
-            media.stop();
-        }
-        if(sessionManager != null){
-            sessionManager.endCurrentSession(true);
-        }
-    }
+        try{
+            if(media != null){
+                media.stop();
+            }
+        } catch(Exception swallow){}
 
+        try{
+            if(sessionManager != null){
+                sessionManager.endCurrentSession(true);
+            }
+        } catch(Exception swallow){}
+    }
 }

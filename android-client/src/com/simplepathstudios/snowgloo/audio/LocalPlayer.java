@@ -126,7 +126,12 @@ public class LocalPlayer implements IAudioPlayer {
 
     @Override
     public void destroy() {
-        media.stop();
-        media.release();
+        try{
+            media.stop();
+        } catch(Exception swallow){}
+        try{
+            media.release();
+        }
+        catch(Exception swallow){}
     }
 }
