@@ -65,7 +65,12 @@ public class AudioPlayer {
             if(currentPlayer == localPlayer){
                 try{
                     Util.log(TAG, "Playback in progress on local, pausing");
-                    localPlayer.pause();
+                    try{
+                        localPlayer.pause();
+                    } catch(Exception swallow){
+                        
+                    }
+
                 }
                 catch(Exception e){
                     Util.log(TAG, e.getMessage());

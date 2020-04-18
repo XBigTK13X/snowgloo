@@ -75,7 +75,6 @@ public class LocalPlayer implements IAudioPlayer {
         if(media != null){
             media.stop();
         }
-
     }
 
     @Override
