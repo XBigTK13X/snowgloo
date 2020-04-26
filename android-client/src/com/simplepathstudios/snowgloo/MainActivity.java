@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -322,8 +323,17 @@ public class MainActivity extends AppCompatActivity{
                     }
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING || queue.playerState == MusicQueue.PlayerState.PAUSED){
                         seekTime.setVisibility(View.VISIBLE);
-                        audioControlsNowPlaying.setVisibility(View.VISIBLE);
-                        audioControlsNowPlaying.setText(queue.getCurrent().getOneLineMetadata());
+                        if(audioControlsNowPlaying.getVisibility() == View.INVISIBLE){
+                            audioControlsNowPlaying.setVisibility(View.VISIBLE);
+                        }
+                        String oneLineMeta = queue.getCurrent().getOneLineMetadata();
+                        if(!oneLineMeta.equalsIgnoreCase(audioControlsNowPlaying.getText().toString())){
+                            audioControlsNowPlaying.setText(oneLineMeta);
+                        }
+                        if(!audioControlsNowPlaying.isSelected()){
+                            audioControlsNowPlaying.setSelected(true);
+                            audioControlsNowPlaying.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                        }
                     }
                 }
                 seekHandler.postDelayed(this, SEEK_BAR_UPDATE_MILLISECONDS);

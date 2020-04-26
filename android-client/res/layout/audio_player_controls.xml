@@ -68,7 +68,6 @@
         android:textColor="@color/white"
         android:textStyle="bold"
         android:singleLine="true"
-        android:ellipsize="end"
         android:layout_margin="5dp"
         android:clickable="true"/>
 

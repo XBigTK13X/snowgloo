@@ -3,8 +3,8 @@
 let webApiUrl
 let castPollMilliseconds
 let debounceMilliseconds
-let clientVersion = '0.9.0'
-let buildDate = 'April 18, 2020'
+let clientVersion = '0.9.1'
+let buildDate = 'April 26, 2020'
 
 try {
     webApiUrl = WEB_API_URL
