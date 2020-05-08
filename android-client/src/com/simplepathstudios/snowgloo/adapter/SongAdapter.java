@@ -238,6 +238,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
             int position = viewHolder.getAdapterPosition();
+            MusicQueue musicQueue = ObservableMusicQueue.getInstance().getQueue();
+            if(musicQueue.currentIndex != null && musicQueue.currentIndex == position){
+                AudioPlayer.getInstance().stop();
+            }
             ObservableMusicQueue.getInstance().removeItem(position);
         }
 
