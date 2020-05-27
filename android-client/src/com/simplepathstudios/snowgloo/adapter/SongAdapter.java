@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
@@ -197,6 +198,22 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                             songIndex = 0;
                         }
                         ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex + 1);
+                        return false;
+                    }
+                });
+            } else {
+                MenuItem findInQueue = menu.add("Find in queue");
+                findInQueue.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        Integer songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
+                        if(songIndex == null){
+                            Util.toast("Song not currently in queue.");
+                        } else {
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("ScrollToItemIndex",songIndex);
+                            Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment).navigate(R.id.queue_fragment, bundle);
+                        }
                         return false;
                     }
                 });

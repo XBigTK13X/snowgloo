@@ -75,4 +75,7 @@ public interface ApiService {
 
     @POST("/api/playlist")
     Call<MusicPlaylist> savePlaylist(@Body PlaylistPayload playlist);
+
+    @GET("/api/random/list")
+    Call<MusicPlaylist> getRandomList();
 }

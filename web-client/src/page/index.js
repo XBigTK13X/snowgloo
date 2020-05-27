@@ -8,6 +8,7 @@ export default {
     PlaylistList: require('./PlaylistList').default,
     PlaylistView: require('./PlaylistView').default,
     Queue: require('./Queue').default,
+    RandomList: require('./RandomList').default,
     Search: require('./Search').default,
     SongList: require('./SongList').default,
 }

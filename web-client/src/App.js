@@ -4,6 +4,21 @@ import routes from './routes'
 import Comp from './comp'
 import service from './service'
 
+routes.forEach(route=>{
+    if(!route.component){
+        console.error({route})
+        throw new Error(`Route is missing component`)
+    }
+    if(!route.name){
+        console.error({route})
+        throw new Error(`Route is missing name`)
+    }
+    if(!route.url){
+        console.error({route})
+        throw new Error(`Route is missing url`)
+    }
+})
+
 const plugins = [pushStateLocationPlugin]
 
 const configRouter = router => {

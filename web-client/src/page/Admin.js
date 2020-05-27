@@ -2,13 +2,12 @@ import React, { Component } from 'react'
 
 import settings from '../settings'
 
-import Comp from '../comp'
-
 export default class Admin extends Component {
     constructor(props) {
         super(props)
         this.rebuildCatalog = this.rebuildCatalog.bind(this)
         this.clearQueues = this.clearQueues.bind(this)
+        this.clientLogs = this.clientLogs.bind(this)
         this.state = {
             catalogStatus: null,
             systemInfo: null,
@@ -24,6 +23,10 @@ export default class Admin extends Component {
         this.props.api.catalogRebuild()
     }
 
+    clientLogs(){
+        this.props.$transition$.router.stateService.go('admin-logs')
+    }
+
     restorePlaylist(playlist) {
         playlist.deleted = false
         this.props.api.savePlaylist(playlist).then(() => {
@@ -33,6 +36,10 @@ export default class Admin extends Component {
                 })
             })
         })
+    }
+
+    viewDeletedPlaylist(playlist){
+        window.location = settings.webApiUrl + 'admin/playlist/deleted?playlistId=' + playlist.id
     }
 
     componentDidMount() {
@@ -112,6 +119,13 @@ export default class Admin extends Component {
                                             >
                                                 Restore
                                             </button>
+                                            <button
+                                                onClick={() => {
+                                                    this.viewDeletedPlaylist(playlist)
+                                                }}
+                                            >
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 )
@@ -130,7 +144,9 @@ export default class Admin extends Component {
                 <button className="action-button" onClick={this.clearQueues}>
                     Clear all queues
                 </button>
-                <Comp.LinkButton to="admin-logs" text="View client logs" />
+                <button className="action-button" onClick={this.clientLogs}>
+                    Client logs
+                </button>
                 <br />
                 {status}
                 {systemInfo}

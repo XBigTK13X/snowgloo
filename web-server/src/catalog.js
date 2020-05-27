@@ -178,6 +178,28 @@ class Catalog {
             })
         })
     }
+
+    getRandomList() {
+        return new Promise(resolve=>{
+            let randomCount = settings.randomListSize;
+            let maxAttempts = settings.randomListSize * 20;
+            let songs = []
+            let artistDedupe = {}
+            let albumDedupe = {}
+            while(randomCount > 0 && maxAttempts > 0){
+                let album = this.media.albums.lookup[_.sample(this.media.albums.list)]
+                let song = _.sample(album.Songs)
+                if(!_.has(artistDedupe,song.DisplayArtist) && !_.has(albumDedupe, song.DisplayAlbum)){
+                    artistDedupe[song.DisplayArtist] = 1
+                    albumDedupe[song.DisplayAlbum] = 1
+                    songs.push(song)
+                    randomCount--
+                }
+                maxAttempts--
+            }
+            resolve(songs)
+        })
+    }
 }
 
 let instance

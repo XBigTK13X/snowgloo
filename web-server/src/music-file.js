@@ -9,6 +9,7 @@ class MusicFile {
             return this
         }
         const parts = path.split('/')
+
         this.LocalFilePath = path
         this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
         this.Kind = path.replace(settings.mediaRoot,'').split('/')[1]
@@ -37,10 +38,12 @@ class MusicFile {
         }
         let trackAndTitle = parts[parts.length - 1].split('.')
         trackAndTitle.pop()
+        trackAndTitle.pop()
         trackAndTitle = trackAndTitle.join('.')
         this.Title = trackAndTitle
         if(trackAndTitle.includes(' - ')){
             let titleParts = trackAndTitle.split(' - ')
+            this.Id = titleParts.pop()
             if (titleParts[0].includes('D')) {
                 let discAndTrackParts = titleParts[0].split('D')[1].split('T')
                 this.Disc = parseInt(discAndTrackParts[0], 10)
@@ -49,15 +52,14 @@ class MusicFile {
                 this.Title = titleParts.join(' - ')
             } else {
                 this.Disc = 1
-                this.Track = parseInt(titleParts[0], 10)
-                let parts2 = trackAndTitle.split(' - ')
-                parts2.shift()
-                this.Title = parts2.join(' - ')
+                this.Track = parseInt(titleParts.shift(), 10)
+                this.Title = titleParts.join(' - ')
             }
             if (this.Kind === 'Compilation') {
-                let hasOriginalArtist = titleParts.length === 3
-                this.Title = titleParts[1]
-                this.DisplayArtist = hasOriginalArtist ? titleParts[2] : this.Album
+                let hasOriginalArtist = titleParts.length === 2
+                console.log({titleParts: titleParts, album: this.Album})
+                this.Title = titleParts[0]
+                this.DisplayArtist = hasOriginalArtist ? titleParts[1] : this.Album
             }
             if(this.DisplayAlbum.includes('Vol. ')){
                 let albumParts = this.DisplayAlbum.split(' - ')
@@ -75,7 +77,6 @@ class MusicFile {
         if (this.Kind === 'Compilation') {
             this.SearchTerms += util.searchify(this.DisplayArtist)
         }
-        this.Id = `${this.DisplayArtist}-${this.DisplayAlbum}-${this.Title}`
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 

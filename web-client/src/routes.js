@@ -56,4 +56,9 @@ export default [
         url: '/admin/logs',
         component: pages.AdminLogs,
     },
+    {
+        name: 'random-list',
+        url: '/random/list',
+        component: pages.RandomList
+    }
 ]

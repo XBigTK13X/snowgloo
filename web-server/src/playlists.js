@@ -122,6 +122,10 @@ class Playlists {
     getDeleted() {
         return this.deletedPlaylists.list
     }
+
+    viewDeleted(playlistId){
+        return this.deletedPlaylists.lookup[playlistId]
+    }
 }
 
 let instance

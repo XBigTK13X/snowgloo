@@ -97,6 +97,12 @@ const register = router => {
         })
     })
 
+    router.get('/api/admin/playlist/deleted', async (request, response) => {
+        response.send({
+            playlists: await playlists.viewDeleted(request.query.playlistId),
+        })
+    })
+
     router.post('/api/admin/log', async (request, response) => {
         let memoryLog = log.getInstance(`${request.body.clientId}`)
         response.send(await memoryLog.write(request.body.message))
@@ -117,6 +123,12 @@ const register = router => {
     router.delete('/api/admin/log', (request, response) => {
         log.wipeAll()
         response.send({})
+    })
+
+    router.get('/api/random/list', async (request, response) => {
+        response.send({
+            songs: await catalog.getRandomList()
+        })
     })
 }
 

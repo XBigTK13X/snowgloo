@@ -111,4 +111,8 @@ public class ApiClient {
         playlistPayload.playlist = playlist;
         return this.httpClient.savePlaylist(playlistPayload);
     }
+
+    public Call getRandomList(){
+        return this.httpClient.getRandomList();
+    }
 }

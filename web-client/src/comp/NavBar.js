@@ -16,6 +16,10 @@ const actionLinks = [
         text: 'Search',
     },
     {
+        to: 'random-list',
+        text: 'Random'
+    },
+    {
         to: 'album-list',
         text: 'Albums',
     },

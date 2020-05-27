@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity{
                 R.id.album_view_fragment,
                 R.id.playlist_view_fragment,
                 R.id.playlist_list_fragment,
+                R.id.random_list_fragment,
                 R.id.now_playing_fragment)
                 .setDrawerLayout(drawerLayout)
                 .build();
@@ -268,7 +269,6 @@ public class MainActivity extends AppCompatActivity{
                     Bundle bundle = new Bundle();
                     bundle.putInt("ScrollToItemIndex",queue.currentIndex);
                     navController.navigate(R.id.queue_fragment, bundle);
-
                 } else {
                     navController.navigate(R.id.now_playing_fragment);
                 }

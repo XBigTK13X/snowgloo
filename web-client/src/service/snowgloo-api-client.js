@@ -124,6 +124,10 @@ class ApiClient {
     persistLogs() {
         return this.httpClient.post('/admin/log/persist')
     }
+
+    getRandomList() {
+        return this.get('/random/list')
+    }
 }
 
 let instance

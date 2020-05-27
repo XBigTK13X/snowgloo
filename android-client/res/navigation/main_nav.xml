@@ -93,6 +93,11 @@
         android:label="Playlist"
         tools:layout="@layout/playlist_view_fragment" />
     <fragment
+        android:id="@+id/random_list_fragment"
+        android:name="com.simplepathstudios.snowgloo.fragment.RandomListFragment"
+        android:label="Random Playlist"
+        tools:layout="@layout/random_list_fragment" />
+    <fragment
         android:id="@+id/now_playing_fragment"
         android:name="com.simplepathstudios.snowgloo.fragment.NowPlayingFragment"
         android:label="Now Playing"

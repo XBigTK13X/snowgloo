@@ -2,16 +2,16 @@ var assert = require('assert')
 
 const MusicFile = require('./music-file')
 
-const AnimeSong = new MusicFile('/media/trove/media/music/Anime/A Place Further Than the Universe/OP IN ED (2018)/001 - The Girls Are Alright!.mp3')
-const ArtistSong = new MusicFile('/media/trove/media/music/Artist/Barenaked Ladies/Gordon (1992)/04 - Brian Wilson.mp3')
-const CompilationSong = new MusicFile('/media/trove/media/music/Compilation/Anime Hits (2019)/001 - Tori Kago (ED1) - Darling in the Franxx.mp3')
-const DisneySong = new MusicFile('/media/trove/media/music/Disney/Brave (2012)/001 - Touch The Sky.mp3')
-const GameSong  = new MusicFile('media/trove/media/music/Game/Wii U/Rayman Legends (2013)/007 - Score Recap.mp3')
-const MovieSong = new MusicFile('/media/trove/media/music/Movie/La La Land (2016)/001 - Another Day of Sun.mp3')
-const MultiDiscSong = new MusicFile('/media/trove/media/music/Game/Nintendo Switch/The Legend of Zelda Breath of the Wild (2018)/D03T31 - Urbosa and the Divine Beast.mp3')
-const SmashBrosSong = new MusicFile('/media/trove/media/music/Game/Smash Bros/Vol. 35 - Fatal Fury (2018)/001 - Haremar Faith Capoeira School - Song of the Fight (Believers Will Be Saved) - FATAL FURY.mp3"')
-const GameSongIdCollisionFirst = new MusicFile('/media/trove/media/music/Game/SNES/Super Mario All-Stars (1993)/D02T001 - Title - Super Mario Bros. 2.mp3')
-const GameSongIdCollisionSecond = new MusicFile('/media/trove/media/music/Game/SNES/Super Mario All-Stars (1993)/D01T001 - Title - Super Mario Bros..mp3')
+const AnimeSong = new MusicFile('/media/trove/media/music/Anime/A Place Further Than the Universe/OP IN ED (2018)/001 - The Girls Are Alright! - 1ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+const ArtistSong = new MusicFile('/media/trove/media/music/Artist/Barenaked Ladies/Gordon (1992)/04 - Brian Wilson - 2ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+const CompilationSong = new MusicFile('/media/trove/media/music/Compilation/Anime Hits (2019)/001 - Tori Kago (ED1) - Darling in the Franxx - 3ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+const DisneySong = new MusicFile('/media/trove/media/music/Disney/Brave (2012)/001 - Touch The Sky - 4ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+const GameSong  = new MusicFile('media/trove/media/music/Game/Wii U/Rayman Legends (2013)/007 - Score Recap - 5ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+const MovieSong = new MusicFile('/media/trove/media/music/Movie/La La Land (2016)/001 - Another Day of Sun - 6ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+const MultiDiscSong = new MusicFile('/media/trove/media/music/Game/Nintendo Switch/The Legend of Zelda Breath of the Wild (2018)/D03T31 - Urbosa and the Divine Beast - 7ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+const SmashBrosSong = new MusicFile('/media/trove/media/music/Game/Smash Bros/Vol. 35 - Fatal Fury (2018)/001 - Haremar Faith Capoeira School - Song of the Fight (Believers Will Be Saved) - FATAL FURY - 8ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3"')
+const GameSongIdCollisionFirst = new MusicFile('/media/trove/media/music/Game/SNES/Super Mario All-Stars (1993)/D02T001 - Title - Super Mario Bros. 2 - 9ec7c9cbb5c038a66f7802a3b9f6f222.adjusted.mp3')
+const GameSongIdCollisionSecond = new MusicFile('/media/trove/media/music/Game/SNES/Super Mario All-Stars (1993)/D01T001 - Title - Super Mario Bros. - 1ac7c9cbb5c038a66f7802a3b9f6f221.adjusted.mp3')
 
 describe('MusicFile', function() {
     describe('Anime', function(){
