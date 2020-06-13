@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.simplepathstudios.snowgloo.LoadingIndicator;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 
@@ -30,7 +31,7 @@ public class PlaylistViewViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<MusicPlaylist> call, Throwable t) {
-                Log.e("PlaylistViewModel.load","Failed",t);
+                Util.error("PlaylistViewModel.load",t);
                 LoadingIndicator.setLoading(false);
             }
         });

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.simplepathstudios.snowgloo.LoadingIndicator;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
 
@@ -31,7 +32,7 @@ public class ArtistListViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<ArtistList> call, Throwable t) {
-                Log.e("ArtistListViewModel","Failed",t);
+                Util.error("ArtistListViewModel",t);
                 LoadingIndicator.setLoading(false);
             }
         });

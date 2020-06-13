@@ -54,6 +54,12 @@ public class Util {
         return String.format("%02d:%02d",minutes,seconds);
     }
 
+    public static void error(String tag, Throwable e){
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        Util.log(tag, "Message: "+e.getMessage()+"\n StackTrace: " + sw.toString());
+    }
+
     public static void log(String tag, String message){
         Util.log(tag, message, false);
     }

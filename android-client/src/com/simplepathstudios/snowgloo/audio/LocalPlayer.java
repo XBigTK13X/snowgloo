@@ -42,7 +42,7 @@ public class LocalPlayer implements IAudioPlayer {
                 }
             });
         } catch (Exception e) {
-            Log.e(TAG,"An error occurred with the local media player",e);
+            Util.error(TAG,e);
         }
     }
 
@@ -65,7 +65,7 @@ public class LocalPlayer implements IAudioPlayer {
                 media.prepareAsync();
                 currentSong = musicFile;
             } catch(Exception e){
-                Log.e(TAG, "An error occurred while playing",e);
+                Util.error(TAG,e);
             }
         }
     }
@@ -130,6 +130,7 @@ public class LocalPlayer implements IAudioPlayer {
         } catch(Exception swallow){}
         try{
             media.release();
+            media = null;
         }
         catch(Exception swallow){}
     }

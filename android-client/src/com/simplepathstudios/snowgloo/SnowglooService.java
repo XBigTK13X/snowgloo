@@ -69,7 +69,12 @@ public class SnowglooService extends Service {
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         Util.log(TAG, "Swiped away from the recents menu, close the activity");
-        audioPlayer.destroy();
+        try{
+            audioPlayer.destroy();
+            audioPlayer = null;
+        } catch(Exception swallow){
+
+        }
         wakeLock.release();
         stopForeground(true);
         stopSelf();

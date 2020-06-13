@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.UserList;
 
@@ -23,14 +24,12 @@ public class UserListViewModel extends ViewModel {
 
             @Override
             public void onResponse(Call<UserList> call, Response<UserList> response) {
-                //LoadingIndicator.setLoading(false);
                 Data.setValue(response.body());
             }
 
             @Override
             public void onFailure(Call<UserList> call, Throwable t) {
-                Log.e("UserListViewModel","Failed",t);
-                //LoadingIndicator.setLoading(false);
+                Util.error("UserListViewModel",t);
             }
         });
     }

@@ -230,9 +230,9 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
                 // Sometimes the MediaPlayer in Android crashes without any useful message. This is a janky workaround for that.
-                if(!audioPlayer.play()){
-                    audioPlayer.refreshLocalPlayer();
-                    audioPlayer.play();
+                if(!AudioPlayer.getInstance().play()){
+                    AudioPlayer.getInstance().refreshLocalPlayer();
+                    AudioPlayer.getInstance().play();
                 }
             }
         });
@@ -240,9 +240,9 @@ public class MainActivity extends AppCompatActivity{
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!audioPlayer.pause()){
-                    audioPlayer.refreshLocalPlayer();
-                    audioPlayer.pause();
+                if(!AudioPlayer.getInstance().pause()){
+                    AudioPlayer.getInstance().refreshLocalPlayer();
+                    AudioPlayer.getInstance().pause();
                 }
             }
         });
@@ -250,14 +250,14 @@ public class MainActivity extends AppCompatActivity{
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioPlayer.next();
+                AudioPlayer.getInstance().next();
             }
         });
         previousButton = findViewById(R.id.previous_button);
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioPlayer.previous();
+                AudioPlayer.getInstance().previous();
             }
         });
 
@@ -285,9 +285,9 @@ public class MainActivity extends AppCompatActivity{
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(audioPlayer != null && fromUser){
-                    audioPlayer.seekTo(progress);
-                    Integer duration = audioPlayer.getSongDuration();
+                if(AudioPlayer.getInstance() != null && fromUser){
+                    AudioPlayer.getInstance().seekTo(progress);
+                    Integer duration = AudioPlayer.getInstance().getSongDuration();
                     if(duration != null){
                         seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(progress), Util.songPositionToTimestamp(duration)));
                     }
@@ -308,8 +308,8 @@ public class MainActivity extends AppCompatActivity{
                         pauseButton.setVisibility(View.GONE);
                     }
                     if(queue.playerState == MusicQueue.PlayerState.PLAYING){
-                        Integer position = audioPlayer.getSongPosition();
-                        Integer duration = audioPlayer.getSongDuration();
+                        Integer position = AudioPlayer.getInstance().getSongPosition();
+                        Integer duration = AudioPlayer.getInstance().getSongDuration();
                         if(position != null && duration != null){
                             seekBar.setMin(0);
                             seekBar.setMax(duration);
@@ -379,6 +379,7 @@ public class MainActivity extends AppCompatActivity{
     public void onResume() {
         super.onResume();
         Util.log(TAG, "Resuming");
+        audioPlayer = AudioPlayer.getInstance();
     }
 
     @Override
@@ -391,5 +392,7 @@ public class MainActivity extends AppCompatActivity{
     public void onDestroy(){
         super.onDestroy();
         Util.log(TAG, "Destroying");
+        audioPlayer.destroy();
+        audioPlayer = null;
     }
 }

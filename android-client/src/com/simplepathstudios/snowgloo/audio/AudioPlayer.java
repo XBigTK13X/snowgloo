@@ -14,7 +14,13 @@ public class AudioPlayer {
     private static final String TAG = "AudioPlayer";
     private static AudioPlayer __instance;
     public static AudioPlayer getInstance(){
-        if(__instance == null){
+        if(__instance == null || __instance.isDestroyed()){
+            if(__instance != null){
+                try{
+                    __instance.destroy();
+                    __instance = null;
+                } catch(Exception swallow){}
+            }
             __instance = new AudioPlayer();
         }
         return __instance;
@@ -65,7 +71,7 @@ public class AudioPlayer {
                     Util.log(TAG, "Playback in progress on remote, pausing");
                     remotePlayer.pause();
                 } catch(Exception e){
-                    Util.log(TAG, e.getMessage());
+                    Util.error(TAG, e);
                 }
             }
             currentPlayer = localPlayer;
@@ -82,7 +88,7 @@ public class AudioPlayer {
 
                 }
                 catch(Exception e){
-                    Util.log(TAG, e.getMessage());
+                    Util.error(TAG, e);
                 }
             }
             currentPlayer = remotePlayer;
@@ -92,16 +98,17 @@ public class AudioPlayer {
                 Util.log(TAG, "Attempting to resume playback after swapping mode");
                 currentPlayer.play(currentSong, seekPosition);
             } catch(Exception e){
-                Util.log(TAG, e.getMessage());
+                Util.error(TAG, e);
             }
-
         }
     }
 
     public void refreshLocalPlayer(){
         if(currentPlayer == localPlayer){
             currentPlayer.destroy();
+            currentPlayer = null;
             localPlayer = new LocalPlayer();
+            currentPlayer = localPlayer;
         }
     }
 
@@ -135,7 +142,7 @@ public class AudioPlayer {
             }
             return true;
         } catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
             return false;
         }
     }
@@ -150,7 +157,7 @@ public class AudioPlayer {
             setPlayerState(MusicQueue.PlayerState.PAUSED);
             return true;
         } catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
             return false;
         }
     }
@@ -162,7 +169,7 @@ public class AudioPlayer {
             currentPlayer.pause();
             setPlayerState(MusicQueue.PlayerState.IDLE);
         } catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
         }
     }
 
@@ -174,7 +181,7 @@ public class AudioPlayer {
         try {
             position = currentPlayer.getCurrentPosition();
         } catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
         }
         if(position == null){
             return lastPosition;
@@ -192,7 +199,7 @@ public class AudioPlayer {
         try {
             duration = currentPlayer.getSongDuration();
         } catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
         }
         if(duration == null){
             return lastDuration;
@@ -213,7 +220,7 @@ public class AudioPlayer {
                 isSeeking = false;
             }
         } catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
         }
     }
 
@@ -227,7 +234,7 @@ public class AudioPlayer {
                 this.stop();
             }
         } catch(Exception e){
-             Util.log(TAG, e.getMessage());
+             Util.error(TAG, e);
         }
     }
 
@@ -241,13 +248,19 @@ public class AudioPlayer {
                 this.stop();
             }
         } catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
         }
     }
 
     public void destroy(){
         Util.log(TAG, "Destroying the audio players");
         localPlayer.destroy();
+        localPlayer = null;
         remotePlayer.destroy();
+        remotePlayer = null;
+    }
+
+    public boolean isDestroyed(){
+        return localPlayer == null && remotePlayer == null;
     }
 }

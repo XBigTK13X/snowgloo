@@ -122,7 +122,7 @@ public class ObservableMusicQueue {
             @Override
             public void onFailure(Call<MusicQueue> call, Throwable t) {
                 LoadingIndicator.setLoading(false);
-                Log.e("ObservableMusicQueue.clear","Failed",t);
+                Util.error("ObservableMusicQueue.clear",t);
             }
         });
     }

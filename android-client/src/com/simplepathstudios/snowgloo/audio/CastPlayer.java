@@ -108,7 +108,7 @@ public class CastPlayer implements IAudioPlayer {
             }
         }
         catch(Exception e){
-            Util.log(TAG, e.getMessage());
+            Util.error(TAG, e);
         }
     }
 
@@ -153,7 +153,7 @@ public class CastPlayer implements IAudioPlayer {
     }
 
     public boolean isCasting(){
-        Util.log(TAG, "isCasting");
+        Util.log(TAG, "isCasting is "+(castSession != null));
         return castSession != null;
     }
 

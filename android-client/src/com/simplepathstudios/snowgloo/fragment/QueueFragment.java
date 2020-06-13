@@ -37,7 +37,6 @@ public class QueueFragment extends Fragment {
     private MenuItem clearQueueButton;
     private MenuItem shuffleQueueButton;
     private MenuItem changeRepeatModeButton;
-    private AudioPlayer audioPlayer;
     private Integer requestedScrollPosition;
 
     @Override
@@ -52,14 +51,12 @@ public class QueueFragment extends Fragment {
 
         inflater.inflate(R.menu.queue_action_menu, menu);
 
-        audioPlayer = AudioPlayer.getInstance();
-
         clearQueueButton = menu.findItem(R.id.clear_queue_button);
         Util.confirmMenuAction(clearQueueButton, "Clear the queue?", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 observableMusicQueue.clear();
-                audioPlayer.stop();
+                AudioPlayer.getInstance().stop();
             }
         });
         shuffleQueueButton = menu.findItem(R.id.shuffle_queue_button);
@@ -67,7 +64,7 @@ public class QueueFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 observableMusicQueue.shuffle();
-                audioPlayer.play();
+                AudioPlayer.getInstance().play();
             }
         });
         changeRepeatModeButton = menu.findItem(R.id.repeat_button);

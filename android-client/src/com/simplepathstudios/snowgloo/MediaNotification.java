@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
@@ -46,10 +47,9 @@ public class MediaNotification {
             public void onChanged(MusicQueue musicQueue) {
                 if(musicQueue != null && musicQueue.currentIndex != null){
                     MusicFile currentSong = musicQueue.getCurrent();
-                    PendingIntent nowPlayingPendingIntent = new NavDeepLinkBuilder(mainActivity)
-                            .setGraph(R.navigation.main_nav)
-                            .setDestination(R.id.now_playing_fragment)
-                            .createPendingIntent();
+
+                    Intent intent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), intent, 0);
 
                     notification = new NotificationCompat.Builder(MainActivity.getInstance(), NOTIFICATION_NAME)
                             .setSmallIcon(R.mipmap.ic_launcher)
@@ -59,7 +59,7 @@ public class MediaNotification {
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                             .setChannelId(NOTIFICATION_CHANNEL_ID)
-                            .setContentIntent(nowPlayingPendingIntent)
+                            .setContentIntent(pendingIntent)
                             .build();
                     notificationManager.notify(NOTIFICATION_ID, notification);
                     SnowglooService.getInstance().startForeground(NOTIFICATION_ID, notification);
