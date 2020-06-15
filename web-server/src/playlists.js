@@ -4,6 +4,7 @@ const recurse = require('recursive-readdir')
 const uuid = require('uuid/v4')
 const _ = require('lodash')
 const settings = require('./settings')
+const util = require('./util')
 
 class Playlists {
     constructor() {
@@ -46,7 +47,7 @@ class Playlists {
                                 this.deletedPlaylists.list.push(playlist)
                             }
                         })
-                        console.log(`Loaded ${this.playlists.list.length} playlists from disk and ignored ${playlists.length - this.playlists.list.length} deleted playlists.`)
+                        util.log(`Loaded ${this.playlists.list.length} playlists from disk and ignored ${playlists.length - this.playlists.list.length} deleted playlists.`)
                     })
                 }
             })

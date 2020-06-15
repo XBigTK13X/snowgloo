@@ -26,8 +26,6 @@ import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 public class QueueFragment extends Fragment {
     static final String TAG = "QueueFragment";
-    static final int FIRST_SCREEN_ROWS = 8;
-    static final int CENTER_BUFFER = 5;
 
     private SongAdapter adapter;
     private ObservableMusicQueue observableMusicQueue;
@@ -124,11 +122,6 @@ public class QueueFragment extends Fragment {
             listView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if(requestedScrollPosition > FIRST_SCREEN_ROWS){
-                        requestedScrollPosition -= CENTER_BUFFER;
-                    } else {
-                        requestedScrollPosition = 0;
-                    }
                     View child = listView.getChildAt(requestedScrollPosition);
                     scrollView.scrollTo(0, (int)child.getY());
                     requestedScrollPosition = null;

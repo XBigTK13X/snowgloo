@@ -29,9 +29,16 @@ const contentHash = (content)=>{
     return hash(content,{algorithm:'md5'})
 }
 
+const log = (...args) =>{
+    if(typeof(console) !== 'undefined') {
+        console.log.apply(console, args);
+    }
+}
+
 module.exports = {
     searchify,
     sortify,
     alphabetize,
-    contentHash
+    contentHash,
+    log
 }

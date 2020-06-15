@@ -57,7 +57,6 @@ class MusicFile {
             }
             if (this.Kind === 'Compilation') {
                 let hasOriginalArtist = titleParts.length === 2
-                console.log({titleParts: titleParts, album: this.Album})
                 this.Title = titleParts[0]
                 this.DisplayArtist = hasOriginalArtist ? titleParts[1] : this.Album
             }

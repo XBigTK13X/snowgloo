@@ -13,7 +13,6 @@ export default class RandomList extends Component {
 
     componentDidMount() {
         this.props.api.getRandomList().then(result => {
-            console.log({result})
             this.setState({
                 songs: result.songs,
             })

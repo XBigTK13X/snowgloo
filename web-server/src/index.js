@@ -1,3 +1,4 @@
+const util = require("./util")
 const catalog = require('./catalog')
 const playlists = require('./playlists')
 catalog
@@ -30,26 +31,26 @@ routes.register(app)
 
 const webRoot = path.join(__dirname, 'web-build')
 if (fs.existsSync(webRoot)) {
-    console.log(`Web root found at ${webRoot}.`)
+    util.log(`Web root found at ${webRoot}.`)
     const settingsPath = fileSystem.getFrontendSettingsPath(path.join(webRoot, 'static', 'js'))
-    console.log(`Checking for file to token swap at ${settingsPath}`)
+    util.log(`Checking for file to token swap at ${settingsPath}`)
     if (settingsPath) {
-        console.log(`Swapping tokens in ${settingsPath}`)
+        util.log(`Swapping tokens in ${settingsPath}`)
         fileSystem.tokenSwap(settingsPath, {
             WEB_API_URL: settings.webApiUrl,
             CAST_POLL_INTERVAL: 300,
             DEBOUNCE_MILLISECONDS: 300,
         })
     }
-    console.log(`Hosting static files`)
+    util.log(`Hosting static files`)
     app.use('/', express.static(webRoot))
     app.use('/*', (request, response) => {
         response.sendFile(path.join(webRoot, 'index.html'))
     })
 } else {
-    console.log(`No static web files found at ${webRoot}.`)
+    util.log(`No static web files found at ${webRoot}.`)
 }
 
 app.listen(settings.webServerPort, () => {
-    console.log(`Server listening on ${settings.webServerPort}`)
+    util.log(`Server listening on ${settings.webServerPort}`)
 })

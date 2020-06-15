@@ -27,10 +27,10 @@ class Catalog {
 
     build(force) {
         return new Promise((resolve)=>{
-            console.log('Reading catalog into memory')
+            util.log('Reading catalog into memory')
             return this.database.read().then(persistedMedia => {
                 if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
-                    console.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
+                    util.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
                     this.media = persistedMedia
                     //Need to rehydrate class instances from JSON, otherwise instance methods won't work (i.e. search)
                     this.media.songs.list = this.media.songs.list.map(song => {
@@ -51,7 +51,7 @@ class Catalog {
                     resolve(this.media)
                 }
                 else {
-                    console.log('Rebuilding the catalog from scratch')
+                    util.log('Rebuilding the catalog from scratch')
                     this.organizer = new Organizer(settings.mediaRoot)
                     return this.organizer.shallow()
                     .then((media=>{
@@ -63,7 +63,7 @@ class Catalog {
                         return this.database.write(this.media)
                     })
                     .then(()=>{
-                        console.log("Organized catalog persisted to disk");
+                        util.log("Organized catalog persisted to disk");
                         resolve(this.media)
                     })
                 }

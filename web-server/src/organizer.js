@@ -65,7 +65,7 @@ class Organizer {
         this.totalCount = 0
         this.startTime = new Date().getTime()
 
-        console.log(`Reading all files from media root. Making a ${depth} pass`)
+        util.log(`Reading all files from media root. Making a ${depth} pass`)
         return new Promise((resolve, reject) => {
             return this.scanDirectory()
                 .then(()=>{
@@ -97,7 +97,7 @@ class Organizer {
                     }
                     let timeSpent = (new Date().getTime() - this.startTime) / 1000
                     this.building = false
-                    console.log(`Finished ${depth} pass for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
+                    util.log(`Finished ${depth} pass for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
                     resolve(result)
                 })
         })
@@ -110,7 +110,7 @@ class Organizer {
                     return reject(err)
                 }
                 this.files.list = files
-                console.log(`Found ${this.files.list.length} files in the entire library`)
+                util.log(`Found ${this.files.list.length} files in the entire library`)
                 resolve()
             })
         })
@@ -130,7 +130,7 @@ class Organizer {
                 }
                 return true
             })
-            console.log(`Filtered down to ${this.files.list.length} songs to process`)
+            util.log(`Filtered down to ${this.files.list.length} songs to process`)
             resolve()
         })
     }
@@ -141,7 +141,7 @@ class Organizer {
                 let song = new MusicFile(file)
                 if (this.depth === DEEP) {
                     if (_.has(this.songs.lookup, song.Id)) {
-                        console.error('Duplicate song ID ' + song.LocalFilePath + ' and ' + this.songs.lookup[song.Id])
+                        console.error('Duplicate song ID ' + song.LocalFilePath + ' and ' + this.songs.lookup[song.Id].LocalFilePath)
                     } else {
                         this.songs.lookup[song.Id] = song
                     }
@@ -195,7 +195,7 @@ class Organizer {
                 return m.then(v => {
                     this.rebuildCount++
                     if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount) {
-                        console.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
+                        util.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
                     }
                     return Promise.all([...v, p()])
                 })
