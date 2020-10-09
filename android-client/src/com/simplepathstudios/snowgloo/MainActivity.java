@@ -111,9 +111,9 @@ public class MainActivity extends AppCompatActivity{
         SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();
         ApiClient.retarget(settings.ServerUrl, settings.Username);
         Util.log(TAG,"====== Starting new app instance ======");
+        startService(new Intent(this, SnowglooService.class));
         MediaNotification.registerActivity(this);
         audioPlayer = AudioPlayer.getInstance();
-        startService(new Intent(this, SnowglooService.class));
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

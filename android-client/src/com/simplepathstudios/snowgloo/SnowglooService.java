@@ -3,8 +3,14 @@ package com.simplepathstudios.snowgloo;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.session.MediaSession;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.ResultReceiver;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
@@ -24,6 +30,7 @@ public class SnowglooService extends Service {
     AudioPlayer audioPlayer;
     PowerManager powerManager;
     PowerManager.WakeLock wakeLock;
+    MediaSession mediaSession;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -39,6 +46,46 @@ public class SnowglooService extends Service {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
+        mediaSession = new MediaSession(Util.getGlobalContext(),"SnowglooMediaSession");
+        mediaSession.setCallback(new MediaSession.Callback() {
+            @Override
+            public boolean onMediaButtonEvent(@NonNull Intent mediaButtonIntent) {
+                Util.log(TAG,mediaButtonIntent.getAction());
+                return super.onMediaButtonEvent(mediaButtonIntent);
+            }
+
+            @Override
+            public void onPlay() {
+                super.onPlay();
+                audioPlayer.play();
+            }
+
+            @Override
+            public void onPause() {
+                super.onPause();
+                audioPlayer.pause();
+            }
+
+            @Override
+            public void onSkipToNext() {
+                super.onSkipToNext();
+                audioPlayer.next();
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+                super.onSkipToPrevious();
+                audioPlayer.previous();
+            }
+
+            @Override
+            public void onStop() {
+                super.onStop();
+                audioPlayer.stop();
+            }
+        });
+
+        mediaSession.setActive(true);
 
         CastContext castContext = MainActivity.getInstance().getCastContext();
         if(castContext != null){
@@ -60,8 +107,13 @@ public class SnowglooService extends Service {
         }
     }
 
+    public MediaSession getMediaSession(){
+        return mediaSession;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Util.toast(intent.getAction());
         return START_NOT_STICKY;
     }
 
