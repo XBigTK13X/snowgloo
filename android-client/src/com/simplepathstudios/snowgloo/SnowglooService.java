@@ -3,21 +3,33 @@ package com.simplepathstudios.snowgloo;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.browse.MediaBrowser;
 import android.media.session.MediaSession;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
+import android.service.media.MediaBrowserService;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaDescriptionCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.MediaBrowserServiceCompat;
 
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.cast.framework.CastStateListener;
+import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
-public class SnowglooService extends Service {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SnowglooService extends MediaBrowserServiceCompat {
 
     private static final String TAG = "SnowglooService";
     private static final String WAKE_LOCK_TAG = "snowgloo:background_audio";
@@ -35,6 +47,28 @@ public class SnowglooService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Nullable
+    @Override
+    public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
+        return new MediaBrowserServiceCompat.BrowserRoot("__SNOWGLOO_MEDIA_ROOT", null);
+    }
+
+    @Override
+    public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        MusicQueue queue = ObservableMusicQueue.getInstance().getQueue();
+        ArrayList<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+        for(MusicFile song : queue.songs){
+            MediaDescriptionCompat mediaDescription = new MediaDescriptionCompat.Builder()
+                    .setIconUri(Uri.parse(song.CoverArt))
+                    .setTitle(song.Title)
+                    .setSubtitle(song.DisplayAlbum + " - " + song.DisplayArtist)
+                    .build();
+            MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+            mediaItems.add(mediaItem);
+        }
+        result.sendResult(mediaItems);
     }
 
     @Override
