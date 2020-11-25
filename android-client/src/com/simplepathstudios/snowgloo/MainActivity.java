@@ -378,7 +378,8 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onResume() {
         super.onResume();
-        Util.log(TAG, "Resuming");
+        Intent intent = getIntent();
+        Util.log(TAG, "Resuming with intent " + intent.getAction());
         audioPlayer = AudioPlayer.getInstance();
     }
 

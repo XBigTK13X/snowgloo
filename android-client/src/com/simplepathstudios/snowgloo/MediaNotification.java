@@ -26,6 +26,13 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 public class MediaNotification {
+    public static final class Action {
+        public static final String PLAY = "com.simplepathstudios.snowgloo.play";
+        public static final String PAUSE = "com.simplepathstudios.snowgloo.pause";
+        public static final String NEXT = "com.simplepathstudios.snowgloo.next";
+        public static final String PREVIOUS = "com.simplepathstudios.snowgloo.previous";
+        public static final String VIEW_NOW_PLAYING = "com.simplepathstudios.snowgloo.view-now-playing";
+    }
     public static final Integer NOTIFICATION_ID = 776677;
     private static final String TAG = "MediaNotification";
     private static final String NOTIFICATION_NAME = "Snowgloo";
@@ -69,34 +76,29 @@ public class MediaNotification {
         NotificationManager notificationManager = mainActivity.getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel);
 
-        Intent playIntent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
-        playIntent.setAction("notification-play");
-        PendingIntent pendingPlayIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), playIntent, 0);
-        Notification.Action playAction = new Notification.Action.Builder(R.drawable.ic_play_arrow_white_24dp, "Play", pendingPlayIntent).build();
+        Intent viewNowPlayingIntent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
+        viewNowPlayingIntent.setAction(Action.VIEW_NOW_PLAYING);
+        PendingIntent viewNowPlayingPendingIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), viewNowPlayingIntent, 0);
 
-        Intent pauseIntent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
-        pauseIntent.setAction("notification-pause");
-        PendingIntent pendingPauseIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), pauseIntent, 0);
-        Notification.Action pauseAction = new Notification.Action.Builder(R.drawable.ic_pause_white_24dp, "Pause", pendingPlayIntent).build();
+        PendingIntent playIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PLAY), PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Action playAction= new Notification.Action.Builder(R.drawable.ic_play_arrow_white_24dp, "Play", playIntent).build();
 
-        Intent nextIntent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
-        nextIntent.setAction("notification-next");
-        PendingIntent pendingNextIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), nextIntent, 0);
-        Notification.Action nextAction = new Notification.Action.Builder(R.drawable.ic_skip_next_white_24dp, "Next", pendingNextIntent).build();
+        PendingIntent pauseIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PAUSE), PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Action pauseAction= new Notification.Action.Builder(R.drawable.ic_pause_white_24dp, "Pause", pauseIntent).build();
 
-        Intent previousIntent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
-        previousIntent.setAction("notification-previous");
-        PendingIntent pendingPreviousIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), previousIntent, 0);
-        Notification.Action previousAction = new Notification.Action.Builder(R.drawable.ic_skip_previous_white_24dp, "Previous", pendingPreviousIntent).build();
+        PendingIntent nextIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Action nextAction= new Notification.Action.Builder(R.drawable.ic_skip_next_white_24dp, "Next", nextIntent).build();
+
+        PendingIntent previousIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PREVIOUS), PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Action previousAction = new Notification.Action.Builder(R.drawable.ic_skip_previous_white_24dp, "Previous", previousIntent).build();
+
+
 
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 if(musicQueue != null && musicQueue.currentIndex != null){
                     MusicFile currentSong = musicQueue.getCurrent();
-
-                    Intent intent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), intent, 0);
 
                     if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
                         Picasso.get().load(currentSong.CoverArt).into(coverArtTarget);
@@ -111,14 +113,12 @@ public class MediaNotification {
                                     new Notification.MediaStyle().setMediaSession(SnowglooService.getInstance().getMediaSession().getSessionToken())
                             )
                             .setChannelId(NOTIFICATION_CHANNEL_ID)
-                            .setContentIntent(pendingIntent)
+                            .setContentIntent(viewNowPlayingPendingIntent)
                             .addAction(previousAction)
                             .addAction(playAction)
                             .addAction(pauseAction)
                             .addAction(nextAction)
                             .build();
-                    //.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    //.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     notificationManager.notify(NOTIFICATION_ID, notification);
                     SnowglooService.getInstance().startForeground(NOTIFICATION_ID, notification);
                 }
@@ -126,52 +126,3 @@ public class MediaNotification {
         });
     }
 }
-
-/* Taken from old exoplayer based manager
-    private class SnowglooNotificationAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
-        public SnowglooNotificationAdapter(){
-        }
-
-        @Override
-        public String getCurrentSubText(Player player) {
-            return getCurrentMusic().Artist;
-        }
-
-        @Override
-        public String getCurrentContentTitle(Player player) {
-            return getCurrentMusic().Title;
-        }
-
-        @Override
-        public PendingIntent createCurrentContentIntent(Player player) {
-            return null;
-        }
-
-        @Override
-        public String getCurrentContentText(Player player) {
-            return getCurrentMusic().Album;
-        }
-
-        @Override
-        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-            Target target = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    callback.onBitmap(bitmap);
-                }
-
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            };
-            Picasso.get().load(getCurrentMusic().CoverArt).into(target);
-            return null;
-        }
-    };
- */

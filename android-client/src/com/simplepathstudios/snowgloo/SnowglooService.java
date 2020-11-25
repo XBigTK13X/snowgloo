@@ -1,8 +1,10 @@
 package com.simplepathstudios.snowgloo;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.browse.MediaBrowser;
 import android.media.session.MediaSession;
 import android.net.Uri;
@@ -31,6 +33,29 @@ import java.util.List;
 
 public class SnowglooService extends MediaBrowserServiceCompat {
 
+    public class SnowglooBroadcastReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Util.log(TAG, "onReceive "+intent.getAction());
+            String action = intent.getAction();
+            switch(action){
+                case MediaNotification.Action.PLAY:
+                    __instance.audioPlayer.play();
+                    break;
+                case MediaNotification.Action.PAUSE:
+                    __instance.audioPlayer.pause();
+                    break;
+                case MediaNotification.Action.NEXT:
+                    __instance.audioPlayer.next();
+                    break;
+                case MediaNotification.Action.PREVIOUS:
+                    __instance.audioPlayer.previous();
+                    break;
+            }
+        }
+    }
+
     private static final String TAG = "SnowglooService";
     private static final String WAKE_LOCK_TAG = "snowgloo:background_audio";
 
@@ -43,6 +68,8 @@ public class SnowglooService extends MediaBrowserServiceCompat {
     PowerManager powerManager;
     PowerManager.WakeLock wakeLock;
     MediaSession mediaSession;
+    IntentFilter intentFilter;
+    SnowglooBroadcastReceiver broadcastReceiver;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -84,7 +111,7 @@ public class SnowglooService extends MediaBrowserServiceCompat {
         mediaSession.setCallback(new MediaSession.Callback() {
             @Override
             public boolean onMediaButtonEvent(@NonNull Intent mediaButtonIntent) {
-                Util.log(TAG,mediaButtonIntent.getAction());
+                Util.log(TAG,"onMediaButtonEvent" + mediaButtonIntent.getAction());
                 return super.onMediaButtonEvent(mediaButtonIntent);
             }
 
@@ -139,6 +166,13 @@ public class SnowglooService extends MediaBrowserServiceCompat {
                 }
             });
         }
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(MediaNotification.Action.PLAY);
+        intentFilter.addAction(MediaNotification.Action.PAUSE);
+        intentFilter.addAction(MediaNotification.Action.NEXT);
+        intentFilter.addAction(MediaNotification.Action.PREVIOUS);
+        broadcastReceiver = new SnowglooBroadcastReceiver();
+        Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter);
     }
 
     public MediaSession getMediaSession(){
@@ -147,7 +181,7 @@ public class SnowglooService extends MediaBrowserServiceCompat {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Util.toast(intent.getAction());
+        Util.log(TAG, "onStartCommand action=" + intent.getAction());
         return START_NOT_STICKY;
     }
 
