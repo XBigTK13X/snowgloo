@@ -2,8 +2,10 @@ package com.simplepathstudios.snowgloo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -114,6 +116,14 @@ public class MainActivity extends AppCompatActivity{
         startService(new Intent(this, SnowglooService.class));
         MediaNotification.registerActivity(this);
         audioPlayer = AudioPlayer.getInstance();
+        MediaBrowser browser = new MediaBrowser(getApplicationContext(),SnowglooService.ComponentName, new MediaBrowser.ConnectionCallback(){
+            @Override
+            public void onConnected() {
+                Util.log(TAG, "browser onConnected");
+            }
+        },null);
+
+        browser.connect();
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

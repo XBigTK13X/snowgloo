@@ -1,25 +1,30 @@
 package com.simplepathstudios.snowgloo;
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.browse.MediaBrowser;
 import android.media.session.MediaSession;
+import android.media.session.MediaController;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.ResultReceiver;
-import android.service.media.MediaBrowserService;
+import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import androidx.media.MediaBrowserServiceCompat;
 
+import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.cast.framework.CastStateListener;
@@ -32,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SnowglooService extends MediaBrowserServiceCompat {
+
+    public static android.content.ComponentName ComponentName = new ComponentName("com.simplepathstudios.snowgloo.SnowglooService", SnowglooService.class.getName());
 
     public class SnowglooBroadcastReceiver extends BroadcastReceiver{
 
@@ -67,14 +74,13 @@ public class SnowglooService extends MediaBrowserServiceCompat {
     AudioPlayer audioPlayer;
     PowerManager powerManager;
     PowerManager.WakeLock wakeLock;
-    MediaSession mediaSession;
+    MediaSessionCompat mediaSession;
+    MediaSessionCompat.Callback mediaCallback;
+    MediaControllerCompat mediaController;
+    PlaybackStateCompat playbackState;
+    MediaControllerCompat.TransportControls transportControls;
     IntentFilter intentFilter;
     SnowglooBroadcastReceiver broadcastReceiver;
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
 
     @Nullable
     @Override
@@ -107,8 +113,16 @@ public class SnowglooService extends MediaBrowserServiceCompat {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
-        mediaSession = new MediaSession(Util.getGlobalContext(),"SnowglooMediaSession");
-        mediaSession.setCallback(new MediaSession.Callback() {
+        playbackState = new PlaybackStateCompat.Builder()
+                .setActions(
+                    PlaybackStateCompat.ACTION_PLAY |
+                    PlaybackStateCompat.ACTION_PAUSE |
+                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+            )
+                .setState(PlaybackStateCompat.STATE_PLAYING,0,1)
+                .build();
+        mediaCallback = new MediaSessionCompat.Callback() {
             @Override
             public boolean onMediaButtonEvent(@NonNull Intent mediaButtonIntent) {
                 Util.log(TAG,"onMediaButtonEvent" + mediaButtonIntent.getAction());
@@ -118,35 +132,51 @@ public class SnowglooService extends MediaBrowserServiceCompat {
             @Override
             public void onPlay() {
                 super.onPlay();
+                Util.log(TAG,"onPlay");
                 audioPlayer.play();
             }
 
             @Override
             public void onPause() {
                 super.onPause();
+                Util.log(TAG,"onPause");
                 audioPlayer.pause();
             }
 
             @Override
             public void onSkipToNext() {
                 super.onSkipToNext();
+                Util.log(TAG,"onSkipToNext");
                 audioPlayer.next();
             }
 
             @Override
             public void onSkipToPrevious() {
                 super.onSkipToPrevious();
+                Util.log(TAG,"onSkipToPrevious");
                 audioPlayer.previous();
             }
 
             @Override
             public void onStop() {
                 super.onStop();
+                Util.log(TAG,"onStop");
                 audioPlayer.stop();
             }
-        });
-
+        };
+        mediaSession = new MediaSessionCompat(Util.getGlobalContext(),"SnowglooMediaSession");
+        mediaSession.setCallback(mediaCallback);
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSession.setPlaybackState(playbackState);
         mediaSession.setActive(true);
+        setSessionToken(mediaSession.getSessionToken());
+
+        try {
+            mediaController = new MediaControllerCompat(Util.getGlobalContext(), mediaSession.getSessionToken());
+            transportControls = mediaController.getTransportControls();
+        } catch (RemoteException e) {
+            Util.error(TAG, e);
+        }
 
         CastContext castContext = MainActivity.getInstance().getCastContext();
         if(castContext != null){
@@ -173,9 +203,22 @@ public class SnowglooService extends MediaBrowserServiceCompat {
         intentFilter.addAction(MediaNotification.Action.PREVIOUS);
         broadcastReceiver = new SnowglooBroadcastReceiver();
         Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter);
+
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                MusicFile currentSong = musicQueue.getCurrent();
+                MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadata.KEY_TITLE, currentSong.Title)
+                    .putString(MediaMetadata.KEY_ARTIST, currentSong.DisplayArtist)
+                    .putString(MediaMetadata.KEY_ALBUM_TITLE, currentSong.DisplayAlbum)
+                        .build();
+                mediaSession.setMetadata(metadata);
+            }
+        });
     }
 
-    public MediaSession getMediaSession(){
+    public MediaSessionCompat getMediaSession(){
         return mediaSession;
     }
 

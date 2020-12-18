@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.session.MediaSession;
 import android.os.Build;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.view.View;
 
@@ -103,15 +104,16 @@ public class MediaNotification {
                     if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
                         Picasso.get().load(currentSong.CoverArt).into(coverArtTarget);
                     }
+                    MediaSessionCompat.Token token = SnowglooService.getInstance().getMediaSession().getSessionToken();
+                    Notification.MediaStyle notificationStyle = new Notification.MediaStyle();
+                    notificationStyle.setMediaSession((MediaSession.Token)token.getToken());
                     notification = new Notification.Builder(MainActivity.getInstance(), NOTIFICATION_NAME)
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle(currentSong.Title)
                             .setContentText(currentSong.DisplayAlbum)
                             .setLargeIcon(coverArtBitmap)
                             .setSubText(currentSong.DisplayArtist)
-                            .setStyle(
-                                    new Notification.MediaStyle().setMediaSession(SnowglooService.getInstance().getMediaSession().getSessionToken())
-                            )
+                            .setStyle(notificationStyle)
                             .setChannelId(NOTIFICATION_CHANNEL_ID)
                             .setContentIntent(viewNowPlayingPendingIntent)
                             .addAction(previousAction)
