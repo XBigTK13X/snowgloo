@@ -56,7 +56,7 @@ public class MediaNotification {
     private Target coverArtTarget = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            coverArtBitmap = coverArtBitmap;
+            coverArtBitmap = bitmap;
         }
 
         @Override

@@ -244,6 +244,7 @@ public class MainActivity extends AppCompatActivity{
                     AudioPlayer.getInstance().refreshLocalPlayer();
                     AudioPlayer.getInstance().play();
                 }
+                SnowglooService.getInstance().updatePlaybackState(true);
             }
         });
         pauseButton = findViewById(R.id.pause_button);
@@ -254,6 +255,7 @@ public class MainActivity extends AppCompatActivity{
                     AudioPlayer.getInstance().refreshLocalPlayer();
                     AudioPlayer.getInstance().pause();
                 }
+                SnowglooService.getInstance().updatePlaybackState(false);
             }
         });
         nextButton = findViewById(R.id.next_button);
