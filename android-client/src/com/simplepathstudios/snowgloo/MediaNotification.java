@@ -5,26 +5,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.drm.DrmStore;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.media.session.MediaSession;
 import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Log;
-import android.view.View;
 
-import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDeepLinkBuilder;
 
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 public class MediaNotification {
     public static final class Action {
@@ -50,24 +39,6 @@ public class MediaNotification {
     }
 
     public Notification notification;
-
-    private Bitmap coverArtBitmap = null;
-
-    private Target coverArtTarget = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            coverArtBitmap = bitmap;
-        }
-
-        @Override
-        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-        }
-    };
 
     private MediaNotification(MainActivity mainActivity){
         String description = "Snowgloo controls and information about playing media.";
@@ -100,10 +71,6 @@ public class MediaNotification {
             public void onChanged(MusicQueue musicQueue) {
                 if(musicQueue != null && musicQueue.currentIndex != null){
                     MusicFile currentSong = musicQueue.getCurrent();
-
-                    if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
-                        Picasso.get().load(currentSong.CoverArt).into(coverArtTarget);
-                    }
                     MediaSessionCompat.Token token = SnowglooService.getInstance().getMediaSession().getSessionToken();
                     Notification.MediaStyle notificationStyle = new Notification.MediaStyle();
                     notificationStyle.setMediaSession((MediaSession.Token)token.getToken());
@@ -111,7 +78,7 @@ public class MediaNotification {
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle(currentSong.Title)
                             .setContentText(currentSong.DisplayAlbum)
-                            .setLargeIcon(coverArtBitmap)
+                            .setLargeIcon(ObservableMusicQueue.getInstance().getCurrentAlbumArt())
                             .setSubText(currentSong.DisplayArtist)
                             .setStyle(notificationStyle)
                             .setChannelId(NOTIFICATION_CHANNEL_ID)

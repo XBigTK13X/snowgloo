@@ -1,7 +1,6 @@
 package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +15,6 @@ import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 public class NowPlayingFragment extends Fragment {
     private static final String TAG = "NowPlayingFragment";
@@ -45,18 +42,8 @@ public class NowPlayingFragment extends Fragment {
                 songTitle.setText(currentSong.Title);
                 songAlbum.setText(currentSong.DisplayAlbum);
                 songArtist.setText(currentSong.DisplayArtist);
-                coverArt.setVisibility(View.INVISIBLE);
-                if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
-                    Picasso.get().load(currentSong.CoverArt).into(coverArt, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            coverArt.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                        }
-                    });
+                if (ObservableMusicQueue.getInstance().getCurrentAlbumArt() != null){
+                    coverArt.setImageBitmap(ObservableMusicQueue.getInstance().getCurrentAlbumArt());
                 }
             }
         });

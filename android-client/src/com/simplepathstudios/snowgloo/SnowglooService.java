@@ -5,14 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.media.session.MediaSession;
-import android.media.session.MediaController;
-import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
@@ -27,17 +21,13 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.media.MediaBrowserServiceCompat;
 
-import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.cast.framework.CastStateListener;
-import com.google.android.gms.common.images.WebImage;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,23 +77,6 @@ public class SnowglooService extends MediaBrowserServiceCompat {
     MediaControllerCompat.TransportControls transportControls;
     IntentFilter intentFilter;
     SnowglooBroadcastReceiver broadcastReceiver;
-    Bitmap coverArtBitmap;
-
-    private Target coverArtTarget = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            coverArtBitmap = bitmap;
-        }
-
-        @Override
-        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-        }
-    };
 
     public MediaSessionCompat getMediaSession(){
         return mediaSession;
@@ -132,7 +105,6 @@ public class SnowglooService extends MediaBrowserServiceCompat {
     }
 
     public void updatePlaybackState(boolean isPlaying){
-        Util.log(TAG, "updatePlaybackState "+isPlaying);
         AudioPlayer player = AudioPlayer.getInstance();
         Integer position = player.getSongPosition();
         position = position == null ? 0 : position;
@@ -191,7 +163,6 @@ public class SnowglooService extends MediaBrowserServiceCompat {
                 super.onPlay();
                 Util.log(TAG,"onPlay");
                 audioPlayer.play();
-                updatePlaybackState(true);
             }
 
             @Override
@@ -199,7 +170,6 @@ public class SnowglooService extends MediaBrowserServiceCompat {
                 super.onPause();
                 Util.log(TAG,"onPause");
                 audioPlayer.pause();
-                updatePlaybackState(false);
             }
 
             @Override
@@ -207,7 +177,6 @@ public class SnowglooService extends MediaBrowserServiceCompat {
                 super.onSkipToNext();
                 Util.log(TAG,"onSkipToNext");
                 audioPlayer.next();
-                updatePlaybackState(true);
             }
 
             @Override
@@ -215,7 +184,6 @@ public class SnowglooService extends MediaBrowserServiceCompat {
                 super.onSkipToPrevious();
                 Util.log(TAG,"onSkipToPrevious");
                 audioPlayer.previous();
-                updatePlaybackState(true);
             }
 
             @Override
@@ -251,21 +219,20 @@ public class SnowglooService extends MediaBrowserServiceCompat {
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
+                updatePlaybackState(musicQueue.playerState  == MusicQueue.PlayerState.PLAYING ? true: false);
                 MusicFile currentSong = musicQueue.getCurrent();
-                if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
-                    Picasso.get().load(currentSong.CoverArt).into(coverArtTarget);
+                if(musicQueue != null && musicQueue.currentIndex != null){
+                    MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, currentSong.Title)
+                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentSong.Title)
+                        .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentSong.DisplayArtist)
+                        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentSong.DisplayAlbum)
+                        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, currentSong.CoverArt)
+                        .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
+                        .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
+                        .build();
+                    mediaSession.setMetadata(metadata);
                 }
-                Util.log(TAG, "metadata queue changed to "+currentSong.Title);
-                MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, currentSong.Title)
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentSong.Title)
-                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentSong.DisplayArtist)
-                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentSong.DisplayAlbum)
-                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, currentSong.CoverArt)
-                        .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, coverArtBitmap)
-                        .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, coverArtBitmap)
-                    .build();
-                mediaSession.setMetadata(metadata);
             }
         });
     }

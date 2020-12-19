@@ -30,7 +30,6 @@ public class CastPlayer implements IAudioPlayer {
 
     public CastPlayer(){
     }
-
     private MediaInfo prepareMedia(MusicFile musicFile){
         Util.log(TAG, "prepareMedia "+musicFile.Id);
         MediaMetadata metadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
@@ -48,7 +47,6 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public boolean isPlaying(){
-        Util.log(TAG, "isPlaying");
         if(media != null){
             return media.isPlaying();
         }

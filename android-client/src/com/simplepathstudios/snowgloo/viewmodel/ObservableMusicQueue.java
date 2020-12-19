@@ -1,5 +1,7 @@
 package com.simplepathstudios.snowgloo.viewmodel;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import androidx.lifecycle.Observer;
@@ -11,6 +13,8 @@ import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +41,26 @@ public class ObservableMusicQueue {
     private boolean firstLoad;
     private ArrayList<Observer<MusicQueue>> observers;
     private RepeatMode repeatMode;
+    private Bitmap currentAlbumArt;
+
+    private Target coverArtTarget = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            currentAlbumArt = bitmap;
+            for(Observer<MusicQueue> observer: observers){
+                observer.onChanged(queue);
+            }
+        }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+        }
+    };
 
     public ObservableMusicQueue(){
         observers = new ArrayList<>();
@@ -316,8 +340,11 @@ public class ObservableMusicQueue {
         if(persistChanges){
             save();
         }
-        for(Observer<MusicQueue> observer: observers){
-            observer.onChanged(queue);
+        MusicFile currentSong = queue.getCurrent();
+        if(currentSong != null){
+            if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
+                Picasso.get().load(currentSong.CoverArt).into(coverArtTarget);
+            }
         }
     }
 
@@ -345,5 +372,9 @@ public class ObservableMusicQueue {
     public Call renamePlaylist(MusicPlaylist playlist, String newName){
         playlist.name = newName;
         return ApiClient.getInstance().savePlaylist(playlist);
+    }
+
+    public Bitmap getCurrentAlbumArt(){
+        return currentAlbumArt;
     }
 }
