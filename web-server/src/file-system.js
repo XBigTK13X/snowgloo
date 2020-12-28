@@ -14,9 +14,9 @@ const getFrontendSettingsPath = root => {
 
 const tokenSwap = (filePath, tokenMap) => {
     let content = fs.readFileSync(filePath, 'utf8')
-    Object.keys(tokenMap).forEach(tokenKey => {
+    for (let tokenKey of Object.keys(tokenMap)) {
         content = content.replace(tokenKey, tokenMap[tokenKey])
-    })
+    }
     fs.writeFileSync(filePath, content)
 }
 

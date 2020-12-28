@@ -26,7 +26,7 @@ class Catalog {
     }
 
     build(force) {
-        return new Promise((resolve)=>{
+        return new Promise(resolve => {
             util.log('Reading catalog into memory')
             return this.database.read().then(persistedMedia => {
                 if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
@@ -38,36 +38,36 @@ class Catalog {
                         this.media.songs.lookup[song.Id] = result
                         return result
                     })
-                    this.media.albums.list.forEach(albumName => {
+                    for (let albumName of this.media.albums.list) {
                         const album = new MusicAlbum().rehydrate(this.media.albums.lookup[albumName])
                         this.media.albums.lookup[albumName] = album
-                    })
-                    this.media.categories.list.forEach(category=>{
-                        this.media.categories.lookup[category].artists.list.forEach(artistName => {
+                    }
+                    for (let category of this.media.categories.list) {
+                        for (let artistName of this.media.categories.lookup[category].artists.list) {
                             const artist = new MusicArtist().rehydrate(this.media.categories.lookup[category].artists.lookup[artistName])
                             this.media.categories.lookup[category].artists.lookup[artistName] = artist
-                        })
-                    })
+                        }
+                    }
                     resolve(this.media)
-                }
-                else {
+                } else {
                     util.log('Rebuilding the catalog from scratch')
                     this.organizer = new Organizer(settings.mediaRoot)
-                    return this.organizer.shallow()
-                    .then((media=>{
-                        this.media = {...media}
-                        return this.organizer.deep()
-                    }))
-                    .then((media)=>{
-                        this.media = {...media};
-                        return this.database.write(this.media)
-                    })
-                    .then(()=>{
-                        util.log("Organized catalog persisted to disk");
-                        resolve(this.media)
-                    })
+                    return this.organizer
+                        .shallow()
+                        .then(media => {
+                            this.media = { ...media }
+                            return this.organizer.deep()
+                        })
+                        .then(media => {
+                            this.media = { ...media }
+                            return this.database.write(this.media)
+                        })
+                        .then(() => {
+                            util.log('Organized catalog persisted to disk')
+                            resolve(this.media)
+                        })
                 }
-            });
+            })
         })
     }
 
@@ -80,28 +80,28 @@ class Catalog {
                 Albums: [],
                 ItemCount: 0,
             }
-            this.media.songs.list.forEach(song => {
+            for (let song of this.media.songs.list) {
                 if (song.matches(query)) {
                     results.Songs.push(song)
                     results.ItemCount++
                 }
-            })
-            this.media.albums.list.forEach(albumSlug => {
+            }
+            for (let albumSlug of this.media.albums.list) {
                 const album = this.media.albums.lookup[albumSlug]
                 if (album.matches(query)) {
                     results.Albums.push(album)
                     results.ItemCount++
                 }
-            })
-            this.media.categories.list.forEach(category=>{
-                this.media.categories.lookup[category].artists.list.forEach(artistName => {
+            }
+            for (let category of this.media.categories.list) {
+                for (let artistName of this.media.categories.lookup[category].artists.list) {
                     const artist = this.media.categories.lookup[category].artists.lookup[artistName]
                     if (artist.matches(query)) {
                         results.Artists.push(artist)
                         results.ItemCount++
                     }
-                })
-            })
+                }
+            }
             resolve(results)
         })
     }
@@ -122,7 +122,7 @@ class Catalog {
 
     getArtists(category) {
         return new Promise(resolve => {
-            if(!_.has(this.media.categories.lookup, category)){
+            if (!_.has(this.media.categories.lookup, category)) {
                 return null
             }
             return resolve(this.media.categories.lookup[category].artists)
@@ -141,7 +141,7 @@ class Catalog {
             if (!artist) {
                 return resolve(this.media.albums)
             }
-            let albums = {...this.media.albums}
+            let albums = { ...this.media.albums }
             let albumList = albums.list
                 .filter(x => {
                     return albums.lookup[x].Artist === artist
@@ -180,16 +180,16 @@ class Catalog {
     }
 
     getRandomList() {
-        return new Promise(resolve=>{
-            let randomCount = settings.randomListSize;
-            let maxAttempts = settings.randomListSize * 20;
+        return new Promise(resolve => {
+            let randomCount = settings.randomListSize
+            let maxAttempts = settings.randomListSize * 20
             let songs = []
             let artistDedupe = {}
             let albumDedupe = {}
-            while(randomCount > 0 && maxAttempts > 0){
+            while (randomCount > 0 && maxAttempts > 0) {
                 let album = this.media.albums.lookup[_.sample(this.media.albums.list)]
                 let song = _.sample(album.Songs)
-                if(!_.has(artistDedupe,song.DisplayArtist) && !_.has(albumDedupe, song.DisplayAlbum)){
+                if (!_.has(artistDedupe, song.DisplayArtist) && !_.has(albumDedupe, song.DisplayAlbum)) {
                     artistDedupe[song.DisplayArtist] = 1
                     albumDedupe[song.DisplayAlbum] = 1
                     songs.push(song)

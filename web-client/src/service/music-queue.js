@@ -34,11 +34,11 @@ class MusicQueue {
         }
         return new Promise(resolve => {
             let found = false
-            this.queue.songs.forEach((entry, entryIndex) => {
+            for (let entry of this.queue.songs) {
                 if (entry.Id === song.Id) {
                     found = true
                 }
-            })
+            }
             if (!found) {
                 this.queue.songs.push(song)
             }

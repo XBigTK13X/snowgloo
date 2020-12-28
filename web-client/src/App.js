@@ -4,20 +4,20 @@ import routes from './routes'
 import Comp from './comp'
 import service from './service'
 
-routes.forEach(route=>{
-    if(!route.component){
-        console.error({route})
+for (let route of routes) {
+    if (!route.component) {
+        console.error({ route })
         throw new Error(`Route is missing component`)
     }
-    if(!route.name){
-        console.error({route})
+    if (!route.name) {
+        console.error({ route })
         throw new Error(`Route is missing name`)
     }
-    if(!route.url){
-        console.error({route})
+    if (!route.url) {
+        console.error({ route })
         throw new Error(`Route is missing url`)
     }
-})
+}
 
 const plugins = [pushStateLocationPlugin]
 
@@ -41,7 +41,7 @@ export default class App extends Component {
             queue: {
                 songs: null,
                 currentIndex: null,
-            }
+            },
         }
 
         this.playMedia = this.playMedia.bind(this)
@@ -96,9 +96,9 @@ export default class App extends Component {
 
     addToQueue(songs) {
         if (songs.constructor === Array) {
-            songs.forEach(song => {
+            for (let song of songs) {
                 service.musicQueue.add(song)
-            })
+            }
         } else {
             service.musicQueue.add(songs)
         }

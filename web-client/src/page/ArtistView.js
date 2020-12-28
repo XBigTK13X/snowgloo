@@ -33,13 +33,13 @@ export default class ArtistView extends Component {
 
     addToQueue(closeModal) {
         let selectedAlbumSongs = []
-        this.state.albums.listKinds.forEach((listKind, listKindIndex) => {
+        for (let listKind of this.state.albums.listKinds) {
             if (this.state.queueOptions[listKind]) {
-                this.state.albums.lists[listKind].forEach(albumSlug => {
+                for (let albumSlug of this.state.albums.lists[listKind]) {
                     selectedAlbumSongs = selectedAlbumSongs.concat(this.state.albums.lookup[albumSlug].Songs)
-                })
+                }
             }
-        })
+        }
         selectedAlbumSongs.sort((a, b) => {
             if (a.ReleaseYear !== b.ReleaseYear) {
                 return a.ReleaseYear > b.ReleaseYear ? 1 : -1

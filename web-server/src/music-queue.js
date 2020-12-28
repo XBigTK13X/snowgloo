@@ -24,9 +24,9 @@ class MusicQueue {
     }
 
     clearAll() {
-        settings.userList.forEach(user => {
+        for (let user of settings.userList) {
             this.clear(user)
-        })
+        }
     }
 }
 

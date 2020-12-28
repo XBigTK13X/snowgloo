@@ -10,31 +10,31 @@ const MusicFile = require('./music-file')
 const MusicAlbum = require('./music-album')
 const MusicArtist = require('./music-artist')
 
-const SHALLOW = "shallow"
-const DEEP = "deep"
+const SHALLOW = 'shallow'
+const DEEP = 'deep'
 
 class Organizer {
-    constructor(mediaRoot){
+    constructor(mediaRoot) {
         this.mediaRoot = mediaRoot
-        this.depth = "shallow"
+        this.depth = 'shallow'
         this.building = false
         this.rebuildCount = 0
         this.totalCount = 0
     }
 
-    status(){
+    status() {
         return {
             building: this.building,
             rebuildCount: this.rebuildCount,
-            totalCount: this.totalCount
+            totalCount: this.totalCount,
         }
     }
 
-    shallow(){
+    shallow() {
         return this.organize(SHALLOW)
     }
 
-    deep(){
+    deep() {
         return this.organize(DEEP)
     }
 
@@ -42,23 +42,23 @@ class Organizer {
         this.depth = depth
         this.coverArts = {
             list: [],
-            lookup: {}
+            lookup: {},
         }
         this.files = {
             list: [],
-            lookup: {}
+            lookup: {},
         }
         this.songs = {
             list: [],
-            lookup: {}
+            lookup: {},
         }
         this.albums = {
             list: [],
-            lookup: {}
+            lookup: {},
         }
         this.categories = {
             list: [],
-            lookup: {}
+            lookup: {},
         }
         this.building = true
         this.rebuildCount = 0
@@ -68,32 +68,32 @@ class Organizer {
         util.log(`Reading all files from media root. Making a ${depth} pass`)
         return new Promise((resolve, reject) => {
             return this.scanDirectory()
-                .then(()=>{
+                .then(() => {
                     return this.filter()
                 })
-                .then(()=>{
+                .then(() => {
                     return this.parseFilesToSongs()
                 })
-                .then(()=>{
+                .then(() => {
                     return this.sortSongs()
                 })
-                .then(()=>{
+                .then(() => {
                     return this.inspectFiles()
                 })
-                .then(()=>{
+                .then(() => {
                     return this.assignCoverArt()
                 })
-                .then(()=>{
+                .then(() => {
                     return this.organizeAlbums()
                 })
-                .then(()=>{
+                .then(() => {
                     return this.organizeCategories()
                 })
-                .then(()=>{
+                .then(() => {
                     let result = {
                         songs: this.songs,
                         albums: this.albums,
-                        categories: this.categories
+                        categories: this.categories,
                     }
                     let timeSpent = (new Date().getTime() - this.startTime) / 1000
                     this.building = false
@@ -103,8 +103,8 @@ class Organizer {
         })
     }
 
-    scanDirectory(){
-        return new Promise((resolve,reject) => {
+    scanDirectory() {
+        return new Promise((resolve, reject) => {
             recurse(this.mediaRoot, (err, files) => {
                 if (err) {
                     return reject(err)
@@ -116,8 +116,8 @@ class Organizer {
         })
     }
 
-    filter(){
-        return new Promise(resolve=>{
+    filter() {
+        return new Promise(resolve => {
             this.files.list = this.files.list.filter(file => {
                 if (file.includes('.jpg') || file.includes('.png') || file.includes('.jpeg')) {
                     if (!file.toLowerCase().includes('small')) {
@@ -135,8 +135,8 @@ class Organizer {
         })
     }
 
-    parseFilesToSongs(){
-        return new Promise(resolve=>{
+    parseFilesToSongs() {
+        return new Promise(resolve => {
             this.songs.list = this.files.list.map(file => {
                 let song = new MusicFile(file)
                 if (this.depth === DEEP) {
@@ -148,12 +148,12 @@ class Organizer {
                 }
                 return song
             })
-            resolve();
+            resolve()
         })
     }
 
-    sortSongs(){
-        return new Promise(resolve=>{
+    sortSongs() {
+        return new Promise(resolve => {
             this.songs.list = this.songs.list.sort((a, b) => {
                 if (a.Artist.toLowerCase() !== b.Artist.toLowerCase()) {
                     return a.Artist.toLowerCase() > b.Artist.toLowerCase() ? 1 : -1
@@ -166,15 +166,15 @@ class Organizer {
                 }
                 return a.Track > b.Track ? 1 : -1
             })
-            resolve();
+            resolve()
         })
     }
 
-    inspectFiles(){
-        if(this.depth == SHALLOW){
-            return Promise.resolve();
+    inspectFiles() {
+        if (this.depth == SHALLOW) {
+            return Promise.resolve()
         }
-        return new Promise(resolve=>{
+        return new Promise(resolve => {
             const batchSize = 8
             let promiseBatches = []
             for (let ii = 0; ii < this.songs.list.length; ii += batchSize) {
@@ -191,30 +191,31 @@ class Organizer {
             this.rebuildCount = 0
             this.totalCount = promiseBatches.length
             const notify = 100
-            return promiseBatches.reduce((m, p) => {
-                return m.then(v => {
-                    this.rebuildCount++
-                    if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount) {
-                        util.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
-                    }
-                    return Promise.all([...v, p()])
+            return promiseBatches
+                .reduce((m, p) => {
+                    return m.then(v => {
+                        this.rebuildCount++
+                        if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount) {
+                            util.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
+                        }
+                        return Promise.all([...v, p()])
+                    })
+                }, Promise.resolve([]))
+                .then(() => {
+                    resolve()
                 })
-            }, Promise.resolve([]))
-            .then(()=>{
-                resolve()
-            })
         })
     }
 
-    assignCoverArt(){
+    assignCoverArt() {
         return new Promise(resolve => {
-            this.coverArts.list.forEach(coverArt => {
+            for (let coverArt of this.coverArts.list) {
                 let artFile = new MusicFile(coverArt)
-                if(!_.has(this.coverArts.lookup, artFile.AlbumSlug)){
+                if (!_.has(this.coverArts.lookup, artFile.AlbumSlug)) {
                     this.coverArts.lookup[artFile.AlbumSlug] = `${settings.mediaServer}${coverArt}`
                 }
-            })
-            this.songs.list.forEach(song => {
+            }
+            for (let song of this.songs.list) {
                 if (_.has(this.coverArts.lookup, song.AlbumSlug)) {
                     song.AlbumCoverArt = this.coverArts.lookup[song.AlbumSlug]
                 }
@@ -222,14 +223,14 @@ class Organizer {
                 if (this.depth === DEEP && !song.CoverArt) {
                     console.error('No cover art found for ' + song.LocalFilePath)
                 }
-            })
+            }
             resolve()
         })
     }
 
-    organizeAlbums(){
-        return new Promise(resolve=>{
-            this.songs.list.forEach(song => {
+    organizeAlbums() {
+        return new Promise(resolve => {
+            for (let song of this.songs.list) {
                 if (!_.has(this.albums.lookup, song.AlbumSlug)) {
                     const album = new MusicAlbum(song, this.coverArts.lookup[song.AlbumSlug])
                     if (album.ReleaseYear === 9999) {
@@ -239,32 +240,32 @@ class Organizer {
                     this.albums.list.push(song.AlbumSlug)
                 }
                 this.albums.lookup[song.AlbumSlug].Songs.push(song)
-            })
+            }
             this.albums.list = util.alphabetize(this.albums.list)
             resolve()
         })
     }
 
-    organizeCategories(){
-        return new Promise(resolve=>{
-            this.songs.list.forEach(song=>{
-                if(!_.has(this.categories.lookup,song.Kind)){
+    organizeCategories() {
+        return new Promise(resolve => {
+            for (let song of this.songs.list) {
+                if (!_.has(this.categories.lookup, song.Kind)) {
                     this.categories.lookup[song.Kind] = {
                         artists: {
                             list: [],
-                            lookup: {}
-                        }
+                            lookup: {},
+                        },
                     }
                     this.categories.list.push(song.Kind)
                 }
-                if(!_.has(this.categories.lookup[song.Kind].artists.lookup, song.Artist)){
+                if (!_.has(this.categories.lookup[song.Kind].artists.lookup, song.Artist)) {
                     this.categories.lookup[song.Kind].artists.list.push(song.Artist)
                     this.categories.lookup[song.Kind].artists.lookup[song.Artist] = new MusicArtist(song)
                 }
-            })
-            this.categories.list.forEach(category=>{
+            }
+            for (let category of this.categories.list) {
                 this.categories.lookup[category].artists.list = util.alphabetize(this.categories.lookup[category].artists.list)
-            })
+            }
             resolve()
         })
     }
