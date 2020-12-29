@@ -16,6 +16,7 @@ import com.simplepathstudios.snowgloo.api.model.AlbumList;
 import com.simplepathstudios.snowgloo.api.model.AlbumView;
 import com.simplepathstudios.snowgloo.api.model.ArtistList;
 import com.simplepathstudios.snowgloo.api.model.ArtistView;
+import com.simplepathstudios.snowgloo.api.model.CategoryList;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -78,4 +79,7 @@ public interface ApiService {
 
     @GET("/api/random/list")
     Call<MusicPlaylist> getRandomList();
+
+    @GET("/api/category/list")
+    Call<CategoryList> getCategoryList();
 }

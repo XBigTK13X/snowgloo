@@ -115,4 +115,8 @@ public class ApiClient {
     public Call getRandomList(){
         return this.httpClient.getRandomList();
     }
+
+    public Call getCategoryList(){
+        return this.httpClient.getCategoryList();
+    }
 }

@@ -7,10 +7,13 @@ const asset = require('./asset')
 const log = require('./log')
 
 const register = router => {
+    router.get('/api/category/list', async (request, response) => {
+        let result = await catalog.getCategories()
+        response.send(result)
+    })
     router.get('/api/song/list', async (request, response) => {
         response.send(await catalog.getSongs())
     })
-
     router.get('/api/album/list', async (request, response) => {
         let result = {
             albums: await catalog.getAlbums(),
@@ -127,7 +130,7 @@ const register = router => {
 
     router.get('/api/random/list', async (request, response) => {
         response.send({
-            songs: await catalog.getRandomList()
+            songs: await catalog.getRandomList(),
         })
     })
 }

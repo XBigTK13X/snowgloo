@@ -12,6 +12,11 @@ export default [
         component: pages.Queue,
     },
     {
+        name: 'category-list',
+        url: '/category/list',
+        component: pages.CategoryList,
+    },
+    {
         name: 'artist-list',
         url: '/artist/list/:category',
         component: pages.ArtistList,
@@ -59,6 +64,6 @@ export default [
     {
         name: 'random-list',
         url: '/random/list',
-        component: pages.RandomList
-    }
+        component: pages.RandomList,
+    },
 ]

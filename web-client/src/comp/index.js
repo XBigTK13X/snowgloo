@@ -4,6 +4,7 @@ export default {
     ArtistListItem: require('./ArtistListItem').default,
     AudioControls: require('./AudioControls').default,
     AudioPlayer: require('./AudioPlayer').default,
+    CategoryListItem: require('./CategoryListItem').default,
     CoverArt: require('./CoverArt').default,
     Href: require('@uirouter/react').UISref,
     LinkButton: require('./LinkButton').default,

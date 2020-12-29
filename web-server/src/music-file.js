@@ -5,14 +5,14 @@ const asset = require('./asset')
 
 class MusicFile {
     constructor(path) {
-        if(!path){
+        if (!path) {
             return this
         }
         const parts = path.split('/')
 
         this.LocalFilePath = path
         this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
-        this.Kind = path.replace(settings.mediaRoot,'').split('/')[1]
+        this.Kind = path.replace(settings.mediaRoot, '').split('/')[1]
         this.SubKind = null
         this.CoverArt = null
         this.AlbumCoverArt = null
@@ -41,7 +41,7 @@ class MusicFile {
         trackAndTitle.pop()
         trackAndTitle = trackAndTitle.join('.')
         this.Title = trackAndTitle
-        if(trackAndTitle.includes(' - ')){
+        if (trackAndTitle.includes(' - ')) {
             let titleParts = trackAndTitle.split(' - ')
             this.Id = titleParts.pop()
             if (titleParts[0].includes('D')) {
@@ -60,7 +60,7 @@ class MusicFile {
                 this.Title = titleParts[0]
                 this.DisplayArtist = hasOriginalArtist ? titleParts[1] : this.Album
             }
-            if(this.DisplayAlbum.includes('Vol. ')){
+            if (this.DisplayAlbum.includes('Vol. ')) {
                 let albumParts = this.DisplayAlbum.split(' - ')
                 albumParts.shift()
                 this.DisplayAlbum = albumParts.join(' - ')
@@ -79,7 +79,7 @@ class MusicFile {
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
-    rehydrate(instance){
+    rehydrate(instance) {
         Object.assign(this, instance)
         return this
     }
@@ -94,10 +94,10 @@ class MusicFile {
                         throw data.error
                     }
                     if (data) {
-                        if(data.format){
+                        if (data.format) {
                             this.AudioDuration = data.format.duration
                         }
-                        if(data.streams && data.streams[1] && data.streams[1].width){
+                        if (data.streams && data.streams[1] && data.streams[1].width) {
                             this.HasEmbeddedArt = true
                         }
                     }

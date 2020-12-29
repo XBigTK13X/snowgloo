@@ -13,20 +13,8 @@
         android:title="Playlist" />
     <item android:id="@+id/random_list_fragment"
         android:title="Random" />
-    <item android:id="@+id/album_list_fragment"
-        android:title="Album" />
-    <item android:id="@+id/anime_list"
-        android:title="Anime" />
-    <item android:id="@+id/artist_list"
-        android:title="Artist" />
-    <item android:id="@+id/compilation_list"
-        android:title="Compilation" />
-    <item android:id="@+id/disney_list"
-        android:title="Disney" />
-    <item android:id="@+id/game_list"
-        android:title="Game" />
-    <item android:id="@+id/movie_list"
-        android:title="Movie" />
+    <item android:id="@+id/category_list_fragment"
+        android:title="Categories" />
     <item android:id="@+id/options_fragment"
         android:title="Options" />
     </group>

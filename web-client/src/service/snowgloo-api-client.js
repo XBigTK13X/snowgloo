@@ -19,6 +19,10 @@ class ApiClient {
         })
     }
 
+    getCategories() {
+        return this.get('category/list')
+    }
+
     getSongs() {
         return this.get('song/list')
     }
@@ -28,7 +32,7 @@ class ApiClient {
     }
 
     getArtists(category) {
-        return this.httpClient.get('artist/list',{params: {category}}).then(response=>{
+        return this.httpClient.get('artist/list', { params: { category } }).then(response => {
             return response.data
         })
     }

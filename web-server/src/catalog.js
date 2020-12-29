@@ -106,6 +106,12 @@ class Catalog {
         })
     }
 
+    getCategories() {
+        return new Promise(resolve => {
+            resolve(this.media.categories)
+        })
+    }
+
     getSongs(songIds) {
         return new Promise(resolve => {
             if (!songIds) {

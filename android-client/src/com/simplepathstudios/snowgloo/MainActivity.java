@@ -172,42 +172,7 @@ public class MainActivity extends AppCompatActivity{
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                Bundle bundle = new Bundle();
-                boolean skipArtistList = false;
-                switch (menuItem.getItemId()) {
-                    case R.id.anime_list:
-                        bundle.putString("Category","Anime");
-                        break;
-                    case R.id.artist_list:
-                        bundle.putString("Category","Artist");
-                        break;
-                    case R.id.compilation_list:
-                        bundle.putString("Artist","Compilation");
-                        skipArtistList = true;
-                        break;
-                    case R.id.disney_list:
-                        bundle.putString("Artist","Disney");
-                        skipArtistList = true;
-                        break;
-                    case R.id.game_list:
-                        bundle.putString("Category","Game");
-                        break;
-                    case R.id.movie_list:
-                        bundle.putString("Artist","Movie");
-                        skipArtistList = true;
-                        break;
-
-                }
-                if(bundle.size() > 0){
-                    if(skipArtistList){
-                        navController.navigate(R.id.artist_view_fragment,bundle);
-                    } else {
-                        navController.navigate(R.id.artist_list_fragment,bundle);
-                    }
-
-                } else {
-                    navController.navigate(menuItem.getItemId());
-                }
+                navController.navigate(menuItem.getItemId());
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             }

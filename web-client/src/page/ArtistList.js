@@ -20,11 +20,13 @@ export default class AlbumList extends Component {
 
     render() {
         if (!this.state.artists) {
-            return "No entries found for this category"
+            return 'No entries found for this category'
         }
         return (
             <div>
-                <h1>{this.props.$stateParams.category} ({this.state.artists.length})</h1>
+                <h1>
+                    {this.props.$stateParams.category} ({this.state.artists.length})
+                </h1>
                 <div className="list-grid">
                     {this.state.artists.map((artist, artistIndex) => {
                         return <Comp.ArtistListItem key={artistIndex} artist={artist} />

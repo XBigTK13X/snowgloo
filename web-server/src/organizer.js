@@ -265,6 +265,8 @@ class Organizer {
             }
             for (let category of this.categories.list) {
                 this.categories.lookup[category].artists.list = util.alphabetize(this.categories.lookup[category].artists.list)
+                this.categories.lookup[category].Kind = this.categories.lookup[category].artists.list.length === 1 ? 'ArtistView' : 'ArtistList'
+                this.categories.lookup[category].Name = category
             }
             resolve()
         })
