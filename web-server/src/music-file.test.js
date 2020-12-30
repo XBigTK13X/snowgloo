@@ -81,4 +81,16 @@ describe('MusicFile', function() {
             assert.equal(SmashBrosSong.DisplayAlbum, 'Fatal Fury')
         })
     })
+    describe('Messy File Names', function() {
+        it('should safely encode percent sign', function() {
+            const FirstMessySong = parseFile('Anime/K-On/Image Songs - Main Cast Part 1 (2013.06)/008 - Mokujise Happy 100% - 709b6c5b53e298b4c0e92fe2b613d5cf.adjusted.mp3')
+            let hasPercent = FirstMessySong.AudioUrl.indexOf('100% ')
+            assert.equal(hasPercent, -1)
+        })
+        it('should safely encode a hash character', function() {
+            const SecondMessySong = parseFile('Anime/K-On/K-ON Commerical Breaks (2013.14)/025 - Subtitle Track #25 - 5b8f446128ea1b0e32b5fa6f37e03b88.adjusted.mp3')
+            let hasHash = SecondMessySong.AudioUrl.indexOf('#')
+            assert.equal(hasHash, -1)
+        })
+    })
 })

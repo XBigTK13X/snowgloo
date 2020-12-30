@@ -11,7 +11,7 @@ class MusicFile {
         const parts = path.split('/')
 
         this.LocalFilePath = path
-        this.AudioUrl = `${settings.mediaServer}${path.replace(/#/g, '%23')}`
+        this.AudioUrl = `${settings.mediaServer}${encodeURI(path).replace(/#/g, '%23')}`
         this.Kind = path.replace(settings.mediaRoot, '').split('/')[1]
         this.SubKind = null
         this.CoverArt = null
