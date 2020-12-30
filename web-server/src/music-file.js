@@ -29,20 +29,21 @@ class MusicFile {
         this.DisplayAlbum = this.Album
         this.Artist = parts[parts.length - 3]
         this.DisplayArtist = this.Artist
-        if (this.Kind === 'Artist') {
-            if (this.Artist === 'Single' || this.Artist === 'Collab' || this.Artist === 'Special') {
-                this.SubKind = parts[parts.length - 3]
-                this.Artist = parts[parts.length - 4]
-                this.DisplayArtist = this.Artist
-            }
+        if (this.Artist === 'Single' || this.Artist === 'Collab' || this.Artist === 'Special') {
+            this.SubKind = parts[parts.length - 3]
+            this.Artist = parts[parts.length - 4]
+            this.DisplayArtist = this.Artist
         }
         let trackAndTitle = parts[parts.length - 1].split('.')
+        //Remove the 'adjusted' keyword and file extension
         trackAndTitle.pop()
         trackAndTitle.pop()
         trackAndTitle = trackAndTitle.join('.')
         this.Title = trackAndTitle
+        //Everything that has been fingerprinted should have at least one dash
         if (trackAndTitle.includes(' - ')) {
             let titleParts = trackAndTitle.split(' - ')
+            this.TitleParts = titleParts
             this.Id = titleParts.pop()
             if (titleParts[0].includes('D')) {
                 let discAndTrackParts = titleParts[0].split('D')[1].split('T')
@@ -55,10 +56,9 @@ class MusicFile {
                 this.Track = parseInt(titleParts.shift(), 10)
                 this.Title = titleParts.join(' - ')
             }
-            if (this.Kind === 'Compilation') {
-                let hasOriginalArtist = titleParts.length === 2
-                this.Title = titleParts[0]
-                this.DisplayArtist = hasOriginalArtist ? titleParts[1] : this.Album
+            if (titleParts.length > 1) {
+                this.DisplayArtist = titleParts.pop()
+                this.Title = titleParts.join(' - ')
             }
             if (this.DisplayAlbum.includes('Vol. ')) {
                 let albumParts = this.DisplayAlbum.split(' - ')
@@ -72,10 +72,7 @@ class MusicFile {
         this.Title = this.Title.trim()
         this.DisplayAlbum = this.DisplayAlbum.trim()
         this.DisplayArtist = this.DisplayArtist.trim()
-        this.SearchTerms = util.searchify(this.Title)
-        if (this.Kind === 'Compilation') {
-            this.SearchTerms += util.searchify(this.DisplayArtist)
-        }
+        this.SearchTerms = util.searchify(this.Title + this.DisplayArtist)
         this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
