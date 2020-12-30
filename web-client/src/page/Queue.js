@@ -4,7 +4,7 @@ import { faRandom, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from '../comp'
 
-export default class Home extends Component {
+export default class Queue extends Component {
     constructor(props) {
         super(props)
         this.state = {

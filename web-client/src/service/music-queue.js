@@ -34,15 +34,18 @@ class MusicQueue {
         }
         return new Promise(resolve => {
             let found = false
+            let index = 0
             for (let entry of this.queue.songs) {
                 if (entry.Id === song.Id) {
                     found = true
+                    return resolve(index)
                 }
+                index++
             }
             if (!found) {
                 this.queue.songs.push(song)
             }
-            resolve()
+            resolve(index)
         })
     }
 
@@ -51,8 +54,7 @@ class MusicQueue {
             return null
         }
         if (this.queue.currentIndex >= this.queue.songs.length) {
-            this.currentIndex = null
-            return null
+            this.queue.currentIndex = 0
         }
         return this.queue.songs[this.queue.currentIndex]
     }

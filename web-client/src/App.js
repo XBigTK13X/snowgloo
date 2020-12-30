@@ -85,11 +85,13 @@ export default class App extends Component {
     }
 
     playMedia(song) {
-        service.musicQueue.add(song)
-        service.musicQueue.serverWrite().then(queue => {
-            this.setState({
-                song,
-                queue,
+        service.musicQueue.add(song).then(songIndex => {
+            service.musicQueue.setCurrent(songIndex)
+            service.musicQueue.serverWrite().then(queue => {
+                this.setState({
+                    song,
+                    queue,
+                })
             })
         })
     }
