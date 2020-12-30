@@ -42,16 +42,19 @@ export default class PlaylistList extends Component {
     }
 
     selectPlaylist(event) {
+        let targetPlaylist = this.state.playlists.filter(x => {
+            return x.id === event.target.value
+        })[0]
         this.setState({
             playlistName: '',
-            selectedPlaylistId: event.target.value,
-            selectedPlaylistName: event.target.name,
+            selectedPlaylistId: targetPlaylist.id,
+            selectedPlaylistName: targetPlaylist.name,
         })
     }
 
     savePlaylist() {
         let playlist = {
-            name: this.state.playlistName !== '' ? this.state.playlistName : this.state.selectedPlaylistName,
+            name: this.state.selectedPlaylistName !== null ? this.state.selectedPlaylistName : this.state.playlistName,
             id: this.state.selectedPlaylistId === 'null' ? null : this.state.selectedPlaylistId,
             songs: this.props.queuedSongs,
         }
