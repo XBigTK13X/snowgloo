@@ -1,6 +1,7 @@
 package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +33,14 @@ public class NowPlayingFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         songTitle = view.findViewById(R.id.song_title);
+        songTitle.setSelected(true);
+        songTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         songAlbum = view.findViewById(R.id.song_album);
+        songAlbum.setSelected(true);
+        songAlbum.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         songArtist = view.findViewById(R.id.song_artist);
+        songArtist.setSelected(true);
+        songArtist.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         coverArt = view.findViewById(R.id.cover_art);
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override

@@ -43,6 +43,7 @@ public class ObservableMusicQueue {
     private RepeatMode repeatMode;
     private Bitmap currentAlbumArt;
 
+    private String preloadedCoverArtUrl = null;
     private Target coverArtTarget = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -343,8 +344,14 @@ public class ObservableMusicQueue {
         MusicFile currentSong = queue.getCurrent();
         if(currentSong != null){
             if(currentSong.CoverArt != null && !currentSong.CoverArt.isEmpty()){
-                Picasso.get().load(currentSong.CoverArt).into(coverArtTarget);
+                if(preloadedCoverArtUrl != currentSong.CoverArt){
+                    preloadedCoverArtUrl = currentSong.CoverArt;
+                    Picasso.get().load(currentSong.CoverArt).into(coverArtTarget);
+                }
             }
+        }
+        for(Observer<MusicQueue> observer: observers) {
+            observer.onChanged(queue);
         }
     }
 
