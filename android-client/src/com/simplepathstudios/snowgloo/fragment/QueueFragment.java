@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.adapter.SongAdapter;
@@ -112,6 +113,7 @@ public class QueueFragment extends Fragment {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 adapter.setData(musicQueue.songs);
+                MainActivity.getInstance().setActionBarSubtitle(musicQueue.songs.size() + " songs");
                 listView.setAdapter(adapter);
             }
         });

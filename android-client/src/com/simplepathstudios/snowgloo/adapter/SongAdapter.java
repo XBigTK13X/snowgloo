@@ -68,17 +68,21 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(SongAdapter.ViewHolder holder, int position) {
         holder.musicFile = this.songs.get(position);
-        if(holder.musicFile.CoverArt != null && !holder.musicFile.CoverArt.isEmpty()){
-            Picasso.get().load(holder.musicFile.CoverArt).into(holder.coverArt, new Callback() {
-                @Override
-                public void onSuccess() {
-                    holder.coverArt.setVisibility(View.VISIBLE);
-                }
+        if(kind != Kind.QUEUE){
+            if(holder.musicFile.CoverArt != null && !holder.musicFile.CoverArt.isEmpty()){
+                Picasso.get().load(holder.musicFile.CoverArt).into(holder.coverArt, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        holder.coverArt.setVisibility(View.VISIBLE);
+                    }
 
-                @Override
-                public void onError(Exception e) {
-                }
-            });
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                });
+            }
+        } else {
+            holder.coverArt.setVisibility(View.GONE);
         }
         TextView title = holder.titleText;
         title.setText(holder.musicFile.Title);
