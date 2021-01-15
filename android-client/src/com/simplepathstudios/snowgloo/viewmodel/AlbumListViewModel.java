@@ -1,7 +1,5 @@
 package com.simplepathstudios.snowgloo.viewmodel;
 
-import android.util.Log;
-
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -9,7 +7,6 @@ import com.simplepathstudios.snowgloo.LoadingIndicator;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.AlbumList;
-import com.simplepathstudios.snowgloo.api.model.ArtistList;
 
 import retrofit2.Call;
 import retrofit2.Callback;

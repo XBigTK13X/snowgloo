@@ -122,7 +122,7 @@ public class PlaylistViewFragment extends Fragment {
                     }
                 });
                 adapter.setData(playlist.songs);
-                listElement.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
             }
         });
         playlistViewModel.load(playlistId);

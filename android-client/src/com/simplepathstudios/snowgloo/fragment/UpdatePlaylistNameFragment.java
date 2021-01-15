@@ -56,7 +56,7 @@ public class UpdatePlaylistNameFragment extends DialogFragment {
 
                                 @Override
                                 public void onFailure(Call call, Throwable t) {
-                                    Util.log(TAG, "Unable to save playlist");
+                                    Util.toast("Unable to save playlist");
                                 }
                             });
                         }

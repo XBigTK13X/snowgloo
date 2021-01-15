@@ -21,6 +21,17 @@
         android:scaleType="fitXY"
         tools:visibility="invisible" />
 
+    <ImageView
+        android:id="@+id/handle"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_gravity="center_vertical|end"
+        android:layout_weight=".5"
+        android:contentDescription="Reorder handle"
+        android:scaleType="center"
+        android:src="@drawable/ic_list_black_24dp"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,14 +89,4 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/handle"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_gravity="center_vertical|end"
-        android:layout_weight=".5"
-        android:contentDescription="Reorder handle"
-        android:scaleType="center"
-        android:src="@drawable/ic_list_black_24dp"
-        android:visibility="gone" />
 </LinearLayout>

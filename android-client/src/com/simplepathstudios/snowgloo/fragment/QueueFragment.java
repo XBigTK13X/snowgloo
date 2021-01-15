@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,16 +26,15 @@ import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 public class QueueFragment extends Fragment {
     static final String TAG = "QueueFragment";
+    static final Integer ITEM_CENTER_OFFSET = 4;
 
     private SongAdapter adapter;
     private ObservableMusicQueue observableMusicQueue;
     private LinearLayoutManager layoutManager;
-    private NestedScrollView scrollView;
     private RecyclerView listView;
     private MenuItem clearQueueButton;
     private MenuItem shuffleQueueButton;
     private MenuItem changeRepeatModeButton;
-    private Integer requestedScrollPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,11 +91,23 @@ public class QueueFragment extends Fragment {
         return inflater.inflate(R.layout.queue_fragment, container, false);
     }
 
+    private void scrollTo(Integer itemIndex){
+        if(itemIndex != null && adapter.getItemCount() > itemIndex) {
+            // TODO This is a workaround to ensure the recyclerview is populated before scrolling.
+            // There should be a better way, but this is the only thing I could get it working.
+            listView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    layoutManager.scrollToPosition(itemIndex);
+                }
+            }, 0);
+        }
+    }
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        scrollView = view.findViewById(R.id.scroll_view);
         listView = view.findViewById(R.id.music_queue);
 
         adapter = new SongAdapter(listView);
@@ -105,30 +115,17 @@ public class QueueFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getActivity());
         listView.setLayoutManager(layoutManager);
         Bundle arguments = getArguments();
-        if(arguments != null){
-            requestedScrollPosition = arguments.getInt("ScrollToItemIndex");
-        }
         observableMusicQueue = ObservableMusicQueue.getInstance();
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                adapter.setData(musicQueue.songs);
-                MainActivity.getInstance().setActionBarSubtitle(musicQueue.songs.size() + " songs");
-                listView.setAdapter(adapter);
+                MainActivity.getInstance().setActionBarSubtitle(musicQueue.getSize() + " songs");
+                adapter.setData(musicQueue.getAll());
+                adapter.notifyDataSetChanged();
             }
         });
-
-        if(requestedScrollPosition != null && adapter.getItemCount() > requestedScrollPosition) {
-            // TODO This is a workaround to ensure the recyclerview is populated before scrolling.
-            // There should be a better way, but this is the only way I could get it working.
-            listView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    View child = listView.getChildAt(requestedScrollPosition);
-                    scrollView.scrollTo(0, (int)child.getY());
-                    requestedScrollPosition = null;
-                }
-            }, 0);
+        if(arguments != null){
+            scrollTo(arguments.getInt("ScrollToItemIndex") + ITEM_CENTER_OFFSET);
         }
     }
 }

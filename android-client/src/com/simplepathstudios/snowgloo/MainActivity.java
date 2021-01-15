@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -199,7 +197,7 @@ public class MainActivity extends AppCompatActivity{
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(queue.songs.size() > 0){
+                if(queue.getSize() > 0){
                     if(queue.currentIndex == null){
                         observableMusicQueue.setCurrentIndex(0);
                     }

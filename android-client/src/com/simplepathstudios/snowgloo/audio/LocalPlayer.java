@@ -1,7 +1,6 @@
 package com.simplepathstudios.snowgloo.audio;
 
 import android.media.MediaPlayer;
-import android.util.Log;
 
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;

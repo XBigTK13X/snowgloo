@@ -1,33 +1,22 @@
 package com.simplepathstudios.snowgloo.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.R;
-import com.simplepathstudios.snowgloo.adapter.ArtistAdapter;
 import com.simplepathstudios.snowgloo.adapter.CategoryAdapter;
-import com.simplepathstudios.snowgloo.api.model.ArtistList;
 import com.simplepathstudios.snowgloo.api.model.CategoryList;
-import com.simplepathstudios.snowgloo.api.model.MusicArtist;
 import com.simplepathstudios.snowgloo.api.model.MusicCategory;
-import com.simplepathstudios.snowgloo.api.model.MusicQueue;
-import com.simplepathstudios.snowgloo.viewmodel.ArtistListViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.CategoryListViewModel;
-import com.simplepathstudios.snowgloo.viewmodel.InterDestinationViewModel;
 
 import java.util.ArrayList;
 

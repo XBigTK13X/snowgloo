@@ -2,7 +2,6 @@ package com.simplepathstudios.snowgloo.viewmodel;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import androidx.lifecycle.Observer;
 
@@ -17,7 +16,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -160,7 +158,7 @@ public class ObservableMusicQueue {
                 queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
                 if(queue.currentIndex < 0){
                     if(repeatMode == RepeatMode.All){
-                        queue.currentIndex = queue.songs.size() - 1;
+                        queue.currentIndex = queue.getSize() - 1;
                     }
                     else {
                         queue.currentIndex = null;
@@ -178,11 +176,11 @@ public class ObservableMusicQueue {
 
     public boolean nextIndex(){
         boolean result = true;
-        if(queue.songs != null && queue.currentIndex != null){
+        if(queue.isReady() && queue.currentIndex != null){
             if(repeatMode != RepeatMode.One) {
                 queue.currentIndex += 1;
                 queue.updateReason = MusicQueue.UpdateReason.TRACK_CHANGED;
-                if (queue.currentIndex > queue.songs.size() - 1) {
+                if (queue.currentIndex > queue.getSize() - 1) {
                     if (repeatMode == RepeatMode.All) {
                         queue.currentIndex = 0;
                     } else {
@@ -210,8 +208,8 @@ public class ObservableMusicQueue {
     }
 
     public Integer getIndex(MusicFile musicFile){
-        for(int ii =0 ; ii < queue.songs.size(); ii++){
-            if(queue.songs.get(ii).Id.equalsIgnoreCase(musicFile.Id)){
+        for(int ii = 0 ; ii < queue.getSize(); ii++){
+            if(queue.getSong(ii).Id.equalsIgnoreCase(musicFile.Id)){
                 return ii;
             }
         }
@@ -219,7 +217,7 @@ public class ObservableMusicQueue {
     }
 
     public void removeItem(int position){
-        queue.songs.remove(position);
+        queue.remove(position);
         if(queue.currentIndex != null){
             if(position < queue.currentIndex){
                 queue.currentIndex--;
@@ -234,9 +232,9 @@ public class ObservableMusicQueue {
     }
 
     public void moveItem(MusicFile item, int fromPosition, int toPosition) {
-        if(fromPosition != toPosition && toPosition < queue.songs.size()){
-            queue.songs.remove(fromPosition);
-            queue.songs.add(toPosition,item);
+        if(fromPosition != toPosition && toPosition < queue.getSize()){
+            queue.remove(fromPosition);
+            queue.add(item, toPosition);
             if(queue.currentIndex != null){
                 if(queue.currentIndex == fromPosition){
                     queue.currentIndex = toPosition;
@@ -260,21 +258,11 @@ public class ObservableMusicQueue {
         }
         int foundCount = 0;
         for(MusicFile item : items){
-            boolean found = false;
-            for(MusicFile song : queue.songs){
-                if(song.Id.equalsIgnoreCase(item.Id)) {
-                    found = true;
-                    foundCount++;
-                    break;
-                }
-            }
-            if (!found) {
-                queue.songs.add(item);
-            }
+            foundCount += queue.add(item) ? 0 : 1;
         }
 
         queue.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
-        queue.currentIndex = queue.currentIndex == null ? queue.songs.size() - items.size():queue.currentIndex;
+        queue.currentIndex = queue.currentIndex == null ? queue.getSize() - items.size():queue.currentIndex;
         notifyObservers();
         if(foundCount == 0){
             Util.toast("All songs added to queue.");
@@ -291,21 +279,10 @@ public class ObservableMusicQueue {
         if (item == null) {
             return;
         }
-        boolean found = false;
-        for(MusicFile song : queue.songs) {
-            if(song.Id.equalsIgnoreCase(item.Id)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            queue.songs.add(item);
-        }
-
-        queue.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
-        queue.currentIndex = queue.currentIndex == null ? queue.songs.size() - 1 : queue.currentIndex;
-        notifyObservers();
-        if(!found){
+        if(queue.add(item)) {
+            queue.updateReason = MusicQueue.UpdateReason.ITEM_ADDED;
+            queue.currentIndex = queue.currentIndex == null ? queue.getSize() - 1 : queue.currentIndex;
+            notifyObservers();
             Util.toast("Added to the queue.");
         } else {
             Util.toast("Not added to queue because it is already there.");
@@ -315,7 +292,7 @@ public class ObservableMusicQueue {
     public void shuffle(){
         LoadingIndicator.setLoading(true);
         queue.currentIndex = 0;
-        Collections.shuffle(queue.songs);
+        queue.shuffle();
         queue.playerState = MusicQueue.PlayerState.IDLE;
         queue.updateReason = MusicQueue.UpdateReason.SHUFFLE;
         notifyObservers();
@@ -356,21 +333,15 @@ public class ObservableMusicQueue {
     }
 
     public Call saveQueueAsPlaylist(String playlistName) {
-        MusicPlaylist playlist = new MusicPlaylist();
-        playlist.name = playlistName;
-        playlist.songs = queue.songs;
-        if(playlist.songs.size() > 0){
-            return ApiClient.getInstance().savePlaylist(playlist);
-        }
-        return null;
+        return updatePlaylistFromQueue(null, playlistName);
     }
 
     public Call updatePlaylistFromQueue(String playlistId, String playlistName){
-        if(queue.songs.size() > 0){
+        if(queue.getSize() > 0){
             MusicPlaylist playlist = new MusicPlaylist();
             playlist.name = playlistName;
             playlist.id = playlistId;
-            playlist.songs = queue.songs;
+            playlist.songs = queue.getAll();
             return ApiClient.getInstance().savePlaylist(playlist);
         }
         return null;

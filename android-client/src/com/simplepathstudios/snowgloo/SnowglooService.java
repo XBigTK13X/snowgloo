@@ -92,16 +92,20 @@ public class SnowglooService extends MediaBrowserServiceCompat {
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
         MusicQueue queue = ObservableMusicQueue.getInstance().getQueue();
         ArrayList<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
-        for(MusicFile song : queue.songs){
-            MediaDescriptionCompat mediaDescription = new MediaDescriptionCompat.Builder()
-                    .setIconUri(Uri.parse(song.CoverArt))
-                    .setTitle(song.Title)
-                    .setSubtitle(song.DisplayAlbum + " - " + song.DisplayArtist)
-                    .build();
-            MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
-            mediaItems.add(mediaItem);
+        MusicFile song = queue.getCurrent();
+        if(song == null) {
+            result.sendResult(null);
+            return;
         }
+        MediaDescriptionCompat mediaDescription = new MediaDescriptionCompat.Builder()
+                .setIconUri(Uri.parse(song.CoverArt))
+                .setTitle(song.Title)
+                .setSubtitle(song.DisplayAlbum + " - " + song.DisplayArtist)
+                .build();
+        MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+        mediaItems.add(mediaItem);
         result.sendResult(mediaItems);
+
     }
 
     public void updatePlaybackState(boolean isPlaying){
