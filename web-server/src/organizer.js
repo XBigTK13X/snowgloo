@@ -268,6 +268,7 @@ class Organizer {
                 this.categories.lookup[category].Kind = this.categories.lookup[category].artists.list.length === 1 ? 'ArtistView' : 'ArtistList'
                 this.categories.lookup[category].Name = category
             }
+            this.categories.list = this.categories.list.sort()
             resolve()
         })
     }

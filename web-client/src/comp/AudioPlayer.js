@@ -20,14 +20,19 @@ const STEP_MILLISECONDS = 400 //Originally 15
 export default class AudioPlayer extends Component {
     constructor(props) {
         super(props)
+        let storedVolume = localStorage.getItem('snowgloo-volume')
+        if (storedVolume !== null) {
+            storedVolume = parseInt(storedVolume, 10)
+        } else {
+            storedVolume = 0
+        }
         this.state = {
             sound: null,
             playerState: STATE.PREPARE,
             song: null,
             progressValue: 0,
             currentPos: '0:00',
-            // TODO Save this in localStorage
-            volume: 100,
+            volume: storedVolume,
             isMute: false,
         }
         this.stepInterval = null
@@ -80,13 +85,14 @@ export default class AudioPlayer extends Component {
             const { song, format = ['wav', 'mp3', 'flac', 'aac', 'm4a'] } = this.props
 
             let sound = new Howl({
-                src:[song.AudioUrl],
+                src: [song.AudioUrl],
                 format,
                 autoplay: true,
                 html5: true,
             })
 
-            sound.volume(this.state.volume)
+            let targetVolume = Math.round(this.state.volume) / 100
+            sound.volume(targetVolume)
 
             sound.once('load', this.readyToPlay)
 
@@ -104,7 +110,7 @@ export default class AudioPlayer extends Component {
                 playerState: STATE.PREPARE,
                 progressValue: 0,
                 currentPos: '0:00',
-                song
+                song,
             })
         })
     }
@@ -196,8 +202,10 @@ export default class AudioPlayer extends Component {
     }
 
     changeVolume = volume => {
+        let targetVolume = Math.round(volume) / 100
+        this.state.sound.volume(targetVolume)
 
-        this.state.sound.volume(Math.round(volume) / 100)
+        localStorage.setItem('snowgloo-volume', volume)
 
         this.setState({
             volume,
