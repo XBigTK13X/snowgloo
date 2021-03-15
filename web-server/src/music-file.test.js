@@ -35,7 +35,6 @@ describe('MusicFile', function() {
     })
     describe('Compilation', function() {
         const CompilationSong = parseFile('Compilation/Anime Hits (2019)/001 - Tori Kago (ED1) - Darling in the Franxx - 3ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
-        console.log({ CompilationSong })
         it('should parse metadata', function() {
             assert.equal(CompilationSong.Title, 'Tori Kago (ED1)')
             assert.equal(CompilationSong.DisplayAlbum, 'Anime Hits')
@@ -51,7 +50,7 @@ describe('MusicFile', function() {
         })
     })
     describe('Game', function() {
-        const GameSong = new MusicFile('media/trove/media/music/Game/Wii U/Rayman Legends (2013)/007 - Score Recap - 5ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
+        const GameSong = new MusicFile('Game/Wii U/Rayman Legends (2013)/007 - Score Recap - 5ec7c9cbb5c038a66f7802a3b9f6f220.adjusted.mp3')
         it('should parse metadata', function() {
             assert.equal(GameSong.Title, 'Score Recap')
             assert.equal(GameSong.DisplayAlbum, 'Rayman Legends')
@@ -91,6 +90,15 @@ describe('MusicFile', function() {
             const SecondMessySong = parseFile('Anime/K-On/K-ON Commerical Breaks (2013.14)/025 - Subtitle Track #25 - 5b8f446128ea1b0e32b5fa6f37e03b88.adjusted.mp3')
             let hasHash = SecondMessySong.AudioUrl.indexOf('#')
             assert.equal(hasHash, -1)
+        })
+    })
+    describe('No top level category', function() {
+        it('should parse info without a tertiary dir', function() {
+            const ShortPathSong = parseFile('Classical/Johann Sebastian Bach/Bradenburg Concertos/01 - Brandenburg Concerto No. 1 in F Major, BWV 1046 - I. Allegro - 2eae67b118c6190c6547e6c7c24e4c1e.adjusted.mp3')
+            assert.equal(ShortPathSong.Title, 'Brandenburg Concerto No. 1 in F Major, BWV 1046')
+            assert.equal(ShortPathSong.Album, 'Bradenburg Concertos')
+            assert.equal(ShortPathSong.Artist, 'Johann Sebastian Bach')
+            assert.equal(ShortPathSong.Kind, 'Classical')
         })
     })
 })
