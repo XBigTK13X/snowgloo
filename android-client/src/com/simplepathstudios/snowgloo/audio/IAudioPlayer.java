@@ -12,4 +12,5 @@ interface IAudioPlayer {
     Integer getSongDuration();
     void destroy();
     boolean isPlaying();
+    void setVolume(double volume);
 }

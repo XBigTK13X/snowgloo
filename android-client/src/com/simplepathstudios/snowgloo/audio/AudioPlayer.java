@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo.audio;
 
+import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -38,6 +39,7 @@ public class AudioPlayer {
 
     private AudioPlayer() {
         this.localPlayer = new LocalPlayer();
+        this.localPlayer.setVolume(SnowglooSettings.InternalMediaVolume);
         this.remotePlayer = new CastPlayer();
         if(this.remotePlayer.isCasting()){
             Util.log(TAG, "Launching with the cast player");
@@ -248,6 +250,15 @@ public class AudioPlayer {
                 this.stop();
             }
         } catch(Exception e){
+            Util.error(TAG, e);
+        }
+    }
+
+    public void setVolume(double volume){
+        try {
+            currentPlayer.setVolume(volume);
+        }
+        catch(Exception e){
             Util.error(TAG, e);
         }
     }

@@ -18,8 +18,10 @@ public class SettingsViewModel extends ViewModel {
         settings.Preferences = preferences;
         settings.Username = settings.Preferences.getString("Username",null);
         settings.ServerUrl = settings.Preferences.getString("ServerUrl", SnowglooSettings.ProdServerUrl);
-         settings.EnableDebugLog = settings.Preferences.getBoolean("EnableDebugLog", false);
+        settings.EnableDebugLog = settings.Preferences.getBoolean("EnableDebugLog", false);
+        settings.InternalMediaVolume = settings.Preferences.getFloat("InternalMediaVolume", 1.0f);
         SnowglooSettings.EnableDebugLog = settings.EnableDebugLog;
+        SnowglooSettings.InternalMediaVolume = settings.InternalMediaVolume;
         Data.setValue(settings);
     }
 
@@ -48,13 +50,24 @@ public class SettingsViewModel extends ViewModel {
         editor.putBoolean("EnableDebugLog", enabled);
         editor.commit();
         Data.setValue(settings);
+        SnowglooSettings.EnableDebugLog = settings.EnableDebugLog;
     }
 
+    public void setInternalMediaVolume(double volume){
+        Settings settings = Data.getValue();
+        settings.InternalMediaVolume = (float)volume;
+        SharedPreferences.Editor editor = settings.Preferences.edit();
+        editor.putFloat("InternalMediaVolume", (float)volume);
+        editor.commit();
+        Data.setValue(settings);
+        SnowglooSettings.InternalMediaVolume = settings.InternalMediaVolume;
+    }
 
     public class Settings {
         public String Username;
         public String ServerUrl;
         public SharedPreferences Preferences;
         public boolean EnableDebugLog;
+        public double InternalMediaVolume;
     }
 }

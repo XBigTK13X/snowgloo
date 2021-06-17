@@ -54,6 +54,13 @@ public class LocalPlayer implements IAudioPlayer {
     }
 
     @Override
+    public void setVolume(double volume) {
+        if(media != null){
+            media.setVolume((float)volume, (float)volume);
+        }
+    }
+
+    @Override
     public void play(MusicFile musicFile, int seekPosition) {
         if(musicFile != null){
             try{

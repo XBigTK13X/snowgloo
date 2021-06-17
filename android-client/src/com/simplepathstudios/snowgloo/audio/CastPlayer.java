@@ -54,6 +54,13 @@ public class CastPlayer implements IAudioPlayer {
     }
 
     @Override
+    public void setVolume(double volume) {
+        if(media != null) {
+            media.setStreamVolume(volume);
+        }
+    }
+
+    @Override
     public void play(MusicFile musicFile, int seekPosition) {
         try{
             Util.log(TAG, "play " +musicFile.Id + " at position "+seekPosition);

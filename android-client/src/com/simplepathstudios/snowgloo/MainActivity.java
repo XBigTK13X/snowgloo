@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity{
     private TextView seekTime;
     private TextView audioControlsNowPlaying;
     private NavDestination currentLocation;
+    private double lastVolume;
 
     private AudioPlayer audioPlayer;
     private Handler seekHandler;
@@ -105,6 +107,10 @@ public class MainActivity extends AppCompatActivity{
                 }
                 else {
                     ApiClient.retarget(settings.ServerUrl, settings.Username);
+                }
+                if(settings.InternalMediaVolume != lastVolume){
+                    AudioPlayer.getInstance().setVolume(settings.InternalMediaVolume);
+                    lastVolume = settings.InternalMediaVolume;
                 }
             }
         });

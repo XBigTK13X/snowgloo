@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -19,6 +20,7 @@ import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.ServerInfo;
+import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.ServerInfoViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
@@ -35,6 +37,9 @@ public class OptionsFragment extends Fragment {
     private TextView userText;
     private Button debugLogToggle;
     private TextView debugLogStatus;
+    private TextView volumeText;
+    private SeekBar volumeSlider;
+    private String lastServer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -46,21 +51,42 @@ public class OptionsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        volumeText = view.findViewById(R.id.volume_text);
+        volumeSlider = view.findViewById(R.id.volume_slider);
         prodRadio = view.findViewById(R.id.prod_server_radio);
         devRadio = view.findViewById(R.id.dev_server_radio);
+
+        volumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    Log.d(TAG, "Internal Volume Progress "+((double)progress)/100.0);
+                    settingsViewModel.setInternalMediaVolume(((double)progress)/100.0);
+                }
+            }
+        });
 
         settingsViewModel = new ViewModelProvider(getActivity()).get(SettingsViewModel.class);
         settingsViewModel.Data.observe(getViewLifecycleOwner(), new Observer<SettingsViewModel.Settings>() {
             @Override
             public void onChanged(SettingsViewModel.Settings settings) {
-                ObservableMusicQueue.getInstance().load();
-                if(settings.ServerUrl.equalsIgnoreCase(SnowglooSettings.DevServerUrl)){
-                    prodRadio.setChecked(false);
-                    devRadio.setChecked(true);
-                } else if(settings.ServerUrl != null){
-                    prodRadio.setChecked(true);
-                    devRadio.setChecked(false);
+                if(lastServer == null || !lastServer.equalsIgnoreCase(settings.ServerUrl)) {
+                    ObservableMusicQueue.getInstance().load();
+                    if (settings.ServerUrl.equalsIgnoreCase(SnowglooSettings.DevServerUrl)) {
+                        prodRadio.setChecked(false);
+                        devRadio.setChecked(true);
+                    } else if (settings.ServerUrl != null) {
+                        prodRadio.setChecked(true);
+                        devRadio.setChecked(false);
+                    }
+                    lastServer = settings.ServerUrl;
                 }
+                volumeSlider.setProgress((int)(100.0 * settings.InternalMediaVolume));
+                volumeText.setText("Adjust music volume below. Currently at " + (int)(100.0 * settings.InternalMediaVolume) + "%");
                 SnowglooSettings.EnableDebugLog = settings.EnableDebugLog;
                 debugLogStatus.setText("Debug logging is "+(SnowglooSettings.EnableDebugLog ? "enabled" : "disabled"));
             }

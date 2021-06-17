@@ -6,6 +6,21 @@
     android:padding="20dp">
 
     <TextView
+        android:id="@+id/volume_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Adjust music volume" />
+
+    <SeekBar
+        android:id="@+id/volume_slider"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:progressDrawable="@drawable/volume_bar_progress"
+        android:thumb="@drawable/volume_bar_thumb"
+        android:layout_margin="5dp"/>
+
+    <TextView
         android:id="@+id/textView5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
