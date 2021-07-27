@@ -40,6 +40,7 @@ public class OptionsFragment extends Fragment {
     private TextView volumeText;
     private SeekBar volumeSlider;
     private String lastServer;
+    private Button enableSimpleUIModeButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -157,6 +158,14 @@ public class OptionsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 settingsViewModel.setDebugLog(!SnowglooSettings.EnableDebugLog);
+            }
+        });
+
+        enableSimpleUIModeButton = view.findViewById(R.id.enable_simple_ui_mode_button);
+        enableSimpleUIModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                settingsViewModel.setSimpleUIMode(true);
             }
         });
     }

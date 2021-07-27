@@ -68,6 +68,10 @@ public class ObservableMusicQueue {
         repeatMode = RepeatMode.None;
     }
 
+    public void setRepeatMode(RepeatMode repeatMode) {
+        repeatMode = repeatMode;
+    }
+
     public void cycleRepeatMode(){
         switch (repeatMode){
             case None:

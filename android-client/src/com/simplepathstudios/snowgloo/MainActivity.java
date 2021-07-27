@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -40,7 +40,7 @@ import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
     private final int SEEK_BAR_UPDATE_MILLISECONDS = 350;
@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity{
     private CastContext castContext;
     private NavController navController;
     private NavigationView navigationView;
+    private LinearLayout mainLayout;
+    private LinearLayout simpleMainLayout;
 
     private SettingsViewModel settingsViewModel;
     private ObservableMusicQueue observableMusicQueue;
@@ -71,19 +73,20 @@ public class MainActivity extends AppCompatActivity{
     private TextView audioControlsNowPlaying;
     private NavDestination currentLocation;
     private double lastVolume;
+    private ImageButton simpleUiMusicButton;
 
     private AudioPlayer audioPlayer;
     private Handler seekHandler;
 
-    public CastContext getCastContext(){
+    public CastContext getCastContext() {
         return castContext;
     }
 
-    public void setActionBarTitle(String title){
+    public void setActionBarTitle(String title) {
         getSupportActionBar().setTitle(title);
     }
 
-    public void setActionBarSubtitle(String subtitle){
+    public void setActionBarSubtitle(String subtitle) {
         getSupportActionBar().setSubtitle(subtitle);
     }
 
@@ -101,14 +104,13 @@ public class MainActivity extends AppCompatActivity{
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {
             @Override
             public void onChanged(SettingsViewModel.Settings settings) {
-                if(settings.Username == null){
+                if (settings.Username == null) {
                     Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                     startActivity(intent);
-                }
-                else {
+                } else {
                     ApiClient.retarget(settings.ServerUrl, settings.Username);
                 }
-                if(settings.InternalMediaVolume != lastVolume){
+                if (settings.InternalMediaVolume != lastVolume) {
                     AudioPlayer.getInstance().setVolume(settings.InternalMediaVolume);
                     lastVolume = settings.InternalMediaVolume;
                 }
@@ -116,16 +118,16 @@ public class MainActivity extends AppCompatActivity{
         });
         SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();
         ApiClient.retarget(settings.ServerUrl, settings.Username);
-        Util.log(TAG,"====== Starting new app instance ======");
+        Util.log(TAG, "====== Starting new app instance ======");
         startService(new Intent(this, SnowglooService.class));
         MediaNotification.registerActivity(this);
         audioPlayer = AudioPlayer.getInstance();
-        MediaBrowser browser = new MediaBrowser(getApplicationContext(),SnowglooService.ComponentName, new MediaBrowser.ConnectionCallback(){
+        MediaBrowser browser = new MediaBrowser(getApplicationContext(), SnowglooService.ComponentName, new MediaBrowser.ConnectionCallback() {
             @Override
             public void onConnected() {
                 Util.log(TAG, "browser onConnected");
             }
-        },null);
+        }, null);
 
         browser.connect();
 
@@ -135,9 +137,13 @@ public class MainActivity extends AppCompatActivity{
         loadingView = findViewById(R.id.loading_indicator);
         LoadingIndicator.setProgressBar(loadingView);
 
-        drawerLayout = findViewById(R.id.main_activity_layout);
+        observableMusicQueue = ObservableMusicQueue.getInstance();
+
+        drawerLayout = findViewById(R.id.main_activity_drawer);
+        mainLayout = findViewById(R.id.main_activity_layout);
+        simpleMainLayout = findViewById(R.id.simple_ui_main_activity_layout);
         navigationView = findViewById(R.id.nav_view);
-        navController = Navigation.findNavController(this,R.id.nav_host_fragment);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.queue_fragment,
                 R.id.album_list_fragment,
@@ -158,14 +164,14 @@ public class MainActivity extends AppCompatActivity{
                 getSupportActionBar().setSubtitle("");
                 CharSequence name = destination.getLabel();
                 currentLocation = destination;
-                if(arguments != null && arguments.size() > 0){
+                if (arguments != null && arguments.size() > 0) {
                     String category = arguments.getString("Category");
-                    if(category != null){
+                    if (category != null) {
                         getSupportActionBar().setTitle(category);
                     } else {
                         getSupportActionBar().setTitle(name);
                     }
-                } else{
+                } else {
                     getSupportActionBar().setTitle(name);
                 }
 
@@ -183,13 +189,13 @@ public class MainActivity extends AppCompatActivity{
         });
 
         // Hide the keyboard if touch event outside keyboard (better search experience)
-        findViewById(R.id.main_activity_layout).setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.main_activity_drawer).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                if(imm != null){
+                if (imm != null) {
                     View focus = getCurrentFocus();
-                    if(focus != null){
+                    if (focus != null) {
                         imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
                     }
                 }
@@ -197,19 +203,17 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        observableMusicQueue = ObservableMusicQueue.getInstance();
-
         playButton = findViewById(R.id.play_button);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(queue.getSize() > 0){
-                    if(queue.currentIndex == null){
+                if (queue.getSize() > 0) {
+                    if (queue.currentIndex == null) {
                         observableMusicQueue.setCurrentIndex(0);
                     }
                 }
                 // Sometimes the MediaPlayer in Android crashes without any useful message. This is a janky workaround for that.
-                if(!AudioPlayer.getInstance().play()){
+                if (!AudioPlayer.getInstance().play()) {
                     AudioPlayer.getInstance().refreshLocalPlayer();
                     AudioPlayer.getInstance().play();
                 }
@@ -219,7 +223,7 @@ public class MainActivity extends AppCompatActivity{
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!AudioPlayer.getInstance().pause()){
+                if (!AudioPlayer.getInstance().pause()) {
                     AudioPlayer.getInstance().refreshLocalPlayer();
                     AudioPlayer.getInstance().pause();
                 }
@@ -244,9 +248,9 @@ public class MainActivity extends AppCompatActivity{
         audioControlsNowPlaying.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(currentLocation.getId() == R.id.now_playing_fragment){
+                if (currentLocation.getId() == R.id.now_playing_fragment) {
                     Bundle bundle = new Bundle();
-                    bundle.putInt("ScrollToItemIndex",queue.currentIndex);
+                    bundle.putInt("ScrollToItemIndex", queue.currentIndex);
                     navController.navigate(R.id.queue_fragment, bundle);
                 } else {
                     navController.navigate(R.id.now_playing_fragment);
@@ -259,16 +263,20 @@ public class MainActivity extends AppCompatActivity{
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(AudioPlayer.getInstance() != null && fromUser){
+                if (AudioPlayer.getInstance() != null && fromUser) {
                     AudioPlayer.getInstance().seekTo(progress);
                     Integer duration = AudioPlayer.getInstance().getSongDuration();
-                    if(duration != null){
-                        seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(progress), Util.songPositionToTimestamp(duration)));
+                    if (duration != null) {
+                        seekTime.setText(String.format("%s / %s", Util.songPositionToTimestamp(progress), Util.songPositionToTimestamp(duration)));
                     }
                 }
             }
@@ -278,38 +286,38 @@ public class MainActivity extends AppCompatActivity{
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(queue != null){
-                    if(AudioPlayer.getInstance().isPlaying()){
+                if (queue != null) {
+                    if (AudioPlayer.getInstance().isPlaying()) {
                         playButton.setVisibility(View.GONE);
                         pauseButton.setVisibility(View.VISIBLE);
                     } else {
                         playButton.setVisibility(View.VISIBLE);
                         pauseButton.setVisibility(View.GONE);
                     }
-                    if(queue.playerState == MusicQueue.PlayerState.PLAYING){
+                    if (queue.playerState == MusicQueue.PlayerState.PLAYING) {
                         Integer position = AudioPlayer.getInstance().getSongPosition();
                         Integer duration = AudioPlayer.getInstance().getSongDuration();
-                        if(position != null && duration != null){
+                        if (position != null && duration != null) {
                             seekBar.setMin(0);
                             seekBar.setMax(duration);
                             seekBar.setProgress(position);
                             seekBar.setVisibility(View.VISIBLE);
-                            seekTime.setText(String.format("%s / %s",Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
+                            seekTime.setText(String.format("%s / %s", Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
                         } else {
                             seekBar.setVisibility(View.INVISIBLE);
                             seekTime.setText("Loading...");
                         }
                     }
-                    if(queue.playerState == MusicQueue.PlayerState.PLAYING || queue.playerState == MusicQueue.PlayerState.PAUSED){
+                    if (queue.playerState == MusicQueue.PlayerState.PLAYING || queue.playerState == MusicQueue.PlayerState.PAUSED) {
                         seekTime.setVisibility(View.VISIBLE);
-                        if(audioControlsNowPlaying.getVisibility() == View.INVISIBLE){
+                        if (audioControlsNowPlaying.getVisibility() == View.INVISIBLE) {
                             audioControlsNowPlaying.setVisibility(View.VISIBLE);
                         }
                         String oneLineMeta = queue.getCurrent().getOneLineMetadata();
-                        if(!oneLineMeta.equalsIgnoreCase(audioControlsNowPlaying.getText().toString())){
+                        if (!oneLineMeta.equalsIgnoreCase(audioControlsNowPlaying.getText().toString())) {
                             audioControlsNowPlaying.setText(oneLineMeta);
                         }
-                        if(!audioControlsNowPlaying.isSelected()){
+                        if (!audioControlsNowPlaying.isSelected()) {
                             audioControlsNowPlaying.setSelected(true);
                             audioControlsNowPlaying.setEllipsize(TextUtils.TruncateAt.MARQUEE);
                         }
@@ -319,25 +327,51 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+        simpleUiMusicButton = findViewById(R.id.simple_ui_music_button);
+        simpleUiMusicButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                AudioPlayer audioPlayer = AudioPlayer.getInstance();
+                if(audioPlayer.isPlaying()){
+                    audioPlayer.pause();
+                } else {
+                    audioPlayer.play();
+                }
+            }
+        });
+
+        if (settings.EnableSimpleUIMode) {
+            mainLayout.setVisibility(View.GONE);
+            navigationView.setVisibility(View.GONE);
+            simpleMainLayout.setVisibility(View.VISIBLE);
+            ObservableMusicQueue.getInstance().setRepeatMode(ObservableMusicQueue.RepeatMode.All);
+        } else {
+            mainLayout.setVisibility(View.VISIBLE);
+            navigationView.setVisibility(View.VISIBLE);
+            simpleMainLayout.setVisibility(View.GONE);
+        }
+
 
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 queue = musicQueue;
-                if(queue.playerState == MusicQueue.PlayerState.PLAYING){
-                    playButton.setVisibility(View.GONE);
-                    pauseButton.setVisibility(View.VISIBLE);
-                }
-                else if (queue.playerState == MusicQueue.PlayerState.PAUSED){
-                    playButton.setVisibility(View.VISIBLE);
-                    pauseButton.setVisibility(View.GONE);
-                }
-                else if (queue.playerState == MusicQueue.PlayerState.IDLE){
-                    playButton.setVisibility(View.VISIBLE);
-                    pauseButton.setVisibility(View.GONE);
-                    seekBar.setVisibility(View.INVISIBLE);
-                    seekTime.setVisibility(View.INVISIBLE);
-                    audioControlsNowPlaying.setVisibility(View.INVISIBLE);
+                if (settings.EnableSimpleUIMode) {
+
+                } else {
+                    if (queue.playerState == MusicQueue.PlayerState.PLAYING) {
+                        playButton.setVisibility(View.GONE);
+                        pauseButton.setVisibility(View.VISIBLE);
+                    } else if (queue.playerState == MusicQueue.PlayerState.PAUSED) {
+                        playButton.setVisibility(View.VISIBLE);
+                        pauseButton.setVisibility(View.GONE);
+                    } else if (queue.playerState == MusicQueue.PlayerState.IDLE) {
+                        playButton.setVisibility(View.VISIBLE);
+                        pauseButton.setVisibility(View.GONE);
+                        seekBar.setVisibility(View.INVISIBLE);
+                        seekTime.setVisibility(View.INVISIBLE);
+                        audioControlsNowPlaying.setVisibility(View.INVISIBLE);
+                    }
                 }
             }
         });
@@ -369,7 +403,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         Util.log(TAG, "Destroying");
         audioPlayer.destroy();
