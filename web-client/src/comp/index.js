@@ -1,4 +1,4 @@
-export default {
+const components = {
     AlbumPicker: require('./AlbumPicker').default,
     AlbumListItem: require('./AlbumListItem').default,
     ArtistListItem: require('./ArtistListItem').default,
@@ -17,3 +17,5 @@ export default {
     SongPickerItem: require('./SongPickerItem').default,
     SongPicker: require('./SongPicker').default,
 }
+
+export default components;

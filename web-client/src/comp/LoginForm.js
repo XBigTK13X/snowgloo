@@ -27,7 +27,7 @@ export default class LoginForm extends Component {
                 {this.state.users.map((user, userIndex) => {
                     return (
                         <div
-                            className="list-item-small"
+                            className="list-item-small button"
                             key={userIndex}
                             onClick={() => {
                                 this.props.login(user)

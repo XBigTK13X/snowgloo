@@ -1,6 +1,6 @@
 import pages from './page'
 
-export default [
+const routes = [
     {
         name: 'admin',
         url: '/admin',
@@ -67,3 +67,5 @@ export default [
         component: pages.RandomList,
     },
 ]
+
+export default routes

@@ -45,8 +45,10 @@ const log = (...args) =>{
     }
 }
 
-export default {
+const funcs = {
     secondsToTimeStamp,
     trackPad,
     log
 }
+
+export default funcs

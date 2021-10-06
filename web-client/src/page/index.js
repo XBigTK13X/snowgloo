@@ -1,4 +1,4 @@
-export default {
+const pages = {
     Admin: require('./Admin').default,
     AdminLogs: require('./AdminLogs').default,
     AlbumView: require('./AlbumView').default,
@@ -13,3 +13,5 @@ export default {
     Search: require('./Search').default,
     SongList: require('./SongList').default,
 }
+
+export default pages

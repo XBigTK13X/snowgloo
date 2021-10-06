@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import arrayMove from 'array-move'
+import {arrayMoveMutable} from 'array-move'
 
 class MusicQueue {
     constructor(queue) {
@@ -72,7 +72,7 @@ class MusicQueue {
     }
 
     moveItem(from, to) {
-        arrayMove.mutate(this.queue.songs, from, to)
+        arrayMoveMutable(this.queue.songs, from, to)
         if (this.queue.currentIndex != null) {
             if (this.queue.currentIndex === from) {
                 this.queue.currentIndex = to
