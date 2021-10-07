@@ -10,6 +10,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import com.simplepathstudios.snowgloo.api.model.AddToPlaylistPayload;
 import com.simplepathstudios.snowgloo.api.model.AdminLog;
 import com.simplepathstudios.snowgloo.api.model.AdminLogs;
 import com.simplepathstudios.snowgloo.api.model.AlbumList;
@@ -21,6 +22,7 @@ import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.MusicQueuePayload;
+import com.simplepathstudios.snowgloo.api.model.PlaylistAddResult;
 import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.api.model.PlaylistPayload;
 import com.simplepathstudios.snowgloo.api.model.SearchResults;
@@ -67,6 +69,9 @@ public interface ApiService {
 
     @GET("/api/playlist/view")
     Call<MusicPlaylist> getPlaylist(@Query("playlistId") String playlistId);
+
+    @POST("/api/playlist/add")
+    Call<PlaylistAddResult> addToPlaylist(@Body AddToPlaylistPayload payload);
 
     @POST("/api/admin/log")
     Call<AdminLogs> writeLog(@Body AdminLog log);

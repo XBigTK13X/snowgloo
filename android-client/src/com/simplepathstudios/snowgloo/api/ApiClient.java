@@ -4,6 +4,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.simplepathstudios.snowgloo.Util;
+import com.simplepathstudios.snowgloo.api.model.AddToPlaylistPayload;
 import com.simplepathstudios.snowgloo.api.model.AdminLog;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylist;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -100,6 +101,13 @@ public class ApiClient {
 
     public Call getPlaylists(){
         return this.httpClient.getPlaylists();
+    }
+
+    public Call addToPlaylist(String playlistId, String songId){
+        AddToPlaylistPayload payload = new AddToPlaylistPayload();
+        payload.songId = songId;
+        payload.playlistId = playlistId;
+        return this.httpClient.addToPlaylist(payload);
     }
 
     public Call log(String message){

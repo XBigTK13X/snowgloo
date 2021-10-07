@@ -115,8 +115,8 @@ class Organizer {
     }
 
     filter() {
-        return new Promise(resolve => {
-            this.files.list = this.files.list.filter(file => {
+        return new Promise((resolve) => {
+            this.files.list = this.files.list.filter((file) => {
                 if (file.includes('.jpg') || file.includes('.png') || file.includes('.jpeg')) {
                     if (!file.toLowerCase().includes('small')) {
                         this.coverArts.list.push(file)
@@ -134,8 +134,8 @@ class Organizer {
     }
 
     parseFilesToSongs() {
-        return new Promise(resolve => {
-            this.songs.list = this.files.list.map(file => {
+        return new Promise((resolve) => {
+            this.songs.list = this.files.list.map((file) => {
                 let song = new MusicFile(file)
                 if (this.depth === DEEP) {
                     if (_.has(this.songs.lookup, song.Id)) {
@@ -151,7 +151,7 @@ class Organizer {
     }
 
     sortSongs() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             this.songs.list = this.songs.list.sort((a, b) => {
                 if (a.Artist.toLowerCase() !== b.Artist.toLowerCase()) {
                     return a.Artist.toLowerCase() > b.Artist.toLowerCase() ? 1 : -1
@@ -172,7 +172,7 @@ class Organizer {
         if (this.depth == SHALLOW) {
             return Promise.resolve()
         }
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const batchSize = 8
             let promiseBatches = []
             for (let ii = 0; ii < this.songs.list.length; ii += batchSize) {
@@ -191,7 +191,7 @@ class Organizer {
             const notify = 100
             return promiseBatches
                 .reduce((m, p) => {
-                    return m.then(v => {
+                    return m.then((v) => {
                         this.rebuildCount++
                         if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount) {
                             util.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
@@ -206,7 +206,7 @@ class Organizer {
     }
 
     assignCoverArt() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             for (let coverArt of this.coverArts.list) {
                 let artFile = new MusicFile(coverArt)
                 if (!_.has(this.coverArts.lookup, artFile.AlbumSlug)) {
@@ -227,7 +227,7 @@ class Organizer {
     }
 
     organizeAlbums() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             for (let song of this.songs.list) {
                 if (!_.has(this.albums.lookup, song.AlbumSlug)) {
                     const album = new MusicAlbum(song, this.coverArts.lookup[song.AlbumSlug])
@@ -245,7 +245,7 @@ class Organizer {
     }
 
     organizeCategories() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             for (let song of this.songs.list) {
                 if (!_.has(this.categories.lookup, song.Kind)) {
                     this.categories.lookup[song.Kind] = {

@@ -60,7 +60,7 @@ export default class ArtistView extends Component {
     }
 
     componentDidMount() {
-        this.props.api.getArtist(this.props.$stateParams.artist).then(result => {
+        this.props.api.getArtist(this.props.$stateParams.artist).then((result) => {
             this.setState({
                 albums: result.albums,
                 artist: decodeURIComponent(result.artist),
@@ -77,16 +77,16 @@ export default class ArtistView extends Component {
             <div>
                 <h1>Artist - {this.state.artist}</h1>
                 <MicroModal
-                    trigger={handleOpen => (
+                    trigger={(handleOpen) => (
                         <button className="icon-button" onClick={handleOpen} title="Add to queue">
                             <FontAwesomeIcon icon={faFolderPlus} />
                         </button>
                     )}
-                    children={handleClose => (
+                    children={(handleClose) => (
                         <div>
                             <form
                                 className="dialog-checklist"
-                                onSubmit={e => {
+                                onSubmit={(e) => {
                                     e.preventDefault()
                                 }}
                             >

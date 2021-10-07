@@ -11,7 +11,7 @@ export default class ArtistList extends Component {
     }
 
     componentDidMount() {
-        this.props.api.getAlbums().then(result => {
+        this.props.api.getAlbums().then((result) => {
             this.setState({
                 albums: result.albums,
             })

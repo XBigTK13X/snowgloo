@@ -12,7 +12,7 @@ export default class AlbumView extends Component {
     }
 
     componentDidMount() {
-        this.props.api.getAlbum(this.props.$stateParams.albumSlug).then(result => {
+        this.props.api.getAlbum(this.props.$stateParams.albumSlug).then((result) => {
             this.setState({
                 album: result.album,
             })
@@ -28,7 +28,7 @@ export default class AlbumView extends Component {
                 <h1>
                     Album - {this.state.album.DisplayAlbum} from {this.state.album.DisplayArtist}
                 </h1>
-                <Comp.SongPicker addToQueue={this.props.addToQueue} songs={this.state.album.Songs} playMedia={this.props.playMedia} />
+                <Comp.SongPicker api={this.props.api} addToQueue={this.props.addToQueue} songs={this.state.album.Songs} playMedia={this.props.playMedia} />
             </div>
         )
     }

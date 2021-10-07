@@ -28,7 +28,7 @@ class Log {
 
 let instances = {}
 
-let getInstance = name => {
+let getInstance = (name) => {
     if (!_.has(instances, name)) {
         instances[name] = new Log(name)
     }

@@ -26,14 +26,14 @@ class Catalog {
     }
 
     build(force) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             util.log('Reading catalog into memory')
-            return this.database.read().then(persistedMedia => {
+            return this.database.read().then((persistedMedia) => {
                 if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
                     util.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
                     this.media = persistedMedia
                     //Need to rehydrate class instances from JSON, otherwise instance methods won't work (i.e. search)
-                    this.media.songs.list = this.media.songs.list.map(song => {
+                    this.media.songs.list = this.media.songs.list.map((song) => {
                         let result = new MusicFile().rehydrate(song)
                         this.media.songs.lookup[song.Id] = result
                         return result
@@ -54,11 +54,11 @@ class Catalog {
                     this.organizer = new Organizer(settings.mediaRoot)
                     return this.organizer
                         .shallow()
-                        .then(media => {
+                        .then((media) => {
                             this.media = { ...media }
                             return this.organizer.deep()
                         })
-                        .then(media => {
+                        .then((media) => {
                             this.media = { ...media }
                             return this.database.write(this.media)
                         })
@@ -73,7 +73,7 @@ class Catalog {
 
     search(query) {
         query = util.searchify(query)
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let results = {
                 Songs: [],
                 Artists: [],
@@ -107,19 +107,19 @@ class Catalog {
     }
 
     getCategories() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             resolve(this.media.categories)
         })
     }
 
     getSongs(songIds) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (!songIds) {
                 return resolve(this.media.songs.list)
             }
 
             return resolve(
-                songIds.map(songId => {
+                songIds.map((songId) => {
                     return this.media.songs.lookup[songId]
                 })
             )
@@ -127,7 +127,7 @@ class Catalog {
     }
 
     getArtists(category) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (!_.has(this.media.categories.lookup, category)) {
                 return null
             }
@@ -136,20 +136,20 @@ class Catalog {
     }
 
     getAlbum(albumSlug) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let album = this.media.albums.lookup[albumSlug]
             return resolve(album)
         })
     }
 
     getAlbums(artist) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (!artist) {
                 return resolve(this.media.albums)
             }
             let albums = { ...this.media.albums }
             let albumList = albums.list
-                .filter(x => {
+                .filter((x) => {
                     return albums.lookup[x].Artist === artist
                 })
                 .sort((a, b) => {
@@ -186,7 +186,7 @@ class Catalog {
     }
 
     getRandomList() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let randomCount = settings.randomListSize
             let maxAttempts = settings.randomListSize * 20
             let songs = []

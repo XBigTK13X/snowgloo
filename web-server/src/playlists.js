@@ -25,27 +25,23 @@ class Playlists {
     }
 
     build(catalog) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             this.catalog = catalog
             recurse(this.databaseRoot, (err, files) => {
                 if (files && files.length) {
-                    let readPromises = files.map(file => {
-                        let playlistId = file
-                            .split('/')
-                            .pop()
-                            .split('.')[0]
+                    let readPromises = files.map((file) => {
+                        let playlistId = file.split('/').pop().split('.')[0]
                         let database = this.getDatabase(playlistId)
                         return database.read()
                     })
-                    Promise.all(readPromises).then(playlists => {
+                    Promise.all(readPromises).then((playlists) => {
                         for (let playlist of playlists) {
                             if (!playlist.deleted) {
                                 this.playlists.lookup[playlist.id] = playlist
                                 this.playlists.list.push(playlist)
-                                
                             } else {
                                 this.deletedPlaylists.lookup[playlist.id] = playlist
-                                this.deletedPlaylists.list.push(playlist)                                
+                                this.deletedPlaylists.list.push(playlist)
                             }
                         }
                         this.playlists.list = this.playlists.list.sort((a, b) => {
@@ -66,7 +62,7 @@ class Playlists {
             playlist.id = uuid()
         }
 
-        playlist.songs = playlist.songs.map(song => {
+        playlist.songs = playlist.songs.map((song) => {
             if (song.Id) {
                 return song.Id
             } else {
@@ -114,9 +110,9 @@ class Playlists {
     }
 
     read(playlistId) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let playlist = { ...this.playlists.lookup[playlistId] }
-            this.catalog.getSongs(playlist.songs).then(songs => {
+            this.catalog.getSongs(playlist.songs).then((songs) => {
                 playlist.songs = songs
                 resolve(playlist)
             })
@@ -133,6 +129,29 @@ class Playlists {
 
     viewDeleted(playlistId) {
         return this.deletedPlaylists.lookup[playlistId]
+    }
+
+    add(playlistId, songId) {
+        let playlist = { ...this.playlists.lookup[playlistId] }
+        for (let song of playlist.songs) {
+            if (song == songId) {
+                return { success: false, error: 'Already in playlist' }
+            }
+        }
+        playlist.songs.push(songId)
+        return new Promise((resolve) => {
+            this.getDatabase(playlist.id)
+                .write(playlist)
+                .then(() => {
+                    resolve({ success: true })
+                })
+                .catch((err) => {
+                    resolve({
+                        success: false,
+                        error: err,
+                    })
+                })
+        })
     }
 }
 

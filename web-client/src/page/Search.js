@@ -13,11 +13,11 @@ export default class Search extends Component {
             searching: false,
         }
         this.onChange = this.onChange.bind(this)
-        this.search = debounce(query => {
+        this.search = debounce((query) => {
             this.setState({ searching: true })
             let targetUrl = '/search?' + qs.stringify({ query })
             window.history.replaceState(null, null, targetUrl)
-            this.props.api.search(query).then(results => {
+            this.props.api.search(query).then((results) => {
                 this.setState({
                     results,
                     searching: false,
@@ -78,7 +78,7 @@ export default class Search extends Component {
                     <h3>
                         {this.state.results.Songs.length} Song{this.state.results.Songs.length > 1 ? 's' : ''}
                     </h3>
-                    <Comp.SongPicker songs={this.state.results.Songs} playMedia={this.props.playMedia} addToQueue={this.props.addToQueue} />
+                    <Comp.SongPicker api={this.props.api} songs={this.state.results.Songs} playMedia={this.props.playMedia} addToQueue={this.props.addToQueue} />
                 </div>
             ) : null
         let results = this.state.searching ? (

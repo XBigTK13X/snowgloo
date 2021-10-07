@@ -33,20 +33,21 @@ export default class SongPickerItem extends Component {
             <tr {...this.props.provided.draggableProps} ref={this.props.innerRef} className={style} onClick={this.handleClick}>
                 <td data-kind="action-menu" className="centered">
                     <MicroModal
-                        trigger={handleOpen => (
+                        trigger={(handleOpen) => (
                             <button className="small-icon-button" onClick={handleOpen} title="Open the action menu">
                                 <FontAwesomeIcon icon={faMusic} />
                             </button>
                         )}
-                        children={handleClose => (
+                        children={(handleClose) => (
                             <div>
-                                <Comp.LinkButton to="album-view" params={{ albumSlug: this.props.song.AlbumSlug }} text="View Album" />
-                                <Comp.LinkButton to="artist-view" params={{ artist: this.props.song.Artist }} text="View Artist" />
+                                <Comp.LinkButton buttonClass="context-menu-button" to="album-view" params={{ albumSlug: this.props.song.AlbumSlug }} text="View Album" />
+                                <Comp.LinkButton buttonClass="context-menu-button" to="artist-view" params={{ artist: this.props.song.Artist }} text="View Artist" />
                                 {this.props.removeItem ? (
                                     <button
-                                        className="large-button"
+                                        className="context-menu-button"
                                         onClick={() => {
                                             this.props.removeItem(this.props.songIndex)
+                                            handleClose()
                                         }}
                                     >
                                         Remove
@@ -54,15 +55,17 @@ export default class SongPickerItem extends Component {
                                 ) : null}
                                 {this.props.addToQueue ? (
                                     <button
-                                        className="large-button"
+                                        className="context-menu-button"
                                         onClick={() => {
                                             this.props.addToQueue(this.props.song)
+                                            handleClose()
                                         }}
                                     >
                                         Queue Up
                                     </button>
                                 ) : null}
-                                <button className="large-button" onClick={handleClose}>
+                                <Comp.PlaylistPickerModal api={this.props.api} song={this.props.song} handleParentClose={handleClose} />
+                                <button className="context-menu-button" onClick={handleClose}>
                                     Cancel
                                 </button>
                             </div>

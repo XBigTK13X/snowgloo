@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const getFrontendSettingsPath = root => {
+const getFrontendSettingsPath = (root) => {
     const entries = fs.readdirSync(root)
     for (ii = 0; ii < entries.length; ii++) {
         const entry = entries[ii]

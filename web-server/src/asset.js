@@ -19,7 +19,7 @@ class Asset {
 
     read() {
         return new Promise((resolve, reject) => {
-            fs.access(this.filePath, err => {
+            fs.access(this.filePath, (err) => {
                 if (err) {
                     return resolve(null)
                 }
@@ -35,7 +35,7 @@ class Asset {
 
     write(binaryContent) {
         return new Promise((resolve, reject) => {
-            fs.writeFile(this.filePath, binaryContent, 'binary', err => {
+            fs.writeFile(this.filePath, binaryContent, 'binary', (err) => {
                 if (err) {
                     return reject(err)
                 }
@@ -47,7 +47,7 @@ class Asset {
 
 let instances = {}
 
-let getInstance = name => {
+let getInstance = (name) => {
     if (!_.has(instances, name)) {
         instances[name] = new Asset(name)
     }

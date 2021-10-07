@@ -53,7 +53,7 @@ export default class AudioPlayer extends Component {
     }
 
     toggleMute = () => {
-        this.setState(prevState => {
+        this.setState((prevState) => {
             const { volume, sound } = prevState
 
             if (volume === 0 || !prevState.isMute) {
@@ -154,14 +154,14 @@ export default class AudioPlayer extends Component {
         })
     }
 
-    formatTime = secs => {
+    formatTime = (secs) => {
         var minutes = Math.floor(secs / 60) || 0
         var seconds = secs - minutes * 60 || 0
 
         return minutes + ':' + (seconds < 10 ? '0' : '') + seconds
     }
 
-    seek = value => {
+    seek = (value) => {
         //Prevent scrubbing to end, triggering next song start
         if (value === 100) {
             value = this.state.progressValue
@@ -201,7 +201,7 @@ export default class AudioPlayer extends Component {
         }
     }
 
-    changeVolume = volume => {
+    changeVolume = (volume) => {
         let targetVolume = Math.round(volume) / 100
         this.state.sound.volume(targetVolume)
 
@@ -214,7 +214,7 @@ export default class AudioPlayer extends Component {
     }
 
     destroySound = () => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const { sound } = this.state
             if (this.stepInterval) {
                 clearInterval(this.stepInterval)

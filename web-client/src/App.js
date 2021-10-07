@@ -21,7 +21,7 @@ for (let route of routes) {
 
 const plugins = [pushStateLocationPlugin]
 
-const configRouter = router => {
+const configRouter = (router) => {
     router.urlRouter.otherwise('/')
 }
 
@@ -56,7 +56,7 @@ export default class App extends Component {
 
     componentDidMount() {
         service.musicQueue.setApi(service.api).then(() => {
-            service.musicQueue.serverRead().then(queue => {
+            service.musicQueue.serverRead().then((queue) => {
                 queue.currentIndex = null
                 this.setState({
                     queue: queue,
@@ -68,7 +68,7 @@ export default class App extends Component {
     login(user) {
         service.user.login(user)
         service.api.setUser(user)
-        service.musicQueue.serverRead().then(queue => {
+        service.musicQueue.serverRead().then((queue) => {
             this.setState({
                 user,
                 queue,
@@ -85,9 +85,9 @@ export default class App extends Component {
     }
 
     playMedia(song) {
-        service.musicQueue.add(song).then(songIndex => {
+        service.musicQueue.add(song).then((songIndex) => {
             service.musicQueue.setCurrent(songIndex)
-            service.musicQueue.serverWrite().then(queue => {
+            service.musicQueue.serverWrite().then((queue) => {
                 this.setState({
                     song,
                     queue,
@@ -105,7 +105,7 @@ export default class App extends Component {
             service.musicQueue.add(songs)
         }
 
-        service.musicQueue.serverWrite().then(queue => {
+        service.musicQueue.serverWrite().then((queue) => {
             this.setState({
                 queue,
             })
@@ -113,7 +113,7 @@ export default class App extends Component {
     }
 
     removeItem(songIndex) {
-        service.musicQueue.remove(songIndex).then(queue => {
+        service.musicQueue.remove(songIndex).then((queue) => {
             this.setState({
                 queue,
                 song: service.musicQueue.getCurrent(),
@@ -127,7 +127,7 @@ export default class App extends Component {
     }
 
     emptyQueue() {
-        service.musicQueue.empty().then(queue => {
+        service.musicQueue.empty().then((queue) => {
             this.setState({
                 queue,
                 song: null,
@@ -136,7 +136,7 @@ export default class App extends Component {
     }
 
     shuffleQueue() {
-        service.musicQueue.shuffle().then(queue => {
+        service.musicQueue.shuffle().then((queue) => {
             this.setState({
                 queue,
                 song: null,

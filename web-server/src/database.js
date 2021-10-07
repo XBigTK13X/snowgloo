@@ -20,7 +20,7 @@ class Database {
 
     read() {
         return new Promise((resolve, reject) => {
-            fs.access(this.filePath, err => {
+            fs.access(this.filePath, (err) => {
                 if (err) {
                     return resolve(this.workingSet)
                 }
@@ -40,7 +40,7 @@ class Database {
             if (workingSet) {
                 this.workingSet = workingSet
             }
-            fs.writeFile(this.filePath, JSON.stringify(this.workingSet, null, '\t'), 'utf8', err => {
+            fs.writeFile(this.filePath, JSON.stringify(this.workingSet, null, '\t'), 'utf8', (err) => {
                 if (err) {
                     return reject(err)
                 }
@@ -52,7 +52,7 @@ class Database {
 
 let instances = {}
 
-let getInstance = name => {
+let getInstance = (name) => {
     if (!_.has(instances, name)) {
         instances[name] = new Database(name)
     }

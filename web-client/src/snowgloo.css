@@ -120,6 +120,9 @@ input[type='range']:focus {
     height: 50px;
     text-align: center;
 }
+.action-button {
+    cursor: pointer;
+}
 
 .neighbor {
     display: inline-block;
@@ -151,6 +154,13 @@ input[type='range']:focus {
     margin: 10px;
     width: 200px;
     height: 100px;
+    font-size: 40px;
+}
+
+.context-menu-button {
+    margin: 10px;
+    width: 300px;
+    height: 150px;
     font-size: 40px;
 }
 

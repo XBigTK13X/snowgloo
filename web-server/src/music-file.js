@@ -82,10 +82,10 @@ class MusicFile {
     }
 
     parseMetadata() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             inspect
                 .audio(this.LocalFilePath)
-                .then(data => {
+                .then((data) => {
                     if (data.error) {
                         console.error(this.LocalFilePath, data.error)
                         throw data.error
@@ -101,7 +101,7 @@ class MusicFile {
                     if (this.EmbeddedCoverArt || !this.HasEmbeddedArt) {
                         return resolve()
                     }
-                    return inspect.embeddedArt(this.LocalFilePath).then(embeddedArt => {
+                    return inspect.embeddedArt(this.LocalFilePath).then((embeddedArt) => {
                         let imageName = `${this.AlbumSlug}-${util.contentHash(embeddedArt.content)}.${embeddedArt.extension}`
                         let imageAsset = asset.getInstance(imageName)
                         if (imageAsset.exists()) {
@@ -114,7 +114,7 @@ class MusicFile {
                         })
                     })
                 })
-                .catch(err => {
+                .catch((err) => {
                     resolve()
                 })
         })

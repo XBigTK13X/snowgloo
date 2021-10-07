@@ -26,7 +26,7 @@ export default class PlaylistList extends Component {
     }
 
     loadPlaylists() {
-        this.props.api.getPlaylists().then(result => {
+        this.props.api.getPlaylists().then((result) => {
             this.setState({
                 playlists: result.list,
             })
@@ -42,7 +42,7 @@ export default class PlaylistList extends Component {
     }
 
     selectPlaylist(event) {
-        let targetPlaylist = this.state.playlists.filter(x => {
+        let targetPlaylist = this.state.playlists.filter((x) => {
             return x.id === event.target.value
         })[0]
         this.setState({
@@ -63,7 +63,7 @@ export default class PlaylistList extends Component {
             .then(() => {
                 this.loadPlaylists()
             })
-            .catch(err => {
+            .catch((err) => {
                 console.error(err)
             })
     }

@@ -2,7 +2,7 @@ const util = require('./util')
 
 class MusicAlbum {
     constructor(musicFile, coverArtUrl) {
-        if(!musicFile){
+        if (!musicFile) {
             return this
         }
         this.Album = musicFile.Album
@@ -19,7 +19,7 @@ class MusicAlbum {
         this.SubKind = musicFile.SubKind
     }
 
-    rehydrate(instance){
+    rehydrate(instance) {
         Object.assign(this, instance)
         return this
     }

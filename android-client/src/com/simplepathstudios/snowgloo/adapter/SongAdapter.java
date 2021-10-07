@@ -4,16 +4,21 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -22,14 +27,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.Util;
+import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
+import com.simplepathstudios.snowgloo.api.model.MusicPlaylistListItem;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.api.model.PlaylistAddResult;
+import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
+import com.simplepathstudios.snowgloo.viewmodel.PlaylistListViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG;
 
@@ -43,6 +56,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     private ArrayList<MusicFile> songs;
     private Kind kind;
     private ItemTouchHelper itemTouchHelper;
+    private PlaylistListViewModel playlistListViewModel;
+    private PlaylistList playlistListData;
+    private View view;
 
     public SongAdapter(RecyclerView reorderableListView){
         this.kind = Kind.QUEUE;
@@ -62,6 +78,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.song_list_item, parent, false);
+        view = v;
         return new ViewHolder(v);
     }
 
@@ -84,6 +101,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         } else {
             holder.coverArt.setVisibility(View.GONE);
         }
+
         TextView title = holder.titleText;
         title.setText(holder.musicFile.Title);
         TextView album = holder.albumText;
@@ -108,6 +126,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                                 isSelected ? 255 : 100));
             }
         }
+
+        playlistListViewModel = new ViewModelProvider(MainActivity.getInstance()).get(PlaylistListViewModel.class);
+        playlistListViewModel.Data.observe(MainActivity.getInstance(), new Observer<PlaylistList>() {
+            @Override
+            public void onChanged(PlaylistList playlistList) {
+                playlistListData = playlistList;
+            }
+        });
+        playlistListViewModel.load();
     }
 
     @Override
@@ -222,6 +249,50 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                     }
                 });
             }
+            MenuItem addToPlaylistAction = menu.add("Add to Playlist");
+            addToPlaylistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    PopupMenu popup = new PopupMenu(MainActivity.getInstance(), v);
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            return false;
+                        }
+                    });
+
+                    MenuInflater inflater = popup.getMenuInflater();
+                    inflater.inflate(R.menu.playlist_popup, popup.getMenu());
+                    Menu popupMenu = popup.getMenu();
+                    for(MusicPlaylistListItem playlist : playlistListData.list){
+                        MenuItem playlistItem = popupMenu.add(playlist.name);
+                        playlistItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem menuItem) {
+                                ApiClient.getInstance().addToPlaylist(playlist.id, musicFile.Id).enqueue(new retrofit2.Callback<PlaylistAddResult>() {
+                                    @Override
+                                    public void onResponse(Call call, Response response) {
+                                        PlaylistAddResult result = (PlaylistAddResult) response.body();
+                                        if(result != null && !result.success && result.error.contains("Already")){
+                                            Util.toast(musicFile.Title + " is already in playlist " + playlist.name);
+                                        } else {
+                                            Util.toast("Added " +musicFile.Title + " to playlist " + playlist.name);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call call, Throwable t) {
+                                        Util.toast("Unable to add song to playlist");
+                                    }
+                                });
+                                return false;
+                            }
+                        });
+                    }
+                    popup.show();
+                    return false;
+                }
+            });
         }
     }
 

@@ -11,6 +11,7 @@ const components = {
     LinkTile: require('./LinkTile').default,
     LoginForm: require('./LoginForm').default,
     PlaylistListItem: require('./PlaylistListItem').default,
+    PlaylistPickerModal: require('./PlaylistPickerModal').default,
     NavBar: require('./NavBar').default,
     RangeInput: require('./RangeInput').default,
     SongDuration: require('./SongDuration').default,
@@ -18,4 +19,4 @@ const components = {
     SongPicker: require('./SongPicker').default,
 }
 
-export default components;
+export default components

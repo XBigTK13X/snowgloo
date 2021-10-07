@@ -11,7 +11,7 @@ export default class CategoryList extends Component {
     }
 
     componentDidMount() {
-        this.props.api.getCategories().then(result => {
+        this.props.api.getCategories().then((result) => {
             this.setState({
                 categories: result,
             })

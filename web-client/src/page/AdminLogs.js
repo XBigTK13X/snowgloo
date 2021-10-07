@@ -17,7 +17,7 @@ export default class AdminLogs extends Component {
     }
 
     componentDidMount() {
-        this.refreshLogs();
+        this.refreshLogs()
     }
 
     selectClient(e) {
@@ -34,8 +34,8 @@ export default class AdminLogs extends Component {
         })
     }
 
-    refreshLogs(){
-        this.props.api.getLogs().then(result => {
+    refreshLogs() {
+        this.props.api.getLogs().then((result) => {
             this.setState({
                 logs: result.logs,
             })
@@ -51,27 +51,27 @@ export default class AdminLogs extends Component {
 
         let clientPicker = !_.isEmpty(this.state.logs) ? (
             <div>
-            <label className="simple-input">
-                Select a client to view
-                <select className="simple-input" value={this.state.clientId} onChange={this.selectClient}>
-                    <option key="null" id="null" name="null"></option>
-                    {Object.keys(this.state.logs).map((clientKey, clientIndex) => {
-                        return (
-                            <option key={clientIndex} id={clientKey} name={clientKey}>
-                                {clientKey}
-                            </option>
-                        )
-                    })}
-                </select>
-            </label>
-            <button onClick={this.refreshLogs}>Refresh</button>
+                <label className="simple-input">
+                    Select a client to view
+                    <select className="simple-input" value={this.state.clientId} onChange={this.selectClient}>
+                        <option key="null" id="null" name="null"></option>
+                        {Object.keys(this.state.logs).map((clientKey, clientIndex) => {
+                            return (
+                                <option key={clientIndex} id={clientKey} name={clientKey}>
+                                    {clientKey}
+                                </option>
+                            )
+                        })}
+                    </select>
+                </label>
+                <button onClick={this.refreshLogs}>Refresh</button>
             </div>
         ) : null
 
         let logs =
             this.state.clientId !== 'null' && this.state.logs[this.state.clientId] ? (
                 <div>
-                    {this.state.logs[this.state.clientId].workingSet.entries.reverse().map(entry => {
+                    {this.state.logs[this.state.clientId].workingSet.entries.reverse().map((entry) => {
                         return <p>{entry}</p>
                     })}
                 </div>

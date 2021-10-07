@@ -11,7 +11,7 @@ export default class SongList extends Component {
     }
 
     componentDidMount() {
-        this.props.api.getSongs().then(result => {
+        this.props.api.getSongs().then((result) => {
             this.setState({
                 songs: {
                     list: result,
@@ -27,7 +27,7 @@ export default class SongList extends Component {
         return (
             <div>
                 <h1>Songs</h1>
-                <Comp.SongPicker songs={this.state.songs.list} playMedia={this.props.playMedia} />
+                <Comp.SongPicker api={this.props.api} songs={this.state.songs.list} playMedia={this.props.playMedia} />
             </div>
         )
     }

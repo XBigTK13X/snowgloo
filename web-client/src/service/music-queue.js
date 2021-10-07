@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import {arrayMoveMutable} from 'array-move'
+import { arrayMoveMutable } from 'array-move'
 
 class MusicQueue {
     constructor(queue) {
@@ -10,7 +10,7 @@ class MusicQueue {
     }
 
     setApi(api) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             this.api = api
             resolve()
         })
@@ -32,7 +32,7 @@ class MusicQueue {
         if (!song) {
             return Promise.resolve()
         }
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let found = false
             let index = 0
             for (let entry of this.queue.songs) {
@@ -111,7 +111,7 @@ class MusicQueue {
         if (!this.api) {
             throw new Error('Unable to read music queue, no api has been set')
         }
-        return this.api.getQueue().then(result => {
+        return this.api.getQueue().then((result) => {
             if (!_.isEmpty(result)) {
                 this.queue = {
                     songs: result.songs,
@@ -126,7 +126,7 @@ class MusicQueue {
         if (!this.api) {
             throw new Error('Unable to persist music queue, no api has been set')
         }
-        return this.api.setQueue(this.queue).then(result => {
+        return this.api.setQueue(this.queue).then((result) => {
             return this.queue
         })
     }

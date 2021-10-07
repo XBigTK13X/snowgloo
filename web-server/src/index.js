@@ -1,4 +1,4 @@
-const util = require("./util")
+const util = require('./util')
 const catalog = require('./catalog')
 const playlists = require('./playlists')
 catalog
@@ -6,7 +6,7 @@ catalog
     .then(() => {
         return playlists.build(catalog)
     })
-    .catch(err => {
+    .catch((err) => {
         console.error('Unable to build the catalog', { err })
     })
 

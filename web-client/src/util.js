@@ -1,11 +1,11 @@
-const pad = num => {
+const pad = (num) => {
     if (num < 10) {
         return '0' + num
     }
     return num
 }
 
-const trackPad = num => {
+const trackPad = (num) => {
     if (num < 10) {
         return '00' + num
     }
@@ -15,7 +15,7 @@ const trackPad = num => {
     return num
 }
 
-const breakdown = seconds => {
+const breakdown = (seconds) => {
     let ticks = seconds
     let hh = Math.floor(ticks / 3600)
     let mm = Math.floor((ticks % 3600) / 60)
@@ -27,7 +27,7 @@ const breakdown = seconds => {
     }
 }
 
-const secondsToTimeStamp = seconds => {
+const secondsToTimeStamp = (seconds) => {
     const b = breakdown(seconds)
     let timestamp = `${pad(b.seconds)}s`
     if (b.minutes || b.hours) {
@@ -39,16 +39,16 @@ const secondsToTimeStamp = seconds => {
     return timestamp
 }
 
-const log = (...args) =>{
-    if(typeof(console) !== 'undefined') {
-        console.log.apply(console, args);
+const log = (...args) => {
+    if (typeof console !== 'undefined') {
+        console.log.apply(console, args)
     }
 }
 
 const funcs = {
     secondsToTimeStamp,
     trackPad,
-    log
+    log,
 }
 
 export default funcs

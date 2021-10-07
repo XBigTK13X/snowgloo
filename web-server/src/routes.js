@@ -6,7 +6,7 @@ const inspect = require('./inspect')
 const asset = require('./asset')
 const log = require('./log')
 
-const register = router => {
+const register = (router) => {
     router.get('/api/category/list', async (request, response) => {
         let result = await catalog.getCategories()
         response.send(result)
@@ -78,6 +78,10 @@ const register = router => {
 
     router.get('/api/playlist/view', async (request, response) => {
         response.send(await playlists.read(request.query.playlistId))
+    })
+
+    router.post('/api/playlist/add', async (request, response) => {
+        response.send(await playlists.add(request.body.playlistId, request.body.songId))
     })
 
     router.get('/api/playlist/list', async (request, response) => {

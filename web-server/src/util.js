@@ -1,17 +1,12 @@
 const _ = require('lodash')
 const hash = require('object-hash')
 
-const searchify = text => {
-    return _.deburr(text)
-        .toLowerCase()
-        .replace(/\W/g, '')
-        .replace(/\s/g, '')
+const searchify = (text) => {
+    return _.deburr(text).toLowerCase().replace(/\W/g, '').replace(/\s/g, '')
 }
 
-const sortify = text => {
-    return text
-        .toLowerCase()
-        .replace('the ','')
+const sortify = (text) => {
+    return text.toLowerCase().replace('the ', '')
 }
 
 const alphabetize = (items, property) => {
@@ -25,13 +20,13 @@ const alphabetize = (items, property) => {
     })
 }
 
-const contentHash = (content)=>{
-    return hash(content,{algorithm:'md5'})
+const contentHash = (content) => {
+    return hash(content, { algorithm: 'md5' })
 }
 
-const log = (...args) =>{
-    if(typeof(console) !== 'undefined') {
-        console.log.apply(console, args);
+const log = (...args) => {
+    if (typeof console !== 'undefined') {
+        console.log.apply(console, args)
     }
 }
 
@@ -40,5 +35,5 @@ module.exports = {
     sortify,
     alphabetize,
     contentHash,
-    log
+    log,
 }

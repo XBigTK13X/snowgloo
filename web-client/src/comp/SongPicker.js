@@ -50,6 +50,7 @@ export default class SongPicker extends Component {
                                                                 song={song}
                                                                 playMedia={this.props.playMedia}
                                                                 alternate={songIndex % 2 === 0}
+                                                                api={this.props.api}
                                                                 nowPlaying={songIndex === this.props.playingIndex}
                                                                 songIndex={songIndex}
                                                                 removeItem={this.props.removeItem}

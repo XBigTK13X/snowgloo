@@ -33,7 +33,7 @@ export default class Queue extends Component {
                 <button className="icon-button" onClick={this.props.emptyQueue} title="Empty the queue">
                     <FontAwesomeIcon icon={faTrashAlt} />
                 </button>
-                <Comp.SongPicker hideQueueButton songs={this.props.queuedSongs} playMedia={this.props.playMedia} playingIndex={this.props.playingIndex} updateSongList={this.props.updateSongList} removeItem={this.props.removeItem} />
+                <Comp.SongPicker api={this.props.api} hideQueueButton songs={this.props.queuedSongs} playMedia={this.props.playMedia} playingIndex={this.props.playingIndex} updateSongList={this.props.updateSongList} removeItem={this.props.removeItem} />
             </div>
         )
     }

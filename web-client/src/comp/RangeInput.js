@@ -9,7 +9,7 @@ export default class RangeInput extends Component {
                 min={0}
                 max={100}
                 values={[this.props.value]}
-                onChange={e => {
+                onChange={(e) => {
                     this.props.onChange(e[0])
                 }}
                 renderTrack={({ props, children }) => (

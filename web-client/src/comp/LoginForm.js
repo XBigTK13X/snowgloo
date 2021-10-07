@@ -11,7 +11,7 @@ export default class LoginForm extends Component {
     }
 
     componentDidMount() {
-        service.api.userList().then(result => {
+        service.api.userList().then((result) => {
             this.setState({
                 users: result.users,
             })

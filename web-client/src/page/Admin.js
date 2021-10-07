@@ -23,14 +23,14 @@ export default class Admin extends Component {
         this.props.api.catalogRebuild()
     }
 
-    clientLogs(){
+    clientLogs() {
         this.props.$transition$.router.stateService.go('admin-logs')
     }
 
     restorePlaylist(playlist) {
         playlist.deleted = false
         this.props.api.savePlaylist(playlist).then(() => {
-            this.props.api.getDeletedPlaylists().then(result => {
+            this.props.api.getDeletedPlaylists().then((result) => {
                 this.setState({
                     deletedPlaylists: result.playlists,
                 })
@@ -38,12 +38,12 @@ export default class Admin extends Component {
         })
     }
 
-    viewDeletedPlaylist(playlist){
+    viewDeletedPlaylist(playlist) {
         window.location = settings.webApiUrl + 'admin/playlist/deleted?playlistId=' + playlist.id
     }
 
     componentDidMount() {
-        Promise.all([this.props.api.catalogStatus(), this.props.api.systemInfo(), this.props.api.getDeletedPlaylists()]).then(results => {
+        Promise.all([this.props.api.catalogStatus(), this.props.api.systemInfo(), this.props.api.getDeletedPlaylists()]).then((results) => {
             this.setState({
                 catalogStatus: results[0],
                 systemInfo: results[1],
@@ -113,6 +113,7 @@ export default class Admin extends Component {
                                         <td>{playlist.songs.length}</td>
                                         <td>
                                             <button
+                                                className="action-button"
                                                 onClick={() => {
                                                     this.restorePlaylist(playlist)
                                                 }}
@@ -120,6 +121,7 @@ export default class Admin extends Component {
                                                 Restore
                                             </button>
                                             <button
+                                                className="action-button"
                                                 onClick={() => {
                                                     this.viewDeletedPlaylist(playlist)
                                                 }}

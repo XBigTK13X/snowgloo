@@ -21,7 +21,7 @@ export default class PlaylistView extends Component {
     }
 
     componentDidMount() {
-        this.props.api.getPlaylist(this.props.$stateParams.playlistId).then(result => {
+        this.props.api.getPlaylist(this.props.$stateParams.playlistId).then((result) => {
             this.setState({
                 playlist: result,
             })
@@ -41,7 +41,7 @@ export default class PlaylistView extends Component {
                 playlist.name = this.state.playlistName
             }
         }
-        return this.props.api.savePlaylist(playlist).then(savedPlaylist => {
+        return this.props.api.savePlaylist(playlist).then((savedPlaylist) => {
             this.setState({
                 playlist: savedPlaylist,
                 playlistName: '',
@@ -93,7 +93,7 @@ export default class PlaylistView extends Component {
                     <FontAwesomeIcon icon={faTrashAlt} />
                 </button>
                 <hr />
-                <Comp.SongPicker title={this.state.playlist.name} addToQueue={this.props.addToQueue} songs={this.state.playlist.songs} playMedia={this.props.playMedia} />
+                <Comp.SongPicker api={this.props.api} title={this.state.playlist.name} addToQueue={this.props.addToQueue} songs={this.state.playlist.songs} playMedia={this.props.playMedia} />
             </div>
         )
     }

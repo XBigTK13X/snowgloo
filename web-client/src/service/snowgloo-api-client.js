@@ -14,7 +14,7 @@ class ApiClient {
     }
 
     get(url) {
-        return this.httpClient.get(url).then(response => {
+        return this.httpClient.get(url).then((response) => {
             return response.data
         })
     }
@@ -32,19 +32,19 @@ class ApiClient {
     }
 
     getArtists(category) {
-        return this.httpClient.get('artist/list', { params: { category } }).then(response => {
+        return this.httpClient.get('artist/list', { params: { category } }).then((response) => {
             return response.data
         })
     }
 
     getArtist(artist) {
-        return this.httpClient.get('artist/view', { params: { artist } }).then(response => {
+        return this.httpClient.get('artist/view', { params: { artist } }).then((response) => {
             return response.data
         })
     }
 
     getAlbum(albumSlug) {
-        return this.httpClient.get('album/view', { params: { albumSlug } }).then(response => {
+        return this.httpClient.get('album/view', { params: { albumSlug } }).then((response) => {
             return response.data
         })
     }
@@ -66,7 +66,7 @@ class ApiClient {
             .post(`/queue/${this.username}`, {
                 queue,
             })
-            .then(response => {
+            .then((response) => {
                 return response.data
             })
     }
@@ -76,7 +76,7 @@ class ApiClient {
     }
 
     search(query) {
-        return this.httpClient.get('/search', { params: { query } }).then(response => {
+        return this.httpClient.get('/search', { params: { query } }).then((response) => {
             return response.data
         })
     }
@@ -85,8 +85,14 @@ class ApiClient {
         return this.get(`/playlist/list`)
     }
 
+    addToPlaylist(playlistId, songId) {
+        return this.httpClient.post(`/playlist/add`, { playlistId: playlistId, songId: songId }).then((response) => {
+            return response.data
+        })
+    }
+
     getPlaylist(playlistId) {
-        return this.httpClient.get('/playlist/view', { params: { playlistId } }).then(response => {
+        return this.httpClient.get('/playlist/view', { params: { playlistId } }).then((response) => {
             return response.data
         })
     }
@@ -96,19 +102,19 @@ class ApiClient {
             .post(`/playlist`, {
                 playlist,
             })
-            .then(response => {
+            .then((response) => {
                 return response.data
             })
     }
 
     catalogRebuild() {
-        return this.httpClient.post('admin/catalog/build').then(response => {
+        return this.httpClient.post('admin/catalog/build').then((response) => {
             return response.data
         })
     }
 
     clearQueues() {
-        return this.httpClient.post('admin/queues/clear').then(response => {
+        return this.httpClient.post('admin/queues/clear').then((response) => {
             return response.data
         })
     }
