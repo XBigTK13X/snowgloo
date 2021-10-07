@@ -203,12 +203,8 @@ public class SnowglooService extends MediaBrowserServiceCompat {
         mediaSession.setActive(true);
         setSessionToken(mediaSession.getSessionToken());
 
-        try {
-            mediaController = new MediaControllerCompat(Util.getGlobalContext(), mediaSession.getSessionToken());
-            transportControls = mediaController.getTransportControls();
-        } catch (RemoteException e) {
-            Util.error(TAG, e);
-        }
+        mediaController = new MediaControllerCompat(Util.getGlobalContext(), mediaSession.getSessionToken());
+        transportControls = mediaController.getTransportControls();
 
         updatePlaybackState(true);
 

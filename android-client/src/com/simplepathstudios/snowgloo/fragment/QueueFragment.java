@@ -119,7 +119,9 @@ public class QueueFragment extends Fragment {
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                MainActivity.getInstance().setActionBarSubtitle(musicQueue.getSize() + " songs");
+                if(MainActivity.getInstance() != null && musicQueue != null){
+                    MainActivity.getInstance().setActionBarSubtitle(musicQueue.getSize() + " songs");
+                }
                 adapter.setData(musicQueue.getAll());
                 adapter.notifyDataSetChanged();
             }

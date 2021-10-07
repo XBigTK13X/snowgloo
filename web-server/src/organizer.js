@@ -1,9 +1,7 @@
 const recurse = require('recursive-readdir')
 const _ = require('lodash')
-const path = require('path')
 
 const settings = require('./settings')
-const database = require('./database')
 const util = require('./util')
 
 const MusicFile = require('./music-file')

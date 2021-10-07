@@ -42,11 +42,18 @@ class Playlists {
                             if (!playlist.deleted) {
                                 this.playlists.lookup[playlist.id] = playlist
                                 this.playlists.list.push(playlist)
+                                
                             } else {
                                 this.deletedPlaylists.lookup[playlist.id] = playlist
-                                this.deletedPlaylists.list.push(playlist)
+                                this.deletedPlaylists.list.push(playlist)                                
                             }
                         }
+                        this.playlists.list = this.playlists.list.sort((a, b) => {
+                            return a.name > b.name ? 1 : -1
+                        })
+                        this.deletedPlaylists.list = this.deletedPlaylists.list.sort((a, b) => {
+                            return a.name > b.name ? 1 : -1
+                        })
                         util.log(`Loaded ${this.playlists.list.length} playlists from disk and ignored ${playlists.length - this.playlists.list.length} deleted playlists.`)
                     })
                 }
@@ -95,7 +102,7 @@ class Playlists {
                 }
             }
             this.playlists.lookup[playlist.id] = playlist
-            this.playlists.list.sort((a, b) => {
+            this.playlists.list = this.playlists.list.sort((a, b) => {
                 return a.name > b.name ? 1 : -1
             })
         }

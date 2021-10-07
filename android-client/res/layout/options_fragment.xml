@@ -14,7 +14,7 @@
     <SeekBar
         android:id="@+id/volume_slider"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:progressDrawable="@drawable/volume_bar_progress"
         android:thumb="@drawable/volume_bar_thumb"
