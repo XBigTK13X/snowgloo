@@ -1,6 +1,9 @@
 package com.simplepathstudios.snowgloo.api.model;
 
+import com.simplepathstudios.snowgloo.Util;
+
 public class MusicFile {
+    public static final String TAG = "MusicFile";
     public static final MusicFile EMPTY = new MusicFile(){{
         DisplayAlbum = "";
         DisplayArtist = "";
@@ -35,5 +38,16 @@ public class MusicFile {
             }
         }
         return oneLineMetadata;
+    }
+
+    @Override
+    public int hashCode(){
+        return this.Id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        MusicFile target = (MusicFile)obj;
+        return this.Id.equalsIgnoreCase(target.Id);
     }
 }

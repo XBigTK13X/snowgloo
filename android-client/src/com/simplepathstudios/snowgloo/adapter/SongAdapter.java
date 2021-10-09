@@ -265,7 +265,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                                         if(result != null && !result.success && result.error.contains("Already")){
                                             Util.toast(musicFile.Title + " is already in playlist " + playlist.name);
                                         } else {
-                                            Util.toast("Added " +musicFile.Title + " to playlist " + playlist.name);
+                                            Util.toast("Added song to playlist.");
                                         }
                                     }
 
