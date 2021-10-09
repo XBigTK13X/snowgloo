@@ -83,37 +83,37 @@ export default class PlaylistList extends Component {
         return (
             <div>
                 <h1>Playlists</h1>
-                {this.props.queuedSongs && this.props.queuedSongs.length ? (
-                    <div>
-                        Save current queue as a playlist.
-                        <br />
-                        <br />
-                        <label>
-                            New playlist: <input placeholder="New playlist name" type="text" value={this.state.playlistName} onChange={this.changePlaylistName} />
-                        </label>
-                        {this.state.playlists ? (
-                            <div>
-                                <br />
-                                <label>
-                                    Existing playlist:{' '}
-                                    <select value={this.state.selectedPlaylistId} onChange={this.selectPlaylist}>
-                                        <option value={'null'} key={-1} name={'null'}></option>
-                                        {this.state.playlists.map((playlist, playlistIndex) => {
-                                            return (
-                                                <option value={playlist.id} key={playlistIndex} name={playlist.name}>
-                                                    {playlist.name}
-                                                </option>
-                                            )
-                                        })}
-                                    </select>
-                                </label>
-                                <br />
-                            </div>
-                        ) : null}
-                    </div>
-                ) : (
-                    <p>Put something in the queue to create or change a playlist</p>
-                )}
+
+                <div>
+                    Save current queue as a playlist.
+                    <br />
+                    <br />
+                    <label>
+                        New playlist: <input placeholder="New playlist name" type="text" value={this.state.playlistName} onChange={this.changePlaylistName} />
+                    </label>
+                    {this.props.queuedSongs && this.props.queuedSongs.length && this.state.playlists ? (
+                        <div>
+                            <br />
+                            <label>
+                                Existing playlist:{' '}
+                                <select value={this.state.selectedPlaylistId} onChange={this.selectPlaylist}>
+                                    <option value={'null'} key={-1} name={'null'}></option>
+                                    {this.state.playlists.map((playlist, playlistIndex) => {
+                                        return (
+                                            <option value={playlist.id} key={playlistIndex} name={playlist.name}>
+                                                {playlist.name}
+                                            </option>
+                                        )
+                                    })}
+                                </select>
+                            </label>
+                            <br />
+                        </div>
+                    ) : (
+                        <p>Put something in the queue to update an existing playlist</p>
+                    )}
+                </div>
+
                 {this.state.playlistName.length > 2 || this.state.selectedPlaylistId !== 'null' ? (
                     <button className="icon-button" onClick={this.savePlaylist} title="Open the playlist menu">
                         <FontAwesomeIcon icon={faSave} />

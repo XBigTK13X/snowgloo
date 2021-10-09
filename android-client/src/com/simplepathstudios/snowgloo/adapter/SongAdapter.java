@@ -56,8 +56,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     private ArrayList<MusicFile> songs;
     private Kind kind;
     private ItemTouchHelper itemTouchHelper;
-    private PlaylistListViewModel playlistListViewModel;
-    private PlaylistList playlistListData;
     private View view;
 
     public SongAdapter(RecyclerView reorderableListView){
@@ -126,15 +124,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                                 isSelected ? 255 : 100));
             }
         }
-
-        playlistListViewModel = new ViewModelProvider(MainActivity.getInstance()).get(PlaylistListViewModel.class);
-        playlistListViewModel.Data.observe(MainActivity.getInstance(), new Observer<PlaylistList>() {
-            @Override
-            public void onChanged(PlaylistList playlistList) {
-                playlistListData = playlistList;
-            }
-        });
-        playlistListViewModel.load();
     }
 
     @Override
@@ -264,7 +253,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                     MenuInflater inflater = popup.getMenuInflater();
                     inflater.inflate(R.menu.playlist_popup, popup.getMenu());
                     Menu popupMenu = popup.getMenu();
-                    for(MusicPlaylistListItem playlist : playlistListData.list){
+                    for(MusicPlaylistListItem playlist : MainActivity.getInstance().getPlaylists()){
                         MenuItem playlistItem = popupMenu.add(playlist.name);
                         playlistItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                             @Override

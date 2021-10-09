@@ -35,10 +35,15 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.ApiClient;
+import com.simplepathstudios.snowgloo.api.model.MusicPlaylistListItem;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
+import com.simplepathstudios.snowgloo.viewmodel.PlaylistListViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private SettingsViewModel settingsViewModel;
     private ObservableMusicQueue observableMusicQueue;
     private MusicQueue queue;
+    private PlaylistListViewModel playlistListViewModel;
+    private PlaylistList playlistListData;
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -88,6 +95,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void setActionBarSubtitle(String subtitle) {
         getSupportActionBar().setSubtitle(subtitle);
+    }
+
+    public ArrayList<MusicPlaylistListItem> getPlaylists(){
+        return playlistListData.list;
+    }
+
+    public void refreshPlaylists(){
+        playlistListViewModel.load();
     }
 
     @Override
@@ -377,6 +392,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         observableMusicQueue.load();
+
+        playlistListViewModel = new ViewModelProvider(MainActivity.getInstance()).get(PlaylistListViewModel.class);
+        playlistListViewModel.Data.observe(MainActivity.getInstance(), new Observer<PlaylistList>() {
+            @Override
+            public void onChanged(PlaylistList playlistList) {
+                playlistListData = playlistList;
+            }
+        });
+        playlistListViewModel.load();
     }
 
     @Override

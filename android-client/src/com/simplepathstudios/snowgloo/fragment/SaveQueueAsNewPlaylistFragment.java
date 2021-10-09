@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import androidx.fragment.app.DialogFragment;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
@@ -50,6 +51,7 @@ public class SaveQueueAsNewPlaylistFragment extends DialogFragment {
                                 @Override
                                 public void onResponse(Call call, Response response) {
                                     viewModel.load();
+                                    MainActivity.getInstance().refreshPlaylists();
                                 }
 
                                 @Override

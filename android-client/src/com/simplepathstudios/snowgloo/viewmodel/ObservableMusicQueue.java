@@ -341,12 +341,14 @@ public class ObservableMusicQueue {
     }
 
     public Call updatePlaylistFromQueue(String playlistId, String playlistName){
-        if(queue.getSize() > 0){
+        if(queue.getSize() > 0 || playlistId == null){
             MusicPlaylist playlist = new MusicPlaylist();
             playlist.name = playlistName;
             playlist.id = playlistId;
             playlist.songs = queue.getAll();
             return ApiClient.getInstance().savePlaylist(playlist);
+        } else {
+            Util.toast("Unable to update existing playlist when the queue is empty.");
         }
         return null;
     }

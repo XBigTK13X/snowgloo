@@ -26,7 +26,7 @@ export default class RandomList extends Component {
         return (
             <div>
                 <h1>Random Songs ({this.state.songs.length})</h1>
-                <Comp.SongPicker api={this.props.api} addToQueue={this.props.addToQueue} api={this.props.api} songs={this.state.songs} playMedia={this.props.playMedia} />
+                <Comp.SongPicker api={this.props.api} addToQueue={this.props.addToQueue} songs={this.state.songs} playMedia={this.props.playMedia} />
             </div>
         )
     }

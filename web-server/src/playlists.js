@@ -62,13 +62,15 @@ class Playlists {
             playlist.id = uuid()
         }
 
-        playlist.songs = playlist.songs.map((song) => {
-            if (song.Id) {
-                return song.Id
-            } else {
-                return song
-            }
-        })
+        if (playlist.songs.length) {
+            playlist.songs = playlist.songs.map((song) => {
+                if (song.Id) {
+                    return song.Id
+                } else {
+                    return song
+                }
+            })
+        }
 
         if (playlist.deleted) {
             delete this.playlists.lookup[playlist.id]
@@ -112,10 +114,14 @@ class Playlists {
     read(playlistId) {
         return new Promise((resolve) => {
             let playlist = { ...this.playlists.lookup[playlistId] }
-            this.catalog.getSongs(playlist.songs).then((songs) => {
-                playlist.songs = songs
+            if (playlist.songs.length) {
+                this.catalog.getSongs(playlist.songs).then((songs) => {
+                    playlist.songs = songs
+                    resolve(playlist)
+                })
+            } else {
                 resolve(playlist)
-            })
+            }
         })
     }
 
