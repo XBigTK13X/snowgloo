@@ -391,8 +391,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        observableMusicQueue.load();
-
         playlistListViewModel = new ViewModelProvider(MainActivity.getInstance()).get(PlaylistListViewModel.class);
         playlistListViewModel.Data.observe(MainActivity.getInstance(), new Observer<PlaylistList>() {
             @Override
@@ -400,7 +398,9 @@ public class MainActivity extends AppCompatActivity {
                 playlistListData = playlistList;
             }
         });
+
         playlistListViewModel.load();
+        observableMusicQueue.load();
     }
 
     @Override
