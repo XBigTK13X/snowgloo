@@ -13,6 +13,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class AlbumListViewModel extends ViewModel {
+
     public MutableLiveData<AlbumList> Data;
     public AlbumListViewModel(){
         Data = new MutableLiveData<AlbumList>();

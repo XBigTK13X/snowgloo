@@ -144,7 +144,6 @@ public class OptionsFragment extends Fragment {
                     settingsViewModel.setServerUrl(SnowglooSettings.DevServerUrl);
                 }
                 if(checkedId == R.id.prod_server_radio){
-
                     settingsViewModel.setServerUrl(SnowglooSettings.ProdServerUrl);
                 }
             }

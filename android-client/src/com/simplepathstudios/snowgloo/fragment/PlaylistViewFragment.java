@@ -115,7 +115,8 @@ public class PlaylistViewFragment extends Fragment {
 
                                 @Override
                                 public void onFailure(Call call, Throwable t) {
-
+                                    Util.log(TAG, "Unable to save current queue as playlist");
+                                    Util.error(TAG, t);
                                 }
                             });
                         }

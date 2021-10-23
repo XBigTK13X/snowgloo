@@ -127,7 +127,7 @@ public class AudioPlayer {
         try{
             isSeeking = false;
             MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
-            if(currentQueueSong.Id != null){
+            if(currentQueueSong != null && currentQueueSong.Id != null){
                 if(startOver || (currentSong == null || !currentQueueSong.Id.equals(currentSong.Id))){
                     Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
                     currentSong = currentQueueSong;

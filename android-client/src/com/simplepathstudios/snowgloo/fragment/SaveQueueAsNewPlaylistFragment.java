@@ -57,6 +57,7 @@ public class SaveQueueAsNewPlaylistFragment extends DialogFragment {
                                 @Override
                                 public void onFailure(Call call, Throwable t) {
                                     Util.log(TAG, "Unable to save playlist");
+                                    Util.error(TAG, t);
                                 }
                             });
                         }

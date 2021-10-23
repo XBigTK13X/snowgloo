@@ -29,7 +29,7 @@ public class RandomListViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<MusicPlaylist> call, Throwable t) {
-                Util.error("PlaylistViewModel.load",t);
+                Util.error("RandomListViewModel.load",t);
                 LoadingIndicator.setLoading(false);
             }
         });

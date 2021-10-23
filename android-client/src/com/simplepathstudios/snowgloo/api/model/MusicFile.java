@@ -27,7 +27,17 @@ public class MusicFile {
     public String LocalFilePath;
     private String oneLineMetadata;
 
+    // This exists to workaround Java failing to match hashes in the queue HashMap
+    private transient MusicId lookupId;
+
     public MusicFile(){}
+
+    public MusicId getLookupId(){
+        if(this.lookupId == null){
+            this.lookupId = new MusicId(this.Id);
+        }
+        return this.lookupId;
+    }
 
     public String getOneLineMetadata(){
         if(oneLineMetadata == null){
@@ -38,16 +48,5 @@ public class MusicFile {
             }
         }
         return oneLineMetadata;
-    }
-
-    @Override
-    public int hashCode(){
-        return this.Id.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj){
-        MusicFile target = (MusicFile)obj;
-        return this.Id.equalsIgnoreCase(target.Id);
     }
 }

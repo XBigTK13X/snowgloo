@@ -24,6 +24,7 @@ import retrofit2.Response;
 import static com.simplepathstudios.snowgloo.api.model.MusicQueue.UpdateReason.PLAYER_STATE_CHANGED;
 
 public class ObservableMusicQueue {
+    public static String TAG = "ObservableMusicQueue";
     public enum RepeatMode{
         None,One,All
     }
@@ -116,6 +117,8 @@ public class ObservableMusicQueue {
             @Override
             public void onFailure(Call<MusicQueue> call, Throwable t) {
                 LoadingIndicator.setLoading(false);
+                Util.log(TAG, "Unable to load the queue");
+                Util.error(TAG, t);
             }
         });
     }
@@ -130,6 +133,8 @@ public class ObservableMusicQueue {
             @Override
             public void onFailure(Call<MusicQueuePayload> call, Throwable t) {
                 LoadingIndicator.setLoading(false);
+                Util.log(TAG, "Unable to save the queue");
+                Util.error(TAG, t);
             }
         });
     }
@@ -149,7 +154,8 @@ public class ObservableMusicQueue {
             @Override
             public void onFailure(Call<MusicQueue> call, Throwable t) {
                 LoadingIndicator.setLoading(false);
-                Util.error("ObservableMusicQueue.clear",t);
+                Util.log(TAG, "Unable to clear the queue");
+                Util.error(TAG, t);
             }
         });
     }
@@ -213,7 +219,7 @@ public class ObservableMusicQueue {
 
     public Integer getIndex(MusicFile musicFile){
         for(int ii = 0 ; ii < queue.getSize(); ii++){
-            if(queue.getSong(ii).Id.equalsIgnoreCase(musicFile.Id)){
+            if(queue.getSong(ii).Id.equals(musicFile.Id)){
                 return ii;
             }
         }

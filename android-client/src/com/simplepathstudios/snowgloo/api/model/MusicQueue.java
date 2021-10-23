@@ -13,10 +13,12 @@ public class MusicQueue {
     public static final MusicQueue EMPTY = new MusicQueue();
 
     private ArrayList<MusicFile> songs = new ArrayList<MusicFile>();
-    private HashMap<MusicFile, Boolean> lookup = new HashMap<MusicFile, Boolean>();
+    private HashMap<String, Boolean> lookup = new HashMap<String, Boolean>();
     public Integer currentIndex = null;
     public UpdateReason updateReason = UpdateReason.SERVER_RELOAD;
     public PlayerState playerState;
+
+    private transient HashMap<MusicId, Boolean> dedupeLookup = new HashMap<MusicId, Boolean>();
 
     public boolean isReady(){
         return songs != null;
@@ -34,10 +36,11 @@ public class MusicQueue {
     }
 
     public boolean add(MusicFile song, Integer position){
-        if(lookup.containsKey(song)){
+        if(dedupeLookup.containsKey(song.getLookupId())){
             return false;
         }
-        lookup.put(song, true);
+        dedupeLookup.put(song.getLookupId(), true);
+        lookup.put(song.Id, true);
         if(position == null){
             songs.add(song);
         } else {
@@ -50,6 +53,7 @@ public class MusicQueue {
     public void remove(int songIndex){
         MusicFile song = songs.get(songIndex);
         lookup.remove(song.Id);
+        dedupeLookup.remove(song.getLookupId());
         songs.remove(songIndex);
     }
 

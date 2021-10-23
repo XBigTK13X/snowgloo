@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.simplepathstudios.snowgloo.LoadingIndicator;
+import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.SearchResults;
 
@@ -32,6 +33,7 @@ public class SearchResultsViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<SearchResults> call, Throwable t) {
+                Util.error("SearchResultsViewModel.load",t);
                 LoadingIndicator.setLoading(false);
             }
         });

@@ -30,7 +30,7 @@ public class PlaylistListViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<PlaylistList> call, Throwable t) {
-                Util.error("PlaylistViewModel.load",t);
+                Util.error("PlaylistListViewModel.load",t);
                 LoadingIndicator.setLoading(false);
             }
         });

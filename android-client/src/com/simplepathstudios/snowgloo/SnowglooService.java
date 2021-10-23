@@ -36,7 +36,7 @@ public class SnowglooService extends MediaBrowserServiceCompat {
 
     public static android.content.ComponentName ComponentName = new ComponentName("com.simplepathstudios.snowgloo.SnowglooService", SnowglooService.class.getName());
 
-    public class SnowglooBroadcastReceiver extends BroadcastReceiver{
+    public static class SnowglooBroadcastReceiver extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {

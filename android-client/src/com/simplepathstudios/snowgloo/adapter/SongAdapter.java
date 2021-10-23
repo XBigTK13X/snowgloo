@@ -47,6 +47,7 @@ import retrofit2.Response;
 import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
+    public static String TAG = "SongAdapter";
     public enum Kind {
         QUEUE,
         TRACKS
@@ -155,7 +156,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     if(kind == Kind.QUEUE){
-                        ObservableMusicQueue.getInstance().setCurrentIndex(getAdapterPosition());
+                        ObservableMusicQueue.getInstance().setCurrentIndex(getAbsoluteAdapterPosition());
                         AudioPlayer.getInstance().play();
                     }
                     else {
@@ -272,6 +273,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                                     @Override
                                     public void onFailure(Call call, Throwable t) {
                                         Util.toast("Unable to add song to playlist");
+                                        Util.log(TAG, "Unable to add song to playlist");
+                                        Util.error(TAG, t);
                                     }
                                 });
                                 return false;
@@ -305,8 +308,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
         @Override
         public boolean onMove(RecyclerView list, RecyclerView.ViewHolder origin, RecyclerView.ViewHolder target) {
-            int fromPosition = origin.getAdapterPosition();
-            int toPosition = target.getAdapterPosition();
+            int fromPosition = origin.getAbsoluteAdapterPosition();
+            int toPosition = target.getAbsoluteAdapterPosition();
             if (draggingFromPosition == -1) {
                 // A drag has started, but changes to the media queue will be reflected in clearView().
                 draggingFromPosition = fromPosition;
@@ -318,7 +321,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            int position = viewHolder.getAdapterPosition();
+            int position = viewHolder.getAbsoluteAdapterPosition();
             MusicQueue musicQueue = ObservableMusicQueue.getInstance().getQueue();
             if(musicQueue.currentIndex != null && musicQueue.currentIndex == position){
                 AudioPlayer.getInstance().stop();
