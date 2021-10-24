@@ -16,9 +16,6 @@ class Catalog {
         this.organizer = new Organizer(settings.mediaRoot)
         this.media = {}
         this.database = database.getInstance('catalog')
-        this.building = false
-        this.rebuildCount = 0
-        this.totalCount = 0
     }
 
     status() {
@@ -51,7 +48,8 @@ class Catalog {
                     resolve(this.media)
                 } else {
                     util.log('Rebuilding the catalog from scratch')
-                    this.organizer = new Organizer(settings.mediaRoot)
+                    let oldMedia = { ...this.media }
+                    this.organizer = new Organizer(settings.mediaRoot, oldMedia)
                     return this.organizer
                         .shallow()
                         .then((media) => {

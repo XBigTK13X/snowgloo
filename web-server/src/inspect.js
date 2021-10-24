@@ -1,6 +1,6 @@
 const jsmediatags = require('jsmediatags')
 const spawn = require('child_process').spawn
-const util = require("./util")
+const util = require('./util')
 
 const probe = (file) => {
     return new Promise((resolve, reject) => {
@@ -25,9 +25,9 @@ const probe = (file) => {
         proc.on('close', () => {
             try {
                 resolve(JSON.parse(probeData.join('')))
-            } catch(err){            
+            } catch (err) {
                 util.log(`Unable to inspect file data for ${file}`)
-                util.log({err, probeData})
+                util.log({ err, probeData })
                 reject(err)
             }
         })

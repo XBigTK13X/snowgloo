@@ -59,10 +59,21 @@ export default class Admin extends Component {
                 status = (
                     <p>
                         Rebuilding the catalog ({this.state.catalogStatus.rebuildCount}/{this.state.catalogStatus.totalCount}).
+                        <br />
+                        Started at {this.state.catalogStatus.startTime}. {this.state.catalogStatus.endTime ? 'Ended at ' + this.state.catalogStatus.endTime : null}.<br />
+                        Skipped {this.state.catalogStatus.deepSkipCount} out of {this.state.catalogStatus.totalSongCount}.
                     </p>
                 )
             } else {
-                status = <p>The catalog is finished building.</p>
+                status = (
+                    <p>
+                        The catalog is finished building.
+                        <br />
+                        Started at {this.state.catalogStatus.startTime}. {this.state.catalogStatus.endTime ? 'Ended at ' + this.state.catalogStatus.endTime : null}
+                        <br />
+                        Skipped {this.state.catalogStatus.deepSkipCount} out of {this.state.catalogStatus.totalSongCount}.
+                    </p>
+                )
             }
         }
         let systemInfo = null

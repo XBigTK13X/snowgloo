@@ -12,32 +12,17 @@ const SHALLOW = 'shallow'
 const DEEP = 'deep'
 
 class Organizer {
-    constructor(mediaRoot) {
+    constructor(mediaRoot, catalogMedia) {
         this.mediaRoot = mediaRoot
+        this.catalogMedia = catalogMedia
         this.depth = 'shallow'
         this.building = false
+        this.startTime = null
+        this.endTime = null
         this.rebuildCount = 0
         this.totalCount = 0
-    }
-
-    status() {
-        return {
-            building: this.building,
-            rebuildCount: this.rebuildCount,
-            totalCount: this.totalCount,
-        }
-    }
-
-    shallow() {
-        return this.organize(SHALLOW)
-    }
-
-    deep() {
-        return this.organize(DEEP)
-    }
-
-    organize(depth) {
-        this.depth = depth
+        this.deepSkipCount = 0
+        this.totalSongCount = 0
         this.coverArts = {
             list: [],
             lookup: {},
@@ -58,10 +43,39 @@ class Organizer {
             list: [],
             lookup: {},
         }
+    }
+
+    status() {
+        return {
+            building: this.building,
+            rebuildCount: this.rebuildCount,
+            totalCount: this.totalCount,
+            startTime: this.startTime,
+            endTime: this.endTime,
+            deepSkipCount: this.deepSkipCount,
+            totalSongCount: this.totalSongCount,
+        }
+    }
+
+    shallow() {
+        return this.organize(SHALLOW)
+    }
+
+    deep() {
+        return this.organize(DEEP)
+    }
+
+    organize(depth) {
+        this.depth = depth
         this.building = true
         this.rebuildCount = 0
         this.totalCount = 0
-        this.startTime = new Date().getTime()
+        if (depth === SHALLOW) {
+            this.startTime = new Date()
+            this.deepSkipCount = 0
+            this.endTime = null
+            this.totalSongCount = 0
+        }
 
         util.log(`Reading all files from media root. Making a ${depth} pass`)
         return new Promise((resolve, reject) => {
@@ -93,9 +107,12 @@ class Organizer {
                         albums: this.albums,
                         categories: this.categories,
                     }
-                    let timeSpent = (new Date().getTime() - this.startTime) / 1000
-                    this.building = false
-                    util.log(`Finished ${depth} pass for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
+                    if (depth === DEEP) {
+                        this.endTime = new Date()
+                        let timeSpent = (this.endTime.getTime() - this.startTime.getTime()) / 1000
+                        this.building = false
+                        util.log(`Finished ${depth} pass for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
+                    }
                     resolve(result)
                 })
         })
@@ -175,12 +192,22 @@ class Organizer {
         return new Promise((resolve) => {
             const batchSize = 8
             let promiseBatches = []
+            let useCache = !this.catalogMedia || (this.catalogMedia && this.catalogMedia.songs)
+            if (this.depth === DEEP) {
+                this.totalSongCount = 0
+            }
             for (let ii = 0; ii < this.songs.list.length; ii += batchSize) {
                 promiseBatches.push(() => {
                     let internalPromises = []
                     for (let jj = 0; jj < batchSize; jj++) {
                         if (ii + jj < this.songs.list.length) {
-                            internalPromises.push(this.songs.list[ii + jj].parseMetadata())
+                            let song = this.songs.list[ii + jj]
+                            this.totalSongCount += 1
+                            if (useCache && !_.has(this.catalogMedia.songs.lookup, song.Id)) {
+                                internalPromises.push(song.parseMetadata())
+                            } else {
+                                this.deepSkipCount += 1
+                            }
                         }
                     }
                     return Promise.all(internalPromises)
