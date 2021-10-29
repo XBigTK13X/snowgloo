@@ -197,7 +197,8 @@ class Catalog {
             let albumDedupe = {}
             while (randomCount > 0 && maxAttempts > 0) {
                 let album = this.media.albums.lookup[_.sample(this.media.albums.list)]
-                let song = _.sample(album.Songs)
+                let songId = _.sample(album.Songs)
+                let song = this.media.songs.lookup[songId]
                 if (!_.has(artistDedupe, song.DisplayArtist) && !_.has(albumDedupe, song.DisplayAlbum)) {
                     artistDedupe[song.DisplayArtist] = 1
                     albumDedupe[song.DisplayAlbum] = 1
