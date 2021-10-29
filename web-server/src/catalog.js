@@ -1,6 +1,4 @@
-const recurse = require('recursive-readdir')
 const _ = require('lodash')
-const path = require('path')
 
 const settings = require('./settings')
 const database = require('./database')
@@ -48,16 +46,16 @@ class Catalog {
                     resolve(this.media)
                 } else {
                     util.log('Rebuilding the catalog from scratch')
-                    let oldMedia = { ...this.media }
-                    this.organizer = new Organizer(settings.mediaRoot, oldMedia)
+                    let songLookup = this.media.songs ? _.cloneDeep(this.media.songs.lookup) : null
+                    this.organizer = new Organizer(settings.mediaRoot, songLookup)
                     return this.organizer
                         .shallow()
                         .then((media) => {
-                            this.media = { ...media }
+                            this.media = _.cloneDeep(media)
                             return this.organizer.deep()
                         })
                         .then((media) => {
-                            this.media = { ...media }
+                            this.media = _.cloneDeep(media)
                             return this.database.write(this.media)
                         })
                         .then(() => {

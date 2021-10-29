@@ -58,7 +58,7 @@ export default class Admin extends Component {
             if (this.state.catalogStatus.building) {
                 status = (
                     <p>
-                        Rebuilding the catalog ({this.state.catalogStatus.rebuildCount}/{this.state.catalogStatus.totalCount}).
+                        Rebuilding the catalog ({this.state.catalogStatus.rebuildCount}/{this.state.catalogStatus.totalSongCount}).
                         <br />
                         Started at {this.state.catalogStatus.startTime}. {this.state.catalogStatus.endTime ? 'Ended at ' + this.state.catalogStatus.endTime : null}.<br />
                         Skipped {this.state.catalogStatus.deepSkipCount} out of {this.state.catalogStatus.totalSongCount}.

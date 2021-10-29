@@ -12,15 +12,14 @@ const SHALLOW = 'shallow'
 const DEEP = 'deep'
 
 class Organizer {
-    constructor(mediaRoot, catalogMedia) {
+    constructor(mediaRoot, catalogSongLookup) {
         this.mediaRoot = mediaRoot
-        this.catalogMedia = catalogMedia
+        this.catalogSongLookup = catalogSongLookup
         this.depth = 'shallow'
         this.building = false
         this.startTime = null
         this.endTime = null
         this.rebuildCount = 0
-        this.totalCount = 0
         this.deepSkipCount = 0
         this.totalSongCount = 0
         this.coverArts = {
@@ -49,7 +48,6 @@ class Organizer {
         return {
             building: this.building,
             rebuildCount: this.rebuildCount,
-            totalCount: this.totalCount,
             startTime: this.startTime,
             endTime: this.endTime,
             deepSkipCount: this.deepSkipCount,
@@ -69,7 +67,6 @@ class Organizer {
         this.depth = depth
         this.building = true
         this.rebuildCount = 0
-        this.totalCount = 0
         if (depth === SHALLOW) {
             this.startTime = new Date()
             this.deepSkipCount = 0
@@ -189,46 +186,23 @@ class Organizer {
         if (this.depth == SHALLOW) {
             return Promise.resolve()
         }
-        return new Promise((resolve) => {
-            const batchSize = 8
-            let promiseBatches = []
-            let useCache = !this.catalogMedia || (this.catalogMedia && this.catalogMedia.songs)
-            if (this.depth === DEEP) {
-                this.totalSongCount = 0
-            }
-            for (let ii = 0; ii < this.songs.list.length; ii += batchSize) {
-                promiseBatches.push(() => {
-                    let internalPromises = []
-                    for (let jj = 0; jj < batchSize; jj++) {
-                        if (ii + jj < this.songs.list.length) {
-                            let song = this.songs.list[ii + jj]
-                            this.totalSongCount += 1
-                            if (useCache && !_.has(this.catalogMedia.songs.lookup, song.Id)) {
-                                internalPromises.push(song.parseMetadata())
-                            } else {
-                                this.deepSkipCount += 1
-                            }
-                        }
-                    }
-                    return Promise.all(internalPromises)
-                })
-            }
+        return new Promise(async (resolve) => {
             this.rebuildCount = 0
-            this.totalCount = promiseBatches.length
-            const notify = 100
-            return promiseBatches
-                .reduce((m, p) => {
-                    return m.then((v) => {
-                        this.rebuildCount++
-                        if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalCount) {
-                            util.log(`Reading file batch ${this.rebuildCount}/${this.totalCount}`)
-                        }
-                        return Promise.all([...v, p()])
-                    })
-                }, Promise.resolve([]))
-                .then(() => {
-                    resolve()
-                })
+            this.totalSongCount = this.songs.list.length
+            const notify = 1000
+            for (let ii = 0; ii < this.totalSongCount; ii ++) {
+                this.rebuildCount++
+                if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalSongCount) {
+                    util.log(`Reading file ${this.rebuildCount} out of ${this.totalSongCount}`)
+                }
+                let song = this.songs.list[ii]                
+                if (!this.catalogSongLookup || !_.has(this.catalogSongLookup, song.Id)) {
+                    await song.parseMetadata()
+                } else {
+                    this.deepSkipCount += 1
+                }
+            }
+            return resolve()
         })
     }
 
@@ -245,7 +219,7 @@ class Organizer {
                     song.AlbumCoverArt = this.coverArts.lookup[song.AlbumSlug]
                 }
                 song.CoverArt = song.EmbeddedCoverArt ? song.EmbeddedCoverArt : song.AlbumCoverArt
-                if (this.depth === DEEP && !song.CoverArt) {
+                if (this.depth === DEEP && !song.EmbeddedCoverArt) {
                     console.error('No cover art found for ' + song.LocalFilePath)
                 }
             }
@@ -264,7 +238,9 @@ class Organizer {
                     this.albums.lookup[song.AlbumSlug] = album
                     this.albums.list.push(song.AlbumSlug)
                 }
-                this.albums.lookup[song.AlbumSlug].Songs.push(song)
+                if (this.depth === SHALLOW) {
+                    this.albums.lookup[song.AlbumSlug].Songs.push(song)
+                }
             }
             this.albums.list = util.alphabetize(this.albums.list)
             resolve()
