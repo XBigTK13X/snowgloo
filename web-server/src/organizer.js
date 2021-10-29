@@ -231,9 +231,6 @@ class Organizer {
                     song.AlbumCoverArt = this.coverArts.lookup[song.AlbumSlug]
                 }
                 song.CoverArt = song.EmbeddedCoverArt ? song.EmbeddedCoverArt : song.AlbumCoverArt
-                if (this.depth === DEEP && !song.EmbeddedCoverArt) {
-                    console.error('No cover art found for ' + song.LocalFilePath)
-                }
                 this.songs.lookup[songId] = song
             }
             resolve()
