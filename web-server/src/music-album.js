@@ -15,7 +15,7 @@ class MusicAlbum {
         this.Kind = musicFile.Kind
         this.ReleaseYear = musicFile.ReleaseYear
         this.ReleaseYearSort = musicFile.ReleaseYearSort
-        this.Songs = musicFile.Songs || []
+        this.Songs = []
         this.SubKind = musicFile.SubKind
     }
 

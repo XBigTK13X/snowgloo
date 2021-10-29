@@ -115,7 +115,6 @@ class MusicFile {
                     })
                 })
                 .catch((err) => {
-                    console.log({err, song: this})
                     resolve()
                 })
         })

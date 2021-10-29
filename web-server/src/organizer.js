@@ -117,6 +117,9 @@ class Organizer {
 
     scanDirectory() {
         return new Promise((resolve, reject) => {
+            if (this.depth === DEEP) {
+                return resolve()
+            }
             recurse(this.mediaRoot, (err, files) => {
                 if (err) {
                     return reject(err)
@@ -130,6 +133,9 @@ class Organizer {
 
     filter() {
         return new Promise((resolve) => {
+            if (this.depth === DEEP) {
+                return resolve()
+            }
             this.files.list = this.files.list.filter((file) => {
                 if (file.includes('.jpg') || file.includes('.png') || file.includes('.jpeg')) {
                     if (!file.toLowerCase().includes('small')) {
@@ -149,16 +155,16 @@ class Organizer {
 
     parseFilesToSongs() {
         return new Promise((resolve) => {
+            if (this.depth === DEEP) {
+                return resolve()
+            }
             this.songs.list = this.files.list.map((file) => {
                 let song = new MusicFile(file)
-                if (this.depth === DEEP) {
-                    if (_.has(this.songs.lookup, song.Id)) {
-                        console.error('Duplicate song ID ' + song.LocalFilePath + ' and ' + this.songs.lookup[song.Id].LocalFilePath)
-                    } else {
-                        this.songs.lookup[song.Id] = song
-                    }
+                if (_.has(this.songs.lookup, song.Id)) {
+                    console.error('Duplicate song ID ' + song.LocalFilePath + ' and ' + this.songs.lookup[song.Id].LocalFilePath)
                 }
-                return song
+                this.songs.lookup[song.Id] = song
+                return song.Id
             })
             resolve()
         })
@@ -166,7 +172,12 @@ class Organizer {
 
     sortSongs() {
         return new Promise((resolve) => {
-            this.songs.list = this.songs.list.sort((a, b) => {
+            if (this.depth === DEEP) {
+                return resolve()
+            }
+            this.songs.list = this.songs.list.sort((aId, bId) => {
+                let a = this.songs.lookup[aId]
+                let b = this.songs.lookup[bId]
                 if (a.Artist.toLowerCase() !== b.Artist.toLowerCase()) {
                     return a.Artist.toLowerCase() > b.Artist.toLowerCase() ? 1 : -1
                 }
@@ -190,14 +201,14 @@ class Organizer {
             this.rebuildCount = 0
             this.totalSongCount = this.songs.list.length
             const notify = 1000
-            for (let ii = 0; ii < this.totalSongCount; ii ++) {
+            for (let ii = 0; ii < this.totalSongCount; ii++) {
                 this.rebuildCount++
                 if (this.rebuildCount === 1 || this.rebuildCount % notify === 0 || this.rebuildCount === this.totalSongCount) {
                     util.log(`Reading file ${this.rebuildCount} out of ${this.totalSongCount}`)
                 }
-                let song = this.songs.list[ii]                
-                if (!this.catalogSongLookup || !_.has(this.catalogSongLookup, song.Id)) {
-                    await song.parseMetadata()
+                let songId = this.songs.list[ii]
+                if (!this.catalogSongLookup || !_.has(this.catalogSongLookup, songId)) {
+                    await this.songs.lookup[songId].parseMetadata()
                 } else {
                     this.deepSkipCount += 1
                 }
@@ -214,7 +225,8 @@ class Organizer {
                     this.coverArts.lookup[artFile.AlbumSlug] = `${settings.mediaServer}${coverArt}`
                 }
             }
-            for (let song of this.songs.list) {
+            for (let songId of this.songs.list) {
+                let song = this.songs.lookup[songId]
                 if (_.has(this.coverArts.lookup, song.AlbumSlug)) {
                     song.AlbumCoverArt = this.coverArts.lookup[song.AlbumSlug]
                 }
@@ -222,6 +234,7 @@ class Organizer {
                 if (this.depth === DEEP && !song.EmbeddedCoverArt) {
                     console.error('No cover art found for ' + song.LocalFilePath)
                 }
+                this.songs.lookup[songId] = song
             }
             resolve()
         })
@@ -229,7 +242,11 @@ class Organizer {
 
     organizeAlbums() {
         return new Promise((resolve) => {
-            for (let song of this.songs.list) {
+            if (this.depth === DEEP) {
+                return resolve()
+            }
+            for (let songId of this.songs.list) {
+                let song = this.songs.lookup[songId]
                 if (!_.has(this.albums.lookup, song.AlbumSlug)) {
                     const album = new MusicAlbum(song, this.coverArts.lookup[song.AlbumSlug])
                     if (album.ReleaseYear === 9999) {
@@ -238,9 +255,7 @@ class Organizer {
                     this.albums.lookup[song.AlbumSlug] = album
                     this.albums.list.push(song.AlbumSlug)
                 }
-                if (this.depth === SHALLOW) {
-                    this.albums.lookup[song.AlbumSlug].Songs.push(song)
-                }
+                this.albums.lookup[song.AlbumSlug].Songs.push(song.Id)
             }
             this.albums.list = util.alphabetize(this.albums.list)
             resolve()
@@ -249,7 +264,11 @@ class Organizer {
 
     organizeCategories() {
         return new Promise((resolve) => {
-            for (let song of this.songs.list) {
+            if (this.depth === DEEP) {
+                return resolve()
+            }
+            for (let songId of this.songs.list) {
+                let song = this.songs.lookup[songId]
                 if (!_.has(this.categories.lookup, song.Kind)) {
                     this.categories.lookup[song.Kind] = {
                         artists: {

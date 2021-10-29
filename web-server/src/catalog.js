@@ -28,11 +28,11 @@ class Catalog {
                     util.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
                     this.media = persistedMedia
                     //Need to rehydrate class instances from JSON, otherwise instance methods won't work (i.e. search)
-                    this.media.songs.list = this.media.songs.list.map((song) => {
-                        let result = new MusicFile().rehydrate(song)
-                        this.media.songs.lookup[song.Id] = result
-                        return result
-                    })
+                    let songsLookup = {}
+                    for (let songId of Object.keys(this.media.songs.lookup)) {
+                        songsLookup[songId] = new MusicFile().rehydrate(this.media.songs.lookup[songId])
+                    }
+                    this.media.songs.lookup = songsLookup
                     for (let albumName of this.media.albums.list) {
                         const album = new MusicAlbum().rehydrate(this.media.albums.lookup[albumName])
                         this.media.albums.lookup[albumName] = album
@@ -76,9 +76,9 @@ class Catalog {
                 Albums: [],
                 ItemCount: 0,
             }
-            for (let song of this.media.songs.list) {
-                if (song.matches(query)) {
-                    results.Songs.push(song)
+            for (let songId of this.media.songs.list) {
+                if (this.media.songs.lookup[songId].matches(query)) {
+                    results.Songs.push(this.media.songs.lookup[songId])
                     results.ItemCount++
                 }
             }
@@ -111,7 +111,11 @@ class Catalog {
     getSongs(songIds) {
         return new Promise((resolve) => {
             if (!songIds) {
-                return resolve(this.media.songs.list)
+                return resolve(
+                    this.media.songs.list.map((songId) => {
+                        return this.media.songs.lookup[songId]
+                    })
+                )
             }
 
             return resolve(
@@ -133,7 +137,10 @@ class Catalog {
 
     getAlbum(albumSlug) {
         return new Promise((resolve) => {
-            let album = this.media.albums.lookup[albumSlug]
+            let album = _.cloneDeep(this.media.albums.lookup[albumSlug])
+            album.Songs = album.Songs.map((songId) => {
+                return this.media.songs.lookup[songId]
+            })
             return resolve(album)
         })
     }
