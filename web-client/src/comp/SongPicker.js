@@ -28,11 +28,12 @@ export default class SongPicker extends Component {
                     <table>
                         <thead>
                             <tr>
-                                <th className="centered">Actions</th>
-                                <th>Title</th>
-                                <th>Album</th>
-                                <th>Artist</th>
-                                {this.props.updateSongList ? <th className="centered">Reorder</th> : null}
+                                <th className="small-cell">Actions</th>
+                                <th className="small-cell">Cover</th>
+                                <th className="medium-cell">Title</th>
+                                <th className="medium-cell">Album</th>
+                                <th className="medium-cell">Artist</th>
+                                {this.props.updateSongList ? <th className="small-cell">Reorder</th> : null}
                             </tr>
                         </thead>
                         <Droppable droppableId="song-picker" isDropDisabled={!this.props.updateSongList}>

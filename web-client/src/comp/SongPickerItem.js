@@ -24,14 +24,16 @@ export default class SongPickerItem extends Component {
         }
         let style = 'list-item-text'
         if (this.props.alternate && !this.props.nowPlaying) {
-            style += ' alternate'
+            style += ' odd-row'
+        } else {
+            style += ' even-row'
         }
         if (this.props.nowPlaying) {
             style += ' highlighted-row'
         }
         return (
             <tr {...this.props.provided.draggableProps} ref={this.props.innerRef} className={style} onClick={this.handleClick}>
-                <td data-kind="action-menu" className="centered">
+                <td data-kind="action-menu" className="centered small-cell">
                     <MicroModal
                         trigger={(handleOpen) => (
                             <button className="small-icon-button" onClick={handleOpen} title="Open the action menu">
@@ -72,11 +74,22 @@ export default class SongPickerItem extends Component {
                         )}
                     />
                 </td>
-                <td data-kind="play">{this.props.song.Title}</td>
-                <td data-kind="play">{this.props.song.DisplayAlbum}</td>
-                <td data-kind="play">{this.props.song.DisplayArtist}</td>
+                <td data-kind="play" className="small-cell">
+                    <div className="inline-cover-art" data-kind="play">
+                        <img src={this.props.song.CoverArt} alt="cover art" className="inline-cover-art-img" data-kind="play" />
+                    </div>
+                </td>
+                <td data-kind="play" className="medium-cell">
+                    {this.props.song.Title}
+                </td>
+                <td data-kind="play" className="medium-cell">
+                    {this.props.song.DisplayAlbum}
+                </td>
+                <td data-kind="play" className="medium-cell">
+                    {this.props.song.DisplayArtist}
+                </td>
                 {this.props.updateSongList ? (
-                    <td data-kind="reorder" {...this.props.provided.dragHandleProps} className="centered">
+                    <td data-kind="reorder" {...this.props.provided.dragHandleProps} className="centered small-cell">
                         <div className="small-icon-button" title="Drag to reorder">
                             <FontAwesomeIcon icon={faAlignJustify} />
                         </div>
