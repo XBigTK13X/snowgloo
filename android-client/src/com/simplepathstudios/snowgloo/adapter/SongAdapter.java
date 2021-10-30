@@ -218,7 +218,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                         if(songIndex == null){
                             songIndex = 0;
                         }
-                        ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex + 1);
+                        if(songIndex != currentIndex){
+                            if(songIndex < currentIndex){
+                                ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex);
+                            } else {
+                                ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex + 1);
+                            }
+
+                        }
                         return false;
                     }
                 });

@@ -114,18 +114,20 @@ public class QueueFragment extends Fragment {
         listView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity());
         listView.setLayoutManager(layoutManager);
-        Bundle arguments = getArguments();
+
         observableMusicQueue = ObservableMusicQueue.getInstance();
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                if(MainActivity.getInstance() != null && musicQueue != null){
+                if(isVisible() && MainActivity.getInstance() != null && musicQueue != null){
                     MainActivity.getInstance().setActionBarSubtitle(musicQueue.getSize() + " songs");
                 }
                 adapter.setData(musicQueue.getAll());
                 adapter.notifyDataSetChanged();
             }
         });
+
+        Bundle arguments = getArguments();
         if(arguments != null){
             scrollTo(arguments.getInt("ScrollToItemIndex") + ITEM_CENTER_OFFSET);
         }

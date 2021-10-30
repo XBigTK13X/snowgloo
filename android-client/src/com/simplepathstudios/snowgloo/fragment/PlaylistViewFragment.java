@@ -96,6 +96,7 @@ public class PlaylistViewFragment extends Fragment {
             @Override
             public void onChanged(MusicPlaylist playlist) {
                 MainActivity.getInstance().setActionBarTitle(playlist.name);
+                MainActivity.getInstance().setActionBarSubtitle("");
                 Util.confirmMenuAction(addToQueueButton, "Add " + playlist.songs.size() + " songs to queue?", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
