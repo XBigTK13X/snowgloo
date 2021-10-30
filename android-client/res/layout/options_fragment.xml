@@ -20,6 +20,12 @@
         android:thumb="@drawable/volume_bar_thumb"
         android:layout_margin="5dp"/>
 
+    <Button
+        android:id="@+id/download_update_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update Snowgloo" />
+
     <TextView
         android:id="@+id/textView5"
         android:layout_width="match_parent"

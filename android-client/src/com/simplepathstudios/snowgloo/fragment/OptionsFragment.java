@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,7 +21,6 @@ import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.ServerInfo;
-import com.simplepathstudios.snowgloo.audio.AudioPlayer;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.ServerInfoViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
@@ -41,6 +41,7 @@ public class OptionsFragment extends Fragment {
     private SeekBar volumeSlider;
     private String lastServer;
     private Button enableSimpleUIModeButton;
+    private Button updateSnowglooButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -68,6 +69,15 @@ public class OptionsFragment extends Fragment {
                     Log.d(TAG, "Internal Volume Progress "+((double)progress)/100.0);
                     settingsViewModel.setInternalMediaVolume(((double)progress)/100.0);
                 }
+            }
+        });
+
+        updateSnowglooButton = view.findViewById(R.id.download_update_button);
+        updateSnowglooButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, SnowglooSettings.UpdateSnowglooUrl);
+                startActivity(intent);
             }
         });
 

@@ -1,5 +1,8 @@
 package com.simplepathstudios.snowgloo;
 
+
+import android.net.Uri;
+
 public class SnowglooSettings {
     public static final String BuildDate = "October 29, 2021";
     public static final String ClientVersion = "1.4.10";
@@ -8,4 +11,5 @@ public class SnowglooSettings {
     public static boolean EnableDebugLog = false;
     public static double InternalMediaVolume = 1.0;
     public static boolean EnableSimpleUIMode = false;
+    public static Uri UpdateSnowglooUrl = Uri.parse("http://9914.us/software/android/snowgloo.apk");
 }
