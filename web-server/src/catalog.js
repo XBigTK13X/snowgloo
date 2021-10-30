@@ -85,7 +85,11 @@ class Catalog {
             for (let albumSlug of this.media.albums.list) {
                 const album = this.media.albums.lookup[albumSlug]
                 if (album.matches(query)) {
-                    results.Albums.push(album)
+                    let albumHit = _.cloneDeep(album)
+                    albumHit.Songs = albumHit.Songs.map((songId) => {
+                        return this.media.songs.lookup[songId]
+                    })
+                    results.Albums.push(albumHit)
                     results.ItemCount++
                 }
             }
@@ -150,7 +154,7 @@ class Catalog {
             if (!artist) {
                 return resolve(this.media.albums)
             }
-            let albums = { ...this.media.albums }
+            let albums = _.cloneDeep(this.media.albums)
             let albumList = albums.list
                 .filter((x) => {
                     return albums.lookup[x].Artist === artist
@@ -176,7 +180,11 @@ class Catalog {
                 } else {
                     lists.Album.push(next)
                 }
-                result[next] = albums.lookup[next]
+                let album = _.cloneDeep(albums.lookup[next])
+                album.Songs = album.Songs.map((songId) => {
+                    return this.media.songs.lookup[songId]
+                })
+                result[next] = album
                 return result
             }, {})
 
