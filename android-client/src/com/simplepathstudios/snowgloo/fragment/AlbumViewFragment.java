@@ -85,7 +85,9 @@ public class AlbumViewFragment extends Fragment {
         albumViewModel.Data.observe(getViewLifecycleOwner(), new Observer<AlbumView>() {
             @Override
             public void onChanged(AlbumView album) {
-                MainActivity.getInstance().setActionBarSubtitle("Album - "+album.album.ReleaseYear);
+                if(isVisible() && MainActivity.getInstance() != null) {
+                    MainActivity.getInstance().setActionBarSubtitle("Album - " + album.album.ReleaseYear);
+                }
                 adapter.setData(album.album.Songs);
                 adapter.notifyDataSetChanged();
             }

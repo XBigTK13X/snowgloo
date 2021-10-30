@@ -34,7 +34,6 @@ import java.util.ArrayList;
 public class ArtistViewFragment extends Fragment {
     private final String TAG = "ArtistViewFragment";
     private ArtistViewViewModel artistViewViewModel;
-    private ObservableMusicQueue observableMusicQueue;
 
     private String artistName;
     private MenuItem addToQueueButton;
@@ -54,7 +53,7 @@ public class ArtistViewFragment extends Fragment {
         addToQueueButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                AddArtistToQueueDialogFragment dialogFragment = new AddArtistToQueueDialogFragment(artistViewViewModel, observableMusicQueue);
+                AddArtistToQueueDialogFragment dialogFragment = new AddArtistToQueueDialogFragment(artistViewViewModel, ObservableMusicQueue.getInstance());
                 dialogFragment.show(getChildFragmentManager(),"add-artist-to-queue-dialog");
                 return false;
             }
@@ -69,7 +68,6 @@ public class ArtistViewFragment extends Fragment {
         MainActivity.getInstance().setActionBarSubtitle("Artist");
 
         artistViewViewModel = new ViewModelProvider(this).get(ArtistViewViewModel.class);
-        observableMusicQueue = ObservableMusicQueue.getInstance();
         artistViewViewModel.Data.observe(getViewLifecycleOwner(), new Observer<ArtistView>() {
             @Override
             public void onChanged(ArtistView artistView) {
