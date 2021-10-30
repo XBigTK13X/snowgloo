@@ -249,10 +249,10 @@ public class ObservableMusicQueue {
                 if(queue.currentIndex == fromPosition){
                     queue.currentIndex = toPosition;
                 } else{
-                    if(queue.currentIndex >= fromPosition && queue.currentIndex <= toPosition){
+                    if(queue.currentIndex > fromPosition && queue.currentIndex <= toPosition){
                         queue.currentIndex--;
                     }
-                    if(queue.currentIndex <= fromPosition && queue.currentIndex >= toPosition){
+                    if(queue.currentIndex < fromPosition && queue.currentIndex >= toPosition){
                         queue.currentIndex++;
                     }
                 }
