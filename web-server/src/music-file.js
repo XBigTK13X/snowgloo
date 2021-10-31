@@ -1,7 +1,5 @@
 const settings = require('./settings')
-const inspect = require('./inspect')
 const util = require('./util')
-const asset = require('./asset')
 
 class MusicFile {
     constructor(path) {
@@ -81,43 +79,13 @@ class MusicFile {
         return this
     }
 
-    parseMetadata() {
-        return new Promise((resolve) => {
-            inspect
-                .audio(this.LocalFilePath)
-                .then((data) => {
-                    if (data.error) {
-                        console.error(this.LocalFilePath, data.error)
-                        throw data.error
-                    }
-                    if (data) {
-                        if (data.format) {
-                            this.AudioDuration = data.format.duration
-                        }
-                        if (data.streams && data.streams[1] && data.streams[1].width) {
-                            this.HasEmbeddedArt = true
-                        }
-                    }
-                    if (this.EmbeddedCoverArt || !this.HasEmbeddedArt) {
-                        return resolve()
-                    }
-                    return inspect.embeddedArt(this.LocalFilePath).then((embeddedArt) => {
-                        let imageName = `${this.AlbumSlug}-${util.contentHash(embeddedArt.content)}.${embeddedArt.extension}`
-                        let imageAsset = asset.getInstance(imageName)
-                        if (imageAsset.exists()) {
-                            this.EmbeddedCoverArt = `${settings.mediaServer}/snowgloo/${imageName}`
-                            return resolve()
-                        }
-                        return imageAsset.write(embeddedArt.content).then(() => {
-                            this.EmbeddedCoverArt = `${settings.mediaServer}/snowgloo/${imageName}`
-                            resolve()
-                        })
-                    })
-                })
-                .catch((err) => {
-                    resolve()
-                })
-        })
+    populateMetadata(embeddedCoverArt, durationSeconds) {
+        if (embeddedCoverArt) {
+            this.EmbeddedCoverArt = `${settings.mediaServer}/${embeddedCoverArt}`
+        }
+        if (durationSeconds) {
+            this.AudioDuration = durationSeconds
+        }
     }
 
     matches(query) {

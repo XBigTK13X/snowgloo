@@ -2,8 +2,6 @@ const settings = require('./settings')
 const catalog = require('./catalog')
 const musicQueue = require('./music-queue')
 const playlists = require('./playlists')
-const inspect = require('./inspect')
-const asset = require('./asset')
 const log = require('./log')
 
 const register = (router) => {

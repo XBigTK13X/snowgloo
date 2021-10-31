@@ -3,25 +3,23 @@ const _ = require('lodash')
 
 const settings = require('./settings')
 const util = require('./util')
+const fileSystem = require('./file-system')
 
 const MusicFile = require('./music-file')
 const MusicAlbum = require('./music-album')
 const MusicArtist = require('./music-artist')
 
-const SHALLOW = 'shallow'
-const DEEP = 'deep'
-
 class Organizer {
-    constructor(mediaRoot, catalogSongLookup) {
-        this.mediaRoot = mediaRoot
-        this.catalogSongLookup = catalogSongLookup
-        this.depth = 'shallow'
+    constructor(durationLookup) {
+        this.mediaRoot = settings.mediaRoot
         this.building = false
         this.startTime = null
         this.endTime = null
         this.rebuildCount = 0
-        this.deepSkipCount = 0
         this.totalSongCount = 0
+        this.durationLookup = null
+        this.emptyThumbnailLookup = null
+        this.extractedCovers = {}
         this.coverArts = {
             list: [],
             lookup: {},
@@ -50,76 +48,49 @@ class Organizer {
             rebuildCount: this.rebuildCount,
             startTime: this.startTime,
             endTime: this.endTime,
-            deepSkipCount: this.deepSkipCount,
             totalSongCount: this.totalSongCount,
         }
     }
 
-    shallow() {
-        return this.organize(SHALLOW)
-    }
-
-    deep() {
-        return this.organize(DEEP)
-    }
-
-    organize(depth) {
-        this.depth = depth
+    organize() {
         this.building = true
         this.rebuildCount = 0
-        if (depth === SHALLOW) {
-            this.startTime = new Date()
-            this.deepSkipCount = 0
-            this.endTime = null
-            this.totalSongCount = 0
-        }
+        this.startTime = new Date()
+        this.endTime = null
+        this.totalSongCount = 0
 
-        util.log(`Reading all files from media root. Making a ${depth} pass`)
-        return new Promise((resolve, reject) => {
-            return this.scanDirectory()
-                .then(() => {
-                    return this.filter()
-                })
-                .then(() => {
-                    return this.parseFilesToSongs()
-                })
-                .then(() => {
-                    return this.sortSongs()
-                })
-                .then(() => {
-                    return this.inspectFiles()
-                })
-                .then(() => {
-                    return this.assignCoverArt()
-                })
-                .then(() => {
-                    return this.organizeAlbums()
-                })
-                .then(() => {
-                    return this.organizeCategories()
-                })
-                .then(() => {
-                    let result = {
-                        songs: this.songs,
-                        albums: this.albums,
-                        categories: this.categories,
-                    }
-                    if (depth === DEEP) {
-                        this.endTime = new Date()
-                        let timeSpent = (this.endTime.getTime() - this.startTime.getTime()) / 1000
-                        this.building = false
-                        util.log(`Finished ${depth} pass for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
-                    }
-                    resolve(result)
-                })
+        util.log(`Reading all files from media root.`)
+        return new Promise(async (resolve, reject) => {
+            await this.readLookups()
+            await this.scanDirectory()
+            await this.filter()
+            await this.parseFilesToSongs()
+            await this.sortSongs()
+            await this.inspectFiles()
+            await this.assignCoverArt()
+            await this.organizeAlbums()
+            await this.organizeCategories()
+
+            let result = {
+                songs: this.songs,
+                albums: this.albums,
+                categories: this.categories,
+            }
+            this.endTime = new Date()
+            let timeSpent = (this.endTime.getTime() - this.startTime.getTime()) / 1000
+            this.building = false
+            util.log(`Finished organizing for catalog build in ${Math.floor(timeSpent / 60)} minutes and ${Math.floor(timeSpent % 60)} seconds`)
+            resolve(result)
         })
+    }
+
+    async readLookups() {
+        this.durationLookup = await fileSystem.readJsonFile(settings.durationLookupPath)
+        this.emptyThumbnailLookup = await fileSystem.readJsonFile(settings.emptyThumbnailLookupPath)
     }
 
     scanDirectory() {
         return new Promise((resolve, reject) => {
-            if (this.depth === DEEP) {
-                return resolve()
-            }
             recurse(this.mediaRoot, (err, files) => {
                 if (err) {
                     return reject(err)
@@ -133,10 +104,14 @@ class Organizer {
 
     filter() {
         return new Promise((resolve) => {
-            if (this.depth === DEEP) {
-                return resolve()
-            }
             this.files.list = this.files.list.filter((file) => {
+                if (file.includes('.snowgloo/thumbnails/')) {
+                    if (file.includes('/embedded/')) {
+                        let parts = file.split('/')
+                        this.extractedCovers[parts[parts.length - 1].split('.')[0]] = file
+                    }
+                    return false
+                }
                 if (file.includes('.jpg') || file.includes('.png') || file.includes('.jpeg')) {
                     if (!file.toLowerCase().includes('small')) {
                         this.coverArts.list.push(file)
@@ -155,9 +130,6 @@ class Organizer {
 
     parseFilesToSongs() {
         return new Promise((resolve) => {
-            if (this.depth === DEEP) {
-                return resolve()
-            }
             this.songs.list = this.files.list.map((file) => {
                 let song = new MusicFile(file)
                 if (_.has(this.songs.lookup, song.Id)) {
@@ -172,9 +144,6 @@ class Organizer {
 
     sortSongs() {
         return new Promise((resolve) => {
-            if (this.depth === DEEP) {
-                return resolve()
-            }
             this.songs.list = this.songs.list.sort((aId, bId) => {
                 let a = this.songs.lookup[aId]
                 let b = this.songs.lookup[bId]
@@ -194,9 +163,6 @@ class Organizer {
     }
 
     inspectFiles() {
-        if (this.depth == SHALLOW) {
-            return Promise.resolve()
-        }
         return new Promise(async (resolve) => {
             this.rebuildCount = 0
             this.totalSongCount = this.songs.list.length
@@ -207,11 +173,10 @@ class Organizer {
                     util.log(`Reading file ${this.rebuildCount} out of ${this.totalSongCount}`)
                 }
                 let songId = this.songs.list[ii]
-                if (!this.catalogSongLookup || !_.has(this.catalogSongLookup, songId)) {
-                    await this.songs.lookup[songId].parseMetadata()
-                } else {
-                    this.deepSkipCount += 1
-                }
+                let embeddedCover = this.extractedCovers[songId]
+                let duration = this.durationLookup[songId]
+                let emptyCover = this.emptyThumbnailLookup[songId]
+                this.songs.lookup[songId].populateMetadata(emptyCover ? null : embeddedCover, duration)
             }
             return resolve()
         })
@@ -239,9 +204,6 @@ class Organizer {
 
     organizeAlbums() {
         return new Promise((resolve) => {
-            if (this.depth === DEEP) {
-                return resolve()
-            }
             for (let songId of this.songs.list) {
                 let song = this.songs.lookup[songId]
                 if (!_.has(this.albums.lookup, song.AlbumSlug)) {
@@ -261,9 +223,6 @@ class Organizer {
 
     organizeCategories() {
         return new Promise((resolve) => {
-            if (this.depth === DEEP) {
-                return resolve()
-            }
             for (let songId of this.songs.list) {
                 let song = this.songs.lookup[songId]
                 if (!_.has(this.categories.lookup, song.Kind)) {

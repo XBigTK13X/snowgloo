@@ -1,6 +1,6 @@
 FROM node:14.18.0
 
-RUN apt-get update && apt-get install nginx ffmpeg -y
+RUN apt-get update && apt-get install nginx -y
 
 WORKDIR /usr/src/app/web-server
 COPY ./web-server/package.json ./package.json

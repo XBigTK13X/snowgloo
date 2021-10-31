@@ -11,7 +11,7 @@ const MusicArtist = require('./music-artist')
 
 class Catalog {
     constructor() {
-        this.organizer = new Organizer(settings.mediaRoot)
+        this.organizer = new Organizer()
         this.media = {}
         this.database = database.getInstance('catalog')
     }
@@ -21,49 +21,37 @@ class Catalog {
     }
 
     build(force) {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
             util.log('Reading catalog into memory')
-            return this.database.read().then((persistedMedia) => {
-                if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
-                    util.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
-                    this.media = persistedMedia
-                    //Need to rehydrate class instances from JSON, otherwise instance methods won't work (i.e. search)
-                    let songsLookup = {}
-                    for (let songId of Object.keys(this.media.songs.lookup)) {
-                        songsLookup[songId] = new MusicFile().rehydrate(this.media.songs.lookup[songId])
-                    }
-                    this.media.songs.lookup = songsLookup
-                    for (let albumName of this.media.albums.list) {
-                        const album = new MusicAlbum().rehydrate(this.media.albums.lookup[albumName])
-                        this.media.albums.lookup[albumName] = album
-                    }
-                    for (let category of this.media.categories.list) {
-                        for (let artistName of this.media.categories.lookup[category].artists.list) {
-                            const artist = new MusicArtist().rehydrate(this.media.categories.lookup[category].artists.lookup[artistName])
-                            this.media.categories.lookup[category].artists.lookup[artistName] = artist
-                        }
-                    }
-                    resolve(this.media)
-                } else {
-                    util.log('Rebuilding the catalog from scratch')
-                    let songLookup = this.media.songs ? _.cloneDeep(this.media.songs.lookup) : null
-                    this.organizer = new Organizer(settings.mediaRoot, songLookup)
-                    return this.organizer
-                        .shallow()
-                        .then((media) => {
-                            this.media = _.cloneDeep(media)
-                            return this.organizer.deep()
-                        })
-                        .then((media) => {
-                            this.media = _.cloneDeep(media)
-                            return this.database.write(this.media)
-                        })
-                        .then(() => {
-                            util.log('Organized catalog persisted to disk')
-                            resolve(this.media)
-                        })
+            let persistedMedia = await this.database.read()
+            if (!force && !this.database.isEmpty() && !settings.ignoreDatabaseCache) {
+                util.log(`Using ${persistedMedia.songs.list.length} ingested songs from the database`)
+                this.media = persistedMedia
+                //Need to rehydrate class instances from JSON, otherwise instance methods won't work (i.e. search)
+                let songsLookup = {}
+                for (let songId of Object.keys(this.media.songs.lookup)) {
+                    songsLookup[songId] = new MusicFile().rehydrate(this.media.songs.lookup[songId])
                 }
-            })
+                this.media.songs.lookup = songsLookup
+                for (let albumName of this.media.albums.list) {
+                    const album = new MusicAlbum().rehydrate(this.media.albums.lookup[albumName])
+                    this.media.albums.lookup[albumName] = album
+                }
+                for (let category of this.media.categories.list) {
+                    for (let artistName of this.media.categories.lookup[category].artists.list) {
+                        const artist = new MusicArtist().rehydrate(this.media.categories.lookup[category].artists.lookup[artistName])
+                        this.media.categories.lookup[category].artists.lookup[artistName] = artist
+                    }
+                }
+                resolve(this.media)
+            } else {
+                util.log('Rebuilding the catalog from scratch')
+                this.organizer = new Organizer(this.durationLookup, this.emptyThumbnailLookup)
+                this.media = await this.organizer.organize()
+                await this.database.write(this.media)
+                util.log('Organized catalog persisted to disk')
+                resolve(this.media)
+            }
         })
     }
 

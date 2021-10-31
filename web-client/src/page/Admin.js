@@ -61,7 +61,7 @@ export default class Admin extends Component {
                         Rebuilding the catalog ({this.state.catalogStatus.rebuildCount}/{this.state.catalogStatus.totalSongCount}).
                         <br />
                         Started at {this.state.catalogStatus.startTime}. {this.state.catalogStatus.endTime ? 'Ended at ' + this.state.catalogStatus.endTime : null}.<br />
-                        Skipped {this.state.catalogStatus.deepSkipCount} out of {this.state.catalogStatus.totalSongCount}.
+                        Processed {this.state.catalogStatus.totalSongCount} songs.
                     </p>
                 )
             } else {
@@ -71,7 +71,7 @@ export default class Admin extends Component {
                         <br />
                         Started at {this.state.catalogStatus.startTime}. {this.state.catalogStatus.endTime ? 'Ended at ' + this.state.catalogStatus.endTime : null}
                         <br />
-                        Skipped {this.state.catalogStatus.deepSkipCount} out of {this.state.catalogStatus.totalSongCount}.
+                        Processed {this.state.catalogStatus.totalSongCount} songs.
                     </p>
                 )
             }
