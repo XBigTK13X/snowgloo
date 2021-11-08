@@ -10,7 +10,7 @@ const MusicAlbum = require('./music-album')
 const MusicArtist = require('./music-artist')
 
 class Organizer {
-    constructor(durationLookup) {
+    constructor() {
         this.mediaRoot = settings.mediaRoot
         this.building = false
         this.startTime = null
@@ -19,6 +19,7 @@ class Organizer {
         this.totalSongCount = 0
         this.durationLookup = null
         this.emptyThumbnailLookup = null
+        this.randomWeightsLookup = null
         this.extractedCovers = {}
         this.coverArts = {
             list: [],
@@ -36,9 +37,18 @@ class Organizer {
             list: [],
             lookup: {},
         }
+        this.artists = {
+            list: [],
+            lookup: {},
+        }
         this.categories = {
             list: [],
             lookup: {},
+        }
+        this.randomizer = {
+            categories: [],
+            artists: [],
+            albums: [],
         }
     }
 
@@ -70,11 +80,15 @@ class Organizer {
             await this.assignCoverArt()
             await this.organizeAlbums()
             await this.organizeCategories()
+            await this.organizeArtists()
+            await this.organizeRandomizer()
 
             let result = {
                 songs: this.songs,
                 albums: this.albums,
+                artists: this.artists,
                 categories: this.categories,
+                randomizer: this.randomizer,
             }
             this.endTime = new Date()
             let timeSpent = (this.endTime.getTime() - this.startTime.getTime()) / 1000
@@ -87,6 +101,7 @@ class Organizer {
     async readLookups() {
         this.durationLookup = await fileSystem.readJsonFile(settings.durationLookupPath)
         this.emptyThumbnailLookup = await fileSystem.readJsonFile(settings.emptyThumbnailLookupPath)
+        this.randomWeightsLookup = await fileSystem.readJsonFile(settings.randomWeightsPath)
     }
 
     scanDirectory() {
@@ -245,6 +260,79 @@ class Organizer {
                 this.categories.lookup[category].Name = category
             }
             this.categories.list = this.categories.list.sort()
+            resolve()
+        })
+    }
+
+    organizeArtists() {
+        return new Promise((resolve) => {
+            for (let category of this.categories.list) {
+                for (let artist of this.categories.lookup[category].artists.list) {
+                    let albums = _.cloneDeep(this.albums)
+                    let albumList = albums.list
+                        .filter((x) => {
+                            return albums.lookup[x].Artist === artist
+                        })
+                        .sort((a, b) => {
+                            if (albums.lookup[a].ReleaseYear === albums.lookup[b].ReleaseYear) {
+                                if (albums.lookup[a].ReleaseYearSort === albums.lookup[b].ReleaseYearSort) {
+                                    return albums.lookup[a].Album > albums.lookup[b].Album ? 1 : -1
+                                }
+                                return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
+                            }
+                            return albums.lookup[a].ReleaseYear > albums.lookup[b].ReleaseYear ? 1 : -1
+                        })
+                    let lists = {
+                        Album: [],
+                        Special: [],
+                        Single: [],
+                        Collab: [],
+                    }
+                    let albumLookup = albumList.reduce((result, next) => {
+                        if (_.has(lists, albums.lookup[next].SubKind)) {
+                            lists[albums.lookup[next].SubKind].push(next)
+                        } else {
+                            lists.Album.push(next)
+                        }
+                        let album = _.cloneDeep(albums.lookup[next])
+                        album.Songs = album.Songs.map((songId) => {
+                            return this.songs.lookup[songId]
+                        })
+                        result[next] = album
+                        return result
+                    }, {})
+                    this.artists.list.push(artist)
+                    this.artists.lookup[artist] = {
+                        allAlbums: albumList,
+                        lists: lists,
+                        lookup: albumLookup,
+                        listKinds: ['Album', 'Single', 'Special', 'Collab'],
+                    }
+                }
+            }
+            resolve()
+        })
+    }
+
+    organizeRandomizer() {
+        return new Promise((resolve) => {
+            this.randomizer.categories = this.categories.list.filter((category) => {
+                return !_.has(this.randomWeightsLookup.CategorySlug, category) || this.randomWeightsLookup.CategorySlug[category] > 0
+            })
+            this.randomizer.artists = _.flatten(
+                this.randomizer.categories.map((category) => {
+                    return this.categories.lookup[category].artists.list.filter((artist) => {
+                        return !_.has(this.randomWeightsLookup.ArtistSlug, artist) || this.randomWeightsLookup.ArtistSlug[artist] > 0
+                    })
+                })
+            )
+            this.randomizer.albums = _.flatten(
+                this.randomizer.artists.map((artist) => {
+                    return this.artists.lookup[artist].allAlbums.filter((album) => {
+                        return !_.has(this.randomWeightsLookup.AlbumSlug, album) || this.randomWeightsLookup.AlbumSlug[album] > 0
+                    })
+                })
+            )
             resolve()
         })
     }

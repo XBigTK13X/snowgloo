@@ -142,59 +142,24 @@ class Catalog {
             if (!artist) {
                 return resolve(this.media.albums)
             }
-            let albums = _.cloneDeep(this.media.albums)
-            let albumList = albums.list
-                .filter((x) => {
-                    return albums.lookup[x].Artist === artist
-                })
-                .sort((a, b) => {
-                    if (albums.lookup[a].ReleaseYear === albums.lookup[b].ReleaseYear) {
-                        if (albums.lookup[a].ReleaseYearSort === albums.lookup[b].ReleaseYearSort) {
-                            return albums.lookup[a].Album > albums.lookup[b].Album ? 1 : -1
-                        }
-                        return albums.lookup[a].ReleaseYearSort > albums.lookup[b].ReleaseYearSort ? 1 : -1
-                    }
-                    return albums.lookup[a].ReleaseYear > albums.lookup[b].ReleaseYear ? 1 : -1
-                })
-            let lists = {
-                Album: [],
-                Special: [],
-                Single: [],
-                Collab: [],
-            }
-            let albumLookup = albumList.reduce((result, next) => {
-                if (_.has(lists, albums.lookup[next].SubKind)) {
-                    lists[albums.lookup[next].SubKind].push(next)
-                } else {
-                    lists.Album.push(next)
-                }
-                let album = _.cloneDeep(albums.lookup[next])
-                album.Songs = album.Songs.map((songId) => {
-                    return this.media.songs.lookup[songId]
-                })
-                result[next] = album
-                return result
-            }, {})
 
-            return resolve({
-                lists: lists,
-                lookup: albumLookup,
-                listKinds: ['Album', 'Single', 'Special', 'Collab'],
-            })
+            return resolve(this.media.artists.lookup[artist])
         })
     }
 
     getRandomList() {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            if (!this.media.randomizer.albums.length) {
+                return reject(new Error('No albums present in library, or random-weights.json has disabled all content.'))
+            }
             let randomCount = settings.randomListSize
             let maxAttempts = settings.randomListSize * 20
             let songs = []
             let artistDedupe = {}
             let albumDedupe = {}
             while (randomCount > 0 && maxAttempts > 0) {
-                let album = this.media.albums.lookup[_.sample(this.media.albums.list)]
-                let songId = _.sample(album.Songs)
-                let song = this.media.songs.lookup[songId]
+                let album = this.media.albums.lookup[_.sample(this.media.randomizer.albums)]
+                let song = this.media.songs.lookup[_.sample(album.Songs)]
                 if (!_.has(artistDedupe, song.DisplayArtist) && !_.has(albumDedupe, song.DisplayAlbum)) {
                     artistDedupe[song.DisplayArtist] = 1
                     albumDedupe[song.DisplayAlbum] = 1
