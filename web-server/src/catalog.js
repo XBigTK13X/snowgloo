@@ -111,9 +111,13 @@ class Catalog {
             }
 
             return resolve(
-                songIds.map((songId) => {
-                    return this.media.songs.lookup[songId]
-                })
+                songIds
+                    .map((songId) => {
+                        return this.media.songs.lookup[songId]
+                    })
+                    .filter((x) => {
+                        return !!x
+                    })
             )
         })
     }
