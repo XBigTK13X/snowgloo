@@ -48,10 +48,18 @@ public class Util {
         return __context;
     }
 
-    public static String songPositionToTimestamp(int position){
-        int seconds = (position/1000) % 60;
-        int minutes = (position/(1000 *60)) % 60;
-        return String.format("%02d:%02d",minutes,seconds);
+    private static int MILLISECONDS_PER_HOUR = 1000 * 60 * 60;
+    private static int MILLISECONDS_PER_MINUTE = 1000 * 60;
+    public static String millisecondsToTimestamp(int milliseconds){
+        if(milliseconds >= MILLISECONDS_PER_HOUR){
+            int hours = (milliseconds / (MILLISECONDS_PER_HOUR));
+            int minutes = (milliseconds / (MILLISECONDS_PER_MINUTE)) % 60;
+            int seconds = (milliseconds / 1000) % 60;
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        }
+        int minutes = (milliseconds / (MILLISECONDS_PER_MINUTE)) % 60;
+        int seconds = (milliseconds / 1000) % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
     public static void error(String tag, Throwable e){

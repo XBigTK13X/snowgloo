@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                     AudioPlayer.getInstance().seekTo(progress);
                     Integer duration = AudioPlayer.getInstance().getSongDuration();
                     if (duration != null) {
-                        seekTime.setText(String.format("%s / %s", Util.songPositionToTimestamp(progress), Util.songPositionToTimestamp(duration)));
+                        seekTime.setText(String.format("%s / %s", Util.millisecondsToTimestamp(progress), Util.millisecondsToTimestamp(duration)));
                     }
                 }
             }
@@ -317,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
                             seekBar.setMax(duration);
                             seekBar.setProgress(position);
                             seekBar.setVisibility(View.VISIBLE);
-                            seekTime.setText(String.format("%s / %s", Util.songPositionToTimestamp(position), Util.songPositionToTimestamp(duration)));
+                            seekTime.setText(String.format("%s / %s", Util.millisecondsToTimestamp(position), Util.millisecondsToTimestamp(duration)));
                         } else {
                             seekBar.setVisibility(View.INVISIBLE);
                             seekTime.setText("Loading...");
