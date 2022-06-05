@@ -205,31 +205,30 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                     return false;
                 }
             });
-            if(kind == Kind.QUEUE){
-                MenuItem playNextAction = menu.add("Play Next");
-                playNextAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        Integer songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
-                        Integer currentIndex = ObservableMusicQueue.getInstance().getQueue().currentIndex;
-                        if(currentIndex == null){
-                            currentIndex = 0;
-                        }
-                        if(songIndex == null){
-                            songIndex = 0;
-                        }
-                        if(songIndex != currentIndex){
-                            if(songIndex < currentIndex){
-                                ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex);
-                            } else {
-                                ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex + 1);
-                            }
-
-                        }
-                        return false;
+            MenuItem playNextAction = menu.add("Play Next");
+            playNextAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    Integer songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
+                    Integer currentIndex = ObservableMusicQueue.getInstance().getQueue().currentIndex;
+                    if(currentIndex == null){
+                        currentIndex = 0;
                     }
-                });
-            } else {
+                    if(songIndex == null){
+                        ObservableMusicQueue.getInstance().addItem(musicFile);
+                        songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
+                    }
+                    if(songIndex != currentIndex){
+                        if(songIndex < currentIndex){
+                            ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex);
+                        } else {
+                            ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex + 1);
+                        }
+                    }
+                    return false;
+                }
+            });
+            if(kind != Kind.QUEUE){
                 MenuItem findInQueue = menu.add("Find in queue");
                 findInQueue.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override

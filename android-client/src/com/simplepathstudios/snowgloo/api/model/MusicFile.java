@@ -25,6 +25,7 @@ public class MusicFile {
     public Integer Track;
     public String Id;
     public String LocalFilePath;
+    public Float AudioDuration;
     private String oneLineMetadata;
 
     // This exists to workaround Java failing to match hashes in the queue HashMap

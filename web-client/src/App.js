@@ -3,6 +3,7 @@ import { UIRouter, UIView, pushStateLocationPlugin } from '@uirouter/react'
 import routes from './routes'
 import Comp from './comp'
 import service from './service'
+import settings from './settings'
 
 for (let route of routes) {
     if (!route.component) {
@@ -99,6 +100,9 @@ export default class App extends Component {
     addToQueue(songs) {
         if (songs.constructor === Array) {
             for (let song of songs) {
+                if (song.AudioDuration <= settings.songDurationMinimumSeconds) {
+                    continue
+                }
                 service.musicQueue.add(song)
             }
         } else {
@@ -177,6 +181,7 @@ export default class App extends Component {
                                         queuedSongs={this.state.queue.songs}
                                         emptyQueue={this.emptyQueue}
                                         playingIndex={this.state.queue.currentIndex}
+                                        queueDuration={this.state.queue.audioDuration}
                                         addToQueue={this.addToQueue}
                                         shuffleQueue={this.shuffleQueue}
                                         updateSongList={this.updateSongList}

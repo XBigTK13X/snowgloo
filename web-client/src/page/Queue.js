@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRandom, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 
 import Comp from '../comp'
+import util from '../util'
 
 export default class Queue extends Component {
     constructor(props) {
@@ -26,6 +27,7 @@ export default class Queue extends Component {
             <div>
                 <h1>
                     {this.props.user}'s Queue {this.props.queuedSongs.length === 1 ? '(1 song)' : `(${this.props.queuedSongs.length} songs)`}
+                    {this.props.queueDuration ? `[${util.secondsToTimeStamp(this.props.queueDuration)}]` : ''}
                 </h1>
                 <button className="icon-button" onClick={this.props.shuffleQueue} title="Shuffle the queue">
                     <FontAwesomeIcon icon={faRandom} />

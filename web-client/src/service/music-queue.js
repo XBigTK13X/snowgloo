@@ -6,6 +6,14 @@ class MusicQueue {
         this.queue = {
             songs: [],
             currentIndex: null,
+            audioDuration: 0,
+        }
+    }
+
+    updateDuration() {
+        this.queue.audioDuration = 0
+        for (let song of this.queue.songs) {
+            this.queue.audioDuration += song.AudioDuration ? song.AudioDuration : 0
         }
     }
 
@@ -45,6 +53,7 @@ class MusicQueue {
             if (!found) {
                 this.queue.songs.push(song)
             }
+            this.updateDuration()
             resolve(index)
         })
     }
@@ -98,6 +107,7 @@ class MusicQueue {
                 }
             }
         }
+        this.updateDuration()
         return this.serverWrite()
     }
 
@@ -118,6 +128,7 @@ class MusicQueue {
                     currentIndex: result.currentIndex,
                 }
             }
+            this.updateDuration()
             return this.queue
         })
     }

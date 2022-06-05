@@ -86,7 +86,7 @@ public class AlbumViewFragment extends Fragment {
             @Override
             public void onChanged(AlbumView album) {
                 if(isVisible() && MainActivity.getInstance() != null) {
-                    MainActivity.getInstance().setActionBarSubtitle("Album - " + album.album.ReleaseYear);
+                    MainActivity.getInstance().setActionBarSubtitle("Album - " + album.album.ReleaseYear + " - [" + album.album.Songs.size() + " songs]");
                 }
                 adapter.setData(album.album.Songs);
                 adapter.notifyDataSetChanged();

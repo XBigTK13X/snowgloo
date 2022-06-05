@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.adapter.SongAdapter;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -100,7 +101,7 @@ public class QueueFragment extends Fragment {
                 public void run() {
                     layoutManager.scrollToPosition(itemIndex);
                 }
-            }, 0);
+            }, SnowglooSettings.QueuePopulatedDelayMilliseconds);
         }
     }
 
@@ -120,7 +121,8 @@ public class QueueFragment extends Fragment {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 if(isVisible() && MainActivity.getInstance() != null && musicQueue != null){
-                    MainActivity.getInstance().setActionBarSubtitle(musicQueue.getSize() + " songs");
+                    String queueInfo = musicQueue.getSize() + " songs - " + musicQueue.durationTimestamp;
+                    MainActivity.getInstance().setActionBarSubtitle(queueInfo);
                 }
                 adapter.setData(musicQueue.getAll());
                 adapter.notifyDataSetChanged();

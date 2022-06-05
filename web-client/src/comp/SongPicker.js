@@ -33,6 +33,7 @@ export default class SongPicker extends Component {
                                 <th className="medium-cell">Title</th>
                                 <th className="medium-cell">Album</th>
                                 <th className="medium-cell">Artist</th>
+                                <th className="small-cell">Duration</th>
                                 {this.props.updateSongList ? <th className="small-cell">Reorder</th> : null}
                             </tr>
                         </thead>

@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
@@ -51,6 +52,15 @@ public class NowPlayingFragment extends Fragment {
                 songArtist.setText(currentSong.DisplayArtist);
                 if (ObservableMusicQueue.getInstance().getCurrentAlbumArt() != null){
                     coverArt.setImageBitmap(ObservableMusicQueue.getInstance().getCurrentAlbumArt());
+                }
+            }
+        });
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                if(isVisible() && MainActivity.getInstance() != null && musicQueue != null){
+                    String queueInfo = musicQueue.getSize() + " songs - " + musicQueue.durationTimestamp;
+                    MainActivity.getInstance().setActionBarSubtitle(queueInfo);
                 }
             }
         });

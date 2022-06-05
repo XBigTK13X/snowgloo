@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo.api.model;
 
+import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.Util;
 
 import java.security.MessageDigest;
@@ -17,6 +18,7 @@ public class MusicQueue {
     public Integer currentIndex = null;
     public UpdateReason updateReason = UpdateReason.SERVER_RELOAD;
     public PlayerState playerState;
+    public String durationTimestamp;
 
     private transient HashMap<MusicId, Boolean> dedupeLookup = new HashMap<MusicId, Boolean>();
 
@@ -29,6 +31,16 @@ public class MusicQueue {
             return 0;
         }
         return songs.size();
+    }
+
+    private void updateDuration(){
+        float durationSeconds = 0;
+        for(MusicFile musicFile: songs){
+            if(musicFile.AudioDuration != null){
+                durationSeconds += musicFile.AudioDuration;
+            }
+        }
+        durationTimestamp = Util.millisecondsToTimestamp(Math.round(1000f * durationSeconds));
     }
 
     public boolean add(MusicFile song){
@@ -46,7 +58,7 @@ public class MusicQueue {
         } else {
             songs.add(position, song);
         }
-
+        updateDuration();
         return true;
     }
 
@@ -55,6 +67,7 @@ public class MusicQueue {
         lookup.remove(song.Id);
         dedupeLookup.remove(song.getLookupId());
         songs.remove(songIndex);
+        updateDuration();
     }
 
     public ArrayList<MusicFile> getAll(){

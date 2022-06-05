@@ -55,11 +55,11 @@ public class Util {
             int hours = (milliseconds / (MILLISECONDS_PER_HOUR));
             int minutes = (milliseconds / (MILLISECONDS_PER_MINUTE)) % 60;
             int seconds = (milliseconds / 1000) % 60;
-            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+            return String.format("%02dh %02dm %02ds", hours, minutes, seconds);
         }
         int minutes = (milliseconds / (MILLISECONDS_PER_MINUTE)) % 60;
         int seconds = (milliseconds / 1000) % 60;
-        return String.format("%02d:%02d", minutes, seconds);
+        return String.format("%02dm %02ds", minutes, seconds);
     }
 
     public static void error(String tag, Throwable e){

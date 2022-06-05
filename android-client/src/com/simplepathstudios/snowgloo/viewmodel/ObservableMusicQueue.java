@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import androidx.lifecycle.Observer;
 
 import com.simplepathstudios.snowgloo.LoadingIndicator;
+import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
@@ -41,6 +42,7 @@ public class ObservableMusicQueue {
     private ArrayList<Observer<MusicQueue>> observers;
     private RepeatMode repeatMode;
     private Bitmap currentAlbumArt;
+
 
     private String preloadedCoverArtUrl = null;
     private Target coverArtTarget = new Target() {
@@ -268,6 +270,10 @@ public class ObservableMusicQueue {
         }
         int foundCount = 0;
         for(MusicFile item : items){
+            if(item.AudioDuration <= SnowglooSettings.SongDurationMinimumSeconds){
+                foundCount += 1;
+                continue;
+            }
             foundCount += queue.add(item) ? 0 : 1;
         }
 
@@ -278,10 +284,10 @@ public class ObservableMusicQueue {
             Util.toast("All songs added to queue.");
         }
         else if(foundCount == items.size()) {
-            Util.toast("No songs added, they are already queued up.");
+            Util.toast("No songs added, they were already queued up or too short");
         }
         else {
-            Util.toast("Added " + (items.size() - foundCount) + " songs that weren't already queued up.");
+            Util.toast("Added " + (items.size() - foundCount) + " new songs that were long enough to play");
         }
     }
 
