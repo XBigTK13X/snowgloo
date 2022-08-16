@@ -270,7 +270,7 @@ public class ObservableMusicQueue {
         }
         int foundCount = 0;
         for(MusicFile item : items){
-            if(item.AudioDuration <= SnowglooSettings.SongDurationMinimumSeconds){
+            if(item.AudioDuration != null && item.AudioDuration <= SnowglooSettings.SongDurationMinimumSeconds){
                 foundCount += 1;
                 continue;
             }

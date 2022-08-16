@@ -12,13 +12,13 @@
         <ImageView
             android:id="@+id/cover_art"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="300dp"
             android:layout_weight="1"
             android:adjustViewBounds="false"
             android:background="@drawable/image_background"
             android:cropToPadding="false"
             android:padding="10dp"
-            android:scaleType="fitXY" />
+            android:scaleType="fitCenter" />
 
         <TextView
             android:id="@+id/song_title"

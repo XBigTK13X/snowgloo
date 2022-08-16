@@ -12,7 +12,7 @@ try {
     castPollMilliseconds = CAST_POLL_INTERVAL
     debounceMilliseconds = DEBOUNCE_MILLISECONDS
 } catch {
-    webApiUrl = 'http://192.168.1.242:5051/api/'
+    webApiUrl = 'http://192.168.1.20:5051/api/'
     castPollMilliseconds = 300
     debounceMilliseconds = 300
 }
