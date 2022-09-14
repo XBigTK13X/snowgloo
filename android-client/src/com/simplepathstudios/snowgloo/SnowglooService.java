@@ -5,21 +5,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaMetadata;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.os.RemoteException;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
+import android.media.browse.MediaBrowser.MediaItem;
+import android.service.media.MediaBrowserService;
+import android.media.MediaDescription;
+import android.media.session.PlaybackState;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
-import androidx.media.MediaBrowserServiceCompat;
 
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
@@ -32,7 +29,9 @@ import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SnowglooService extends MediaBrowserServiceCompat {
+
+//https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide#MediaBrowser
+public class SnowglooService extends MediaBrowserService {
 
     public static android.content.ComponentName ComponentName = new ComponentName("com.simplepathstudios.snowgloo.SnowglooService", SnowglooService.class.getName());
 
@@ -70,42 +69,41 @@ public class SnowglooService extends MediaBrowserServiceCompat {
     AudioPlayer audioPlayer;
     PowerManager powerManager;
     PowerManager.WakeLock wakeLock;
-    MediaSessionCompat mediaSession;
-    MediaSessionCompat.Callback mediaCallback;
-    MediaControllerCompat mediaController;
-    PlaybackStateCompat playbackState;
-    MediaControllerCompat.TransportControls transportControls;
+    MediaSession mediaSession;
+    MediaSession.Callback mediaCallback;
+    MediaController mediaController;
+    PlaybackState playbackState;
+    MediaController.TransportControls transportControls;
     IntentFilter intentFilter;
     SnowglooBroadcastReceiver broadcastReceiver;
 
-    public MediaSessionCompat getMediaSession(){
+    public MediaSession getMediaSession(){
         return mediaSession;
     }
 
-    @Nullable
     @Override
-    public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
-        return new MediaBrowserServiceCompat.BrowserRoot("__SNOWGLOO_MEDIA_ROOT", null);
+    public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
+        return new MediaBrowserService.BrowserRoot("__SNOWGLOO_MEDIA_ROOT", null);
     }
 
     @Override
-    public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+    public void onLoadChildren(String s, Result<List<MediaItem>> result) {
         MusicQueue queue = ObservableMusicQueue.getInstance().getQueue();
-        ArrayList<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+        ArrayList<MediaItem> mediaItems = new ArrayList<>();
         MusicFile song = queue.getCurrent();
         if(song == null) {
             result.sendResult(null);
             return;
         }
-        MediaDescriptionCompat mediaDescription = new MediaDescriptionCompat.Builder()
+        MediaDescription mediaDescription = new MediaDescription.Builder()
+                .setMediaId(song.Id)
                 .setIconUri(Uri.parse(song.CoverArt))
                 .setTitle(song.Title)
                 .setSubtitle(song.DisplayAlbum + " - " + song.DisplayArtist)
                 .build();
-        MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+        MediaItem mediaItem = new MediaItem(mediaDescription, MediaItem.FLAG_PLAYABLE);
         mediaItems.add(mediaItem);
         result.sendResult(mediaItems);
-
     }
 
     public void updatePlaybackState(boolean isPlaying){
@@ -113,13 +111,13 @@ public class SnowglooService extends MediaBrowserServiceCompat {
         Integer position = player.getSongPosition();
         position = position == null ? 0 : position;
         Integer playbackSpeedMultiple = 1;
-        int state = isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
-        playbackState = new PlaybackStateCompat.Builder()
+        int state = isPlaying ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED;
+        playbackState = new PlaybackState.Builder()
                 .setActions(
-                        PlaybackStateCompat.ACTION_PLAY |
-                        PlaybackStateCompat.ACTION_PAUSE |
-                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
-                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                        PlaybackState.ACTION_PLAY |
+                        PlaybackState.ACTION_PAUSE |
+                        PlaybackState.ACTION_SKIP_TO_NEXT |
+                        PlaybackState.ACTION_SKIP_TO_PREVIOUS
                 )
                 .setState(state,position,playbackSpeedMultiple)
                 .build();
@@ -136,105 +134,108 @@ public class SnowglooService extends MediaBrowserServiceCompat {
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
 
-        CastContext castContext = MainActivity.getInstance().getCastContext();
-        if(castContext != null){
-            castContext.addCastStateListener(new CastStateListener() {
-                @Override
-                public void onCastStateChanged(int i) {
-                    if(i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE){
-                        Util.log(TAG, "Cast session changed state to " +CastState.toString(i));
-                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+        if(MainActivity.getInstance() != null) {
+            CastContext castContext = MainActivity.getInstance().getCastContext();
+            if (castContext != null) {
+                castContext.addCastStateListener(new CastStateListener() {
+                    @Override
+                    public void onCastStateChanged(int i) {
+                        if (i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE) {
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                        } else if (i == CastState.CONNECTED) {
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
+                        } else {
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                        }
                     }
-                    else if(i == CastState.CONNECTED){
-                        Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
-                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
-                    } else {
-                        Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                });
+            }
+
+
+            mediaCallback = new MediaSession.Callback() {
+                @Override
+                public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                    Util.log(TAG, "onMediaButtonEvent" + mediaButtonIntent.getAction());
+                    return super.onMediaButtonEvent(mediaButtonIntent);
+                }
+
+                @Override
+                public void onPlay() {
+                    super.onPlay();
+                    Util.log(TAG, "onPlay");
+                    audioPlayer.play();
+                }
+
+                @Override
+                public void onPause() {
+                    super.onPause();
+                    Util.log(TAG, "onPause");
+                    audioPlayer.pause();
+                }
+
+                @Override
+                public void onSkipToNext() {
+                    super.onSkipToNext();
+                    Util.log(TAG, "onSkipToNext");
+                    audioPlayer.next();
+                }
+
+                @Override
+                public void onSkipToPrevious() {
+                    super.onSkipToPrevious();
+                    Util.log(TAG, "onSkipToPrevious");
+                    audioPlayer.previous();
+                }
+
+                @Override
+                public void onStop() {
+                    super.onStop();
+                    Util.log(TAG, "onStop");
+                    audioPlayer.stop();
+                }
+            };
+            mediaSession = new MediaSession(Util.getGlobalContext(), "SnowglooMediaSession");
+            mediaSession.setCallback(mediaCallback);
+            //TODO Deprecated ? mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_QUEUE_COMMANDS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+            mediaSession.setActive(true);
+            setSessionToken(mediaSession.getSessionToken());
+
+            mediaController = new MediaController(Util.getGlobalContext(), mediaSession.getSessionToken());
+            transportControls = mediaController.getTransportControls();
+
+            updatePlaybackState(true);
+
+            intentFilter = new IntentFilter();
+            intentFilter.addAction(MediaNotification.Action.PLAY);
+            intentFilter.addAction(MediaNotification.Action.PAUSE);
+            intentFilter.addAction(MediaNotification.Action.NEXT);
+            intentFilter.addAction(MediaNotification.Action.PREVIOUS);
+            broadcastReceiver = new SnowglooBroadcastReceiver();
+            Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter);
+
+            // TODO https://stackoverflow.com/questions/64045082/live-data-candidate-resolution-will-be-changed-soon
+            ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
+                @Override
+                public void onChanged(MusicQueue musicQueue) {
+                    updatePlaybackState(musicQueue.playerState == MusicQueue.PlayerState.PLAYING ? true : false);
+                    MusicFile currentSong = musicQueue.getCurrent();
+                    if (musicQueue != null && musicQueue.currentIndex != null) {
+                        MediaMetadata metadata = new MediaMetadata.Builder()
+                                .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, currentSong.Title)
+                                .putString(MediaMetadata.METADATA_KEY_TITLE, currentSong.Title)
+                                .putString(MediaMetadata.METADATA_KEY_ARTIST, currentSong.DisplayArtist)
+                                .putString(MediaMetadata.METADATA_KEY_ALBUM, currentSong.DisplayAlbum)
+                                .putString(MediaMetadata.METADATA_KEY_MEDIA_URI, currentSong.CoverArt)
+                                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
+                                .putBitmap(MediaMetadata.METADATA_KEY_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
+                                .build();
+                        mediaSession.setMetadata(metadata);
                     }
                 }
             });
         }
-
-        mediaCallback = new MediaSessionCompat.Callback() {
-            @Override
-            public boolean onMediaButtonEvent(@NonNull Intent mediaButtonIntent) {
-                Util.log(TAG,"onMediaButtonEvent" + mediaButtonIntent.getAction());
-                return super.onMediaButtonEvent(mediaButtonIntent);
-            }
-
-            @Override
-            public void onPlay() {
-                super.onPlay();
-                Util.log(TAG,"onPlay");
-                audioPlayer.play();
-            }
-
-            @Override
-            public void onPause() {
-                super.onPause();
-                Util.log(TAG,"onPause");
-                audioPlayer.pause();
-            }
-
-            @Override
-            public void onSkipToNext() {
-                super.onSkipToNext();
-                Util.log(TAG,"onSkipToNext");
-                audioPlayer.next();
-            }
-
-            @Override
-            public void onSkipToPrevious() {
-                super.onSkipToPrevious();
-                Util.log(TAG,"onSkipToPrevious");
-                audioPlayer.previous();
-            }
-
-            @Override
-            public void onStop() {
-                super.onStop();
-                Util.log(TAG,"onStop");
-                audioPlayer.stop();
-            }
-        };
-        mediaSession = new MediaSessionCompat(Util.getGlobalContext(),"SnowglooMediaSession");
-        mediaSession.setCallback(mediaCallback);
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mediaSession.setActive(true);
-        setSessionToken(mediaSession.getSessionToken());
-
-        mediaController = new MediaControllerCompat(Util.getGlobalContext(), mediaSession.getSessionToken());
-        transportControls = mediaController.getTransportControls();
-
-        updatePlaybackState(true);
-
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(MediaNotification.Action.PLAY);
-        intentFilter.addAction(MediaNotification.Action.PAUSE);
-        intentFilter.addAction(MediaNotification.Action.NEXT);
-        intentFilter.addAction(MediaNotification.Action.PREVIOUS);
-        broadcastReceiver = new SnowglooBroadcastReceiver();
-        Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter);
-
-        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
-            @Override
-            public void onChanged(MusicQueue musicQueue) {
-                updatePlaybackState(musicQueue.playerState  == MusicQueue.PlayerState.PLAYING ? true: false);
-                MusicFile currentSong = musicQueue.getCurrent();
-                if(musicQueue != null && musicQueue.currentIndex != null){
-                    MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
-                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, currentSong.Title)
-                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentSong.Title)
-                        .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentSong.DisplayArtist)
-                        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentSong.DisplayAlbum)
-                        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, currentSong.CoverArt)
-                        .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
-                        .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
-                        .build();
-                    mediaSession.setMetadata(metadata);
-                }
-            }
-        });
     }
 
     @Override
@@ -262,7 +263,9 @@ public class SnowglooService extends MediaBrowserServiceCompat {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mediaSession.release();
+        if(mediaSession != null) {
+            mediaSession.release();
+        }
     }
 
     @Override

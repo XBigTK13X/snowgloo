@@ -1,5 +1,6 @@
 package com.simplepathstudios.snowgloo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.browse.MediaBrowser;

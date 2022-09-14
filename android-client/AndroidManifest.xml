@@ -21,12 +21,15 @@
             android:permission="android.permission.FOREGROUND_SERVICE">
             <intent-filter android:priority="999">
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
+                <action android:name="androidx.media3.session.MediaLibraryService"/>
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
 
         <activity
             android:name="com.simplepathstudios.snowgloo.LoginActivity"
             android:label="Snowgloo"
+            android:exported="true"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,11 +40,13 @@
         <activity
             android:name="com.simplepathstudios.snowgloo.MainActivity"
             android:label="Snowgloo"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:launchMode="singleTask">
         </activity>
 
-        <receiver android:name="com.simplepathstudios.snowgloo.SnowglooService.SnowglooBroadcastReceiver" >
+        <receiver android:name="com.simplepathstudios.snowgloo.SnowglooService.SnowglooBroadcastReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />

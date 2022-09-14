@@ -50,18 +50,18 @@ public class MediaNotification {
 
         Intent viewNowPlayingIntent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
         viewNowPlayingIntent.setAction(Action.VIEW_NOW_PLAYING);
-        PendingIntent viewNowPlayingPendingIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), viewNowPlayingIntent, 0);
+        PendingIntent viewNowPlayingPendingIntent = PendingIntent.getActivity(MainActivity.getInstance(), (int)System.currentTimeMillis(), viewNowPlayingIntent, PendingIntent.FLAG_IMMUTABLE);
 
-        PendingIntent playIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PLAY), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent playIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PLAY), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Action playAction= new Notification.Action.Builder(R.drawable.ic_play_arrow_white_24dp, "Play", playIntent).build();
 
-        PendingIntent pauseIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PAUSE), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pauseIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PAUSE), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Action pauseAction= new Notification.Action.Builder(R.drawable.ic_pause_white_24dp, "Pause", pauseIntent).build();
 
-        PendingIntent nextIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent nextIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.NEXT), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Action nextAction= new Notification.Action.Builder(R.drawable.ic_skip_next_white_24dp, "Next", nextIntent).build();
 
-        PendingIntent previousIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PREVIOUS), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent previousIntent = PendingIntent.getBroadcast(Util.getGlobalContext(), 0, new Intent(Action.PREVIOUS), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Action previousAction = new Notification.Action.Builder(R.drawable.ic_skip_previous_white_24dp, "Previous", previousIntent).build();
 
 
@@ -71,9 +71,9 @@ public class MediaNotification {
             public void onChanged(MusicQueue musicQueue) {
                 if(musicQueue != null && musicQueue.currentIndex != null){
                     MusicFile currentSong = musicQueue.getCurrent();
-                    MediaSessionCompat.Token token = SnowglooService.getInstance().getMediaSession().getSessionToken();
+                    MediaSession.Token token = SnowglooService.getInstance().getMediaSession().getSessionToken();
                     Notification.MediaStyle notificationStyle = new Notification.MediaStyle();
-                    notificationStyle.setMediaSession((MediaSession.Token)token.getToken());
+                    notificationStyle.setMediaSession(token);
                     notification = new Notification.Builder(MainActivity.getInstance(), NOTIFICATION_NAME)
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle(currentSong.Title)
