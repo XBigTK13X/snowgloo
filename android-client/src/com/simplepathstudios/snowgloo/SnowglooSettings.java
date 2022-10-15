@@ -4,8 +4,8 @@ package com.simplepathstudios.snowgloo;
 import android.net.Uri;
 
 public class SnowglooSettings {
-    public static final String BuildDate = "September 13, 2022";
-    public static final String ClientVersion = "1.5.0";
+    public static final String BuildDate = "October 15, 2022";
+    public static final String ClientVersion = "1.5.1";
     public static final String DevServerUrl = "http://192.168.1.20:5051";
     public static final String ProdServerUrl = "http://9914.us:5051";
     public static boolean EnableDebugLog = false;

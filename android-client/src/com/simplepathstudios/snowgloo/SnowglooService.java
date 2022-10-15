@@ -91,7 +91,7 @@ public class SnowglooService extends MediaBrowserService {
         MusicQueue queue = ObservableMusicQueue.getInstance().getQueue();
         ArrayList<MediaItem> mediaItems = new ArrayList<>();
         MusicFile song = queue.getCurrent();
-        if(song == null) {
+        if(song == null || song.Id == null) {
             result.sendResult(null);
             return;
         }
