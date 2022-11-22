@@ -78,82 +78,7 @@ public class SnowglooService extends MediaBrowserService {
     SnowglooBroadcastReceiver broadcastReceiver;
 
     public MediaSession getMediaSession(){
-        return mediaSession;
-    }
-
-    @Override
-    public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
-        return new MediaBrowserService.BrowserRoot("__SNOWGLOO_MEDIA_ROOT", null);
-    }
-
-    @Override
-    public void onLoadChildren(String s, Result<List<MediaItem>> result) {
-        MusicQueue queue = ObservableMusicQueue.getInstance().getQueue();
-        ArrayList<MediaItem> mediaItems = new ArrayList<>();
-        MusicFile song = queue.getCurrent();
-        if(song == null || song.Id == null) {
-            result.sendResult(null);
-            return;
-        }
-        MediaDescription mediaDescription = new MediaDescription.Builder()
-                .setMediaId(song.Id)
-                .setIconUri(Uri.parse(song.CoverArt))
-                .setTitle(song.Title)
-                .setSubtitle(song.DisplayAlbum + " - " + song.DisplayArtist)
-                .build();
-        MediaItem mediaItem = new MediaItem(mediaDescription, MediaItem.FLAG_PLAYABLE);
-        mediaItems.add(mediaItem);
-        result.sendResult(mediaItems);
-    }
-
-    public void updatePlaybackState(boolean isPlaying){
-        AudioPlayer player = AudioPlayer.getInstance();
-        Integer position = player.getSongPosition();
-        position = position == null ? 0 : position;
-        Integer playbackSpeedMultiple = 1;
-        int state = isPlaying ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED;
-        playbackState = new PlaybackState.Builder()
-                .setActions(
-                        PlaybackState.ACTION_PLAY |
-                        PlaybackState.ACTION_PAUSE |
-                        PlaybackState.ACTION_SKIP_TO_NEXT |
-                        PlaybackState.ACTION_SKIP_TO_PREVIOUS
-                )
-                .setState(state,position,playbackSpeedMultiple)
-                .build();
-        mediaSession.setPlaybackState(playbackState);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        __instance = this;
-        Util.log(TAG, "onCreate()");
-        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
-        wakeLock.acquire();
-        audioPlayer = AudioPlayer.getInstance();
-
-        if(MainActivity.getInstance() != null) {
-            CastContext castContext = MainActivity.getInstance().getCastContext();
-            if (castContext != null) {
-                castContext.addCastStateListener(new CastStateListener() {
-                    @Override
-                    public void onCastStateChanged(int i) {
-                        if (i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE) {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
-                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
-                        } else if (i == CastState.CONNECTED) {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
-                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
-                        } else {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
-                        }
-                    }
-                });
-            }
-
-
+        if(mediaSession == null || mediaSession.getSessionToken() == null){
             mediaCallback = new MediaSession.Callback() {
                 @Override
                 public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
@@ -204,6 +129,85 @@ public class SnowglooService extends MediaBrowserService {
 
             mediaController = new MediaController(Util.getGlobalContext(), mediaSession.getSessionToken());
             transportControls = mediaController.getTransportControls();
+        }
+        return mediaSession;
+    }
+
+
+
+    @Override
+    public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
+        return new MediaBrowserService.BrowserRoot("__SNOWGLOO_MEDIA_ROOT", null);
+    }
+
+    @Override
+    public void onLoadChildren(String s, Result<List<MediaItem>> result) {
+        MusicQueue queue = ObservableMusicQueue.getInstance().getQueue();
+        ArrayList<MediaItem> mediaItems = new ArrayList<>();
+        MusicFile song = queue.getCurrent();
+        if(song == null || song.Id == null) {
+            result.sendResult(null);
+            return;
+        }
+        MediaDescription mediaDescription = new MediaDescription.Builder()
+                .setMediaId(song.Id)
+                .setIconUri(Uri.parse(song.CoverArt))
+                .setTitle(song.Title)
+                .setSubtitle(song.DisplayAlbum + " - " + song.DisplayArtist)
+                .build();
+        MediaItem mediaItem = new MediaItem(mediaDescription, MediaItem.FLAG_PLAYABLE);
+        mediaItems.add(mediaItem);
+        result.sendResult(mediaItems);
+    }
+
+    public void updatePlaybackState(boolean isPlaying){
+        AudioPlayer player = AudioPlayer.getInstance();
+        Integer position = player.getSongPosition();
+        position = position == null ? 0 : position;
+        Integer playbackSpeedMultiple = 1;
+        int state = isPlaying ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED;
+        playbackState = new PlaybackState.Builder()
+                .setActions(
+                        PlaybackState.ACTION_PLAY |
+                        PlaybackState.ACTION_PAUSE |
+                        PlaybackState.ACTION_SKIP_TO_NEXT |
+                        PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                )
+                .setState(state,position,playbackSpeedMultiple)
+                .build();
+        getMediaSession().setPlaybackState(playbackState);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        __instance = this;
+        Util.log(TAG, "onCreate()");
+        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
+        wakeLock.acquire();
+        audioPlayer = AudioPlayer.getInstance();
+
+
+
+        if(MainActivity.getInstance() != null) {
+            CastContext castContext = MainActivity.getInstance().getCastContext();
+            if (castContext != null) {
+                castContext.addCastStateListener(new CastStateListener() {
+                    @Override
+                    public void onCastStateChanged(int i) {
+                        if (i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE) {
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                        } else if (i == CastState.CONNECTED) {
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
+                        } else {
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                        }
+                    }
+                });
+            }
 
             updatePlaybackState(true);
 
@@ -231,7 +235,7 @@ public class SnowglooService extends MediaBrowserService {
                                 .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
                                 .putBitmap(MediaMetadata.METADATA_KEY_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
                                 .build();
-                        mediaSession.setMetadata(metadata);
+                        getMediaSession().setMetadata(metadata);
                     }
                 }
             });
@@ -255,7 +259,9 @@ public class SnowglooService extends MediaBrowserService {
 
         }
         wakeLock.release();
-        mediaSession.release();
+        if(mediaSession != null){
+            mediaSession.release();
+        }
         stopForeground(true);
         stopSelf();
     }
