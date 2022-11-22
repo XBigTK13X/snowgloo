@@ -123,7 +123,7 @@ export default class ArtistView extends Component {
                 />
 
                 {this.state.albums.listKinds.map((listKind, listKindIndex) => {
-                    if (!this.state.albums.lists[listKind].length) {
+                    if (!this.state.albums.lists[listKind] || !this.state.albums.lists[listKind].length) {
                         return null
                     }
                     return (

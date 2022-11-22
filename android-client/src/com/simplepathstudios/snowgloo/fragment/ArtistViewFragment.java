@@ -74,7 +74,7 @@ public class ArtistViewFragment extends Fragment {
                 LinearLayout container = getView().findViewById(R.id.lists_container);
                 container.removeAllViews();
                 for(String listKind : artistView.albums.listKinds){
-                    if(artistView.albums.lists.get(listKind).size() > 0){
+                    if(artistView.albums.lists.get(listKind) != null && artistView.albums.lists.get(listKind).size() > 0){
                         ArrayList<MusicAlbum> albums = new ArrayList<>();
                         for(String albumName : artistView.albums.lists.get(listKind)){
                             albums.add(artistView.albums.lookup.get(albumName));

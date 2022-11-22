@@ -6,33 +6,77 @@ class MusicFile {
         if (!path) {
             return this
         }
-        const parts = path.split('/')
 
         this.LocalFilePath = path
+        this.LocalPathParts = this.LocalFilePath.replace(settings.mediaRoot, '').split('/')
         this.AudioUrl = `${settings.mediaServer}${encodeURI(path).replace(/#/g, '%23')}`
-        this.Kind = path.replace(settings.mediaRoot, '').split('/')[1]
-        this.SubKind = null
         this.CoverArt = null
         this.AlbumCoverArt = null
         this.EmbeddedCoverArt = null
-        this.Album = parts[parts.length - 2]
+
+        this.parseMetadataFromPath()
+
+        this.Album = this.Album.trim()
+        this.Artist = this.Artist.trim()
+        this.Title = this.Title.trim()
+        this.DisplayAlbum = this.DisplayAlbum.trim()
+        this.DisplayArtist = this.DisplayArtist.trim()
+        this.SearchTerms = util.searchify(this.Title + this.DisplayArtist)
+        this.AlbumSlug = `${this.Album}-${this.Artist}`
+    }
+
+    parseMetadataFromPath() {
+        // No matter the sub structure, the top level directory is always the *kind*
+        this.Kind = this.LocalPathParts[1]
+        this.parseSubKind()
+        this.parseAlbumInfo()
+        this.parseArtist()
+        this.parseTrackAndTitle()
+    }
+
+    parseSubKind() {
+        this.SubKind = null
+        for (let subKind of settings.subKinds) {
+            if (this.LocalFilePath.indexOf('/' + subKind + '/') !== -1) {
+                this.SubKind = subKind
+                break
+            }
+        }
+    }
+
+    parseAlbumInfo() {
         this.ReleaseYear = 9999
-        if (this.Album.includes('(') && this.Album.includes(')')) {
-            let albumParts = this.Album.split('(')
-            let year = albumParts.pop().split(')')[0]
-            this.ReleaseYear = parseInt(year.split('.')[0], 10)
-            this.ReleaseYearSort = parseFloat(year)
-            this.Album = albumParts.join('(')
+        this.Album = this.LocalPathParts[this.LocalPathParts.length - 2]
+
+        for (let part of this.LocalPathParts) {
+            if (part !== this.LocalPathParts[this.LocalPathParts.length - 1]) {
+                if (part.includes('(') && part.includes(')')) {
+                    let albumParts = part.split('(')
+                    let year = albumParts.pop().split(')')[0]
+                    this.ReleaseYear = parseInt(year.split('.')[0], 10)
+                    this.ReleaseYearSort = parseFloat(year)
+                    this.Album = albumParts.join('(')
+                }
+            }
         }
         this.DisplayAlbum = this.Album
-        this.Artist = parts[parts.length - 3]
-        this.DisplayArtist = this.Artist
-        if (this.Artist === 'Single' || this.Artist === 'Collab' || this.Artist === 'Special') {
-            this.SubKind = parts[parts.length - 3]
-            this.Artist = parts[parts.length - 4]
-            this.DisplayArtist = this.Artist
+    }
+
+    parseArtist() {
+        if (this.LocalPathParts.length <= 4) {
+            this.Artist = this.LocalPathParts[1]
+        } else {
+            this.Artist = this.LocalPathParts[2]
+            // A-Z Folder workaround
+            if (this.Artist.length === 1) {
+                this.Artist = '(' + this.LocalPathParts[2] + ') ' + this.LocalPathParts[1]
+            }
         }
-        let trackAndTitle = parts[parts.length - 1].split('.')
+        this.DisplayArtist = this.Artist
+    }
+
+    parseTrackAndTitle() {
+        let trackAndTitle = this.LocalPathParts[this.LocalPathParts.length - 1].split('.')
         //Remove the 'adjusted' keyword and file extension
         trackAndTitle.pop()
         trackAndTitle.pop()
@@ -42,6 +86,7 @@ class MusicFile {
         if (trackAndTitle.includes(' - ')) {
             let titleParts = trackAndTitle.split(' - ')
             this.TitleParts = titleParts
+            // The fingerprint is always the last item in the filename after the last dash
             this.Id = titleParts.pop()
             if (titleParts[0].includes('D')) {
                 let discAndTrackParts = titleParts[0].split('D')[1].split('T')
@@ -54,24 +99,12 @@ class MusicFile {
                 this.Track = parseInt(titleParts.shift(), 10)
                 this.Title = titleParts.join(' - ')
             }
-            if (titleParts.length > 1) {
-                this.DisplayArtist = titleParts.pop()
-                this.Title = titleParts.join(' - ')
-            }
             if (this.DisplayAlbum.includes('Vol. ')) {
                 let albumParts = this.DisplayAlbum.split(' - ')
                 albumParts.shift()
                 this.DisplayAlbum = albumParts.join(' - ')
             }
         }
-
-        this.Album = this.Album.trim()
-        this.Artist = this.Artist.trim()
-        this.Title = this.Title.trim()
-        this.DisplayAlbum = this.DisplayAlbum.trim()
-        this.DisplayArtist = this.DisplayArtist.trim()
-        this.SearchTerms = util.searchify(this.Title + this.DisplayArtist)
-        this.AlbumSlug = `${this.Album}-${this.Artist}`
     }
 
     rehydrate(instance) {

@@ -7,9 +7,11 @@ let config = {
     webApiUrl: process.env.SNOWGLOO_WEB_API_URL || '"http://192.168.1.20:5051/api/"',
     userList: process.env.SNOWGLOO_USER_LIST_CSV || 'Snowman,QTFleur,Link',
     apiPostBodySizeLimit: '100mb',
-    serverVersion: '1.5.1',
-    buildDate: 'October 15, 2022',
+    serverVersion: '1.5.5',
+    buildDate: 'November 10, 2022',
     randomListSize: 40,
+    subKinds: ['Single', 'Special', 'Collab', 'Live'],
+    sortKinds: ['Album', 'Single', 'Special', 'Collab', 'Live'],
 }
 
 config.emptyThumbnailLookupPath = `${config.mediaRoot}/.snowgloo/thumbnails/empty.json`

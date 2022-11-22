@@ -306,7 +306,7 @@ class Organizer {
                         allAlbums: albumList,
                         lists: lists,
                         lookup: albumLookup,
-                        listKinds: ['Album', 'Single', 'Special', 'Collab'],
+                        listKinds: settings.sortKinds,
                     }
                 }
             }

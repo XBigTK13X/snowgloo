@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "format-all": "prettier --write 'web-{server,client}/src/**/*.{js,html,css}'",
-    "develop": "concurrently 'cd web-server && nodemon ./src/index.js --ignore ./src/web-build' 'cd web-client && npm start'"
+    "develop": "concurrently 'cd web-server && nodemon ./src/index.js --ignore ./src/web-build' 'cd web-client && npm start'",
+    "test": "cd web-server && npm run test"
   },
   "author": "",
   "license": "MIT",
