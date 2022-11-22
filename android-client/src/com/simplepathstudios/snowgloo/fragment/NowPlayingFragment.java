@@ -48,7 +48,7 @@ public class NowPlayingFragment extends Fragment {
             public void onChanged(MusicQueue musicQueue) {
                 MusicFile currentSong = musicQueue.getCurrent();
                 songTitle.setText(currentSong.Title);
-                songAlbum.setText(currentSong.DisplayAlbum);
+                songAlbum.setText(currentSong.DisplayAlbum + " (" + currentSong.ReleaseYear + ")");
                 songArtist.setText(currentSong.DisplayArtist);
                 if (ObservableMusicQueue.getInstance().getCurrentAlbumArt() != null){
                     coverArt.setImageBitmap(ObservableMusicQueue.getInstance().getCurrentAlbumArt());

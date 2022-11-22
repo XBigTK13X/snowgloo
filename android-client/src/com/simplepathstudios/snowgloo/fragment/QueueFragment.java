@@ -121,8 +121,13 @@ public class QueueFragment extends Fragment {
             @Override
             public void onChanged(MusicQueue musicQueue) {
                 if(isVisible() && MainActivity.getInstance() != null && musicQueue != null){
-                    String queueInfo = musicQueue.getSize() + " songs - " + musicQueue.durationTimestamp;
-                    MainActivity.getInstance().setActionBarSubtitle(queueInfo);
+                    if(musicQueue.getSize() > 0){
+                        String queueInfo = musicQueue.getSize() + " songs - " + musicQueue.durationTimestamp;
+                        MainActivity.getInstance().setActionBarSubtitle(queueInfo);
+                    } else {
+                        MainActivity.getInstance().setActionBarSubtitle("");
+                    }
+
                 }
                 adapter.setData(musicQueue.getAll());
                 adapter.notifyDataSetChanged();
