@@ -39,13 +39,14 @@ public class MediaNotification {
     }
 
     public Notification notification;
+    public NotificationManager notificationManager;
 
     private MediaNotification(MainActivity mainActivity){
         String description = "Snowgloo controls and information about playing media.";
         int importance = NotificationManager.IMPORTANCE_LOW;
         NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_NAME, importance);
         channel.setDescription(description);
-        NotificationManager notificationManager = mainActivity.getSystemService(NotificationManager.class);
+        notificationManager = mainActivity.getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel);
 
         Intent viewNowPlayingIntent = new Intent(MainActivity.getInstance().getApplicationContext(), MainActivity.class);
@@ -94,4 +95,11 @@ public class MediaNotification {
             }
         });
     }
+
+    public void close(){
+        if(notificationManager != null){
+            notificationManager.cancel(NOTIFICATION_ID);
+        }
+    }
+
 }

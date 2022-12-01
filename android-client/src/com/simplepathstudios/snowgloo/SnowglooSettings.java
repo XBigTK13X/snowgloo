@@ -14,4 +14,5 @@ public class SnowglooSettings {
     public static Uri UpdateSnowglooUrl = Uri.parse("http://9914.us/software/android/snowgloo.apk");
     public static int QueuePopulatedDelayMilliseconds = 200;
     public static float SongDurationMinimumSeconds = 10f;
+    public static boolean DebugResourceLeaks = true;
 }

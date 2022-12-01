@@ -134,6 +134,12 @@ public class LocalPlayer implements IAudioPlayer {
         try{
             media.stop();
         } catch(Exception swallow){}
+        try {
+            media.reset();
+        }
+        catch(Exception swallow){
+
+        }
         try{
             media.release();
             media = null;

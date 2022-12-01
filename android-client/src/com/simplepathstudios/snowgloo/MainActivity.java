@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -133,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();
+        if(SnowglooSettings.DebugResourceLeaks) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder(StrictMode.getVmPolicy())
+                    .detectLeakedClosableObjects()
+                    .build());
+        }
         ApiClient.retarget(settings.ServerUrl, settings.Username);
         Util.log(TAG, "====== Starting new app instance ======");
         startService(new Intent(this, SnowglooService.class));

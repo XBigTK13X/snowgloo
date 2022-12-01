@@ -248,30 +248,40 @@ public class SnowglooService extends MediaBrowserService {
         return START_NOT_STICKY;
     }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-        Util.log(TAG, "Swiped away from the recents menu, close the activity");
+    private void cleanup(){
         try{
             audioPlayer.destroy();
             audioPlayer = null;
         } catch(Exception swallow){
+        }
+        try{
+            wakeLock.release();
+        } catch(Exception swallow){
 
         }
-        wakeLock.release();
+
         if(mediaSession != null){
             mediaSession.release();
+        }
+        if(MediaNotification.getInstance() != null){
+            MediaNotification.getInstance().close();
         }
         stopForeground(true);
         stopSelf();
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        Util.log(TAG, "Swiped away from the recents menu, close the activity");
+        cleanup();
+    }
+
+    @Override
     public void onDestroy() {
+        Util.log(TAG, "Something destroyed the snowgloo service");
         super.onDestroy();
-        if(mediaSession != null) {
-            mediaSession.release();
-        }
+        cleanup();
     }
 
     @Override
