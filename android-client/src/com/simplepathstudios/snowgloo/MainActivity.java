@@ -1,6 +1,5 @@
 package com.simplepathstudios.snowgloo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.browse.MediaBrowser;
@@ -295,10 +294,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (AudioPlayer.getInstance() != null && fromUser) {
-                    AudioPlayer.getInstance().seekTo(progress);
-                    Integer duration = AudioPlayer.getInstance().getSongDuration();
-                    if (duration != null) {
-                        seekTime.setText(String.format("%s / %s", Util.millisecondsToTimestamp(progress), Util.millisecondsToTimestamp(duration)));
+                    if(fromUser){
+                        AudioPlayer.getInstance().seekTo(progress);
+                        Integer duration = AudioPlayer.getInstance().getSongDuration();
+                        if (duration != null) {
+                            seekTime.setText(String.format("%s / %s", Util.millisecondsToTimestamp(progress), Util.millisecondsToTimestamp(duration)));
+                        }
                     }
                 }
             }

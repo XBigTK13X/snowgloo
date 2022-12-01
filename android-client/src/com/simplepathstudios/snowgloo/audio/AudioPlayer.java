@@ -61,10 +61,11 @@ public class AudioPlayer {
         return false;
     }
 
+    public boolean isCasting(){
+        return remotePlayer.isCasting();
+    }
+
     public void setPlaybackMode(PlaybackMode mode){
-        if((mode == PlaybackMode.LOCAL && currentPlayer == localPlayer) ||(mode == PlaybackMode.REMOTE && currentPlayer == remotePlayer)){
-            return;
-        }
         Util.log(TAG, "Playback mode changed to "+mode);
         Integer seekPosition = currentPlayer.getCurrentPosition();
         if(mode == PlaybackMode.LOCAL){
@@ -81,7 +82,7 @@ public class AudioPlayer {
         else if(mode == PlaybackMode.REMOTE) {
             if(currentPlayer == localPlayer){
                 try{
-                    Util.log(TAG, "Playback in progress on local, pausing");
+                    Util.log(TAG, "Playback in progress on local, pausing local player");
                     try{
                         localPlayer.pause();
                     } catch(Exception swallow){
@@ -92,6 +93,7 @@ public class AudioPlayer {
                 catch(Exception e){
                     Util.error(TAG, e);
                 }
+                remotePlayer.readMediaSession();
             }
             currentPlayer = remotePlayer;
         }
@@ -114,7 +116,7 @@ public class AudioPlayer {
         }
     }
 
-    private void setPlayerState(MusicQueue.PlayerState playerState){
+    public void setPlayerState(MusicQueue.PlayerState playerState){
         this.playerState = playerState;
         observableMusicQueue.setPlayerState(playerState);
     }

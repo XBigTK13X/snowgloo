@@ -219,13 +219,17 @@ public class ObservableMusicQueue {
         notifyObservers();
     }
 
-    public Integer getIndex(MusicFile musicFile){
+    public Integer getIndex(String songId){
         for(int ii = 0 ; ii < queue.getSize(); ii++){
-            if(queue.getSong(ii).Id.equals(musicFile.Id)){
+            if(queue.getSong(ii).Id.equals(songId)){
                 return ii;
             }
         }
         return null;
+    }
+
+    public Integer getIndex(MusicFile musicFile){
+        return getIndex(musicFile.Id);
     }
 
     public void removeItem(int position){

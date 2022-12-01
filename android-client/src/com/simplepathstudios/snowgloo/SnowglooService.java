@@ -118,7 +118,11 @@ public class SnowglooService extends MediaBrowserService {
                 public void onStop() {
                     super.onStop();
                     Util.log(TAG, "onStop");
-                    audioPlayer.stop();
+                    // When recovering an active cast session, the service onStop gets called.
+                    // This ignores that unwanted call.
+                    if(!audioPlayer.isCasting()){
+                        audioPlayer.stop();
+                    }
                 }
             };
             mediaSession = new MediaSession(Util.getGlobalContext(), "SnowglooMediaSession");
@@ -188,8 +192,6 @@ public class SnowglooService extends MediaBrowserService {
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
 
-
-
         if(MainActivity.getInstance() != null) {
             CastContext castContext = MainActivity.getInstance().getCastContext();
             if (castContext != null) {
@@ -197,13 +199,13 @@ public class SnowglooService extends MediaBrowserService {
                     @Override
                     public void onCastStateChanged(int i) {
                         if (i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE) {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i) + " use the local player");
                             audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
                         } else if (i == CastState.CONNECTED) {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i) + " use the remote player");
                             audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
                         } else {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i));
+                            Util.log(TAG, "Cast session changed state to unhandled " + CastState.toString(i));
                         }
                     }
                 });
