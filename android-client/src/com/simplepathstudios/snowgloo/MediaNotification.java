@@ -70,7 +70,7 @@ public class MediaNotification {
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override
             public void onChanged(MusicQueue musicQueue) {
-                if(musicQueue != null && musicQueue.currentIndex != null){
+                if(musicQueue != null && musicQueue.currentIndex != null && SnowglooService.getInstance() != null && SnowglooService.getInstance().getMediaSession() != null){
                     MusicFile currentSong = musicQueue.getCurrent();
                     MediaSession.Token token = SnowglooService.getInstance().getMediaSession().getSessionToken();
                     Notification.MediaStyle notificationStyle = new Notification.MediaStyle();

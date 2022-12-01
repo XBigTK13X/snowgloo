@@ -229,15 +229,15 @@ public class MainActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (queue.getSize() > 0) {
+                if (queue != null && queue.getSize() > 0) {
                     if (queue.currentIndex == null) {
                         observableMusicQueue.setCurrentIndex(0);
                     }
-                }
-                // Sometimes the MediaPlayer in Android crashes without any useful message. This is a janky workaround for that.
-                if (!AudioPlayer.getInstance().play()) {
-                    AudioPlayer.getInstance().refreshLocalPlayer();
-                    AudioPlayer.getInstance().play();
+                    // Sometimes the MediaPlayer in Android crashes without any useful message. This is a janky workaround for that.
+                    if (!AudioPlayer.getInstance().play()) {
+                        AudioPlayer.getInstance().refreshLocalPlayer();
+                        AudioPlayer.getInstance().play();
+                    }
                 }
             }
         });
