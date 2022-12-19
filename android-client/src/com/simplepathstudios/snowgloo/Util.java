@@ -154,33 +154,10 @@ public class Util {
     }
 
     public enum MessageKind {
-        MediaPlayerErrorExtra, CastPlayerState, CastPlayerIdleReason, MediaPlayerError
+        CastPlayerState, CastPlayerIdleReason
     }
 
     public static String messageNumberToText(MessageKind messageKind, int messageCode){
-        if(messageKind == MessageKind.MediaPlayerError){
-            switch(messageCode){
-                case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                    return "Media error server died";
-                case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                    return "Media error unknown";
-
-            }
-        }
-        if(messageKind == MessageKind.MediaPlayerErrorExtra){
-            switch(messageCode){
-                case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
-                    return "Media error unsupported";
-                case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
-                    return "Media error timed out";
-                case MediaPlayer.MEDIA_ERROR_IO:
-                    return "Media error io";
-                case MediaPlayer.MEDIA_ERROR_MALFORMED:
-                    return "Media error malformed";
-                case -2147483648:
-                    return "Media error low level system problem";
-            }
-        }
         if(messageKind == MessageKind.CastPlayerState){
             switch(messageCode){
                 case PLAYER_STATE_UNKNOWN:

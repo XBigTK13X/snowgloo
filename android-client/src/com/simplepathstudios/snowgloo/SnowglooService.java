@@ -176,6 +176,7 @@ public class SnowglooService extends MediaBrowserService {
                         PlaybackState.ACTION_PAUSE |
                         PlaybackState.ACTION_SKIP_TO_NEXT |
                         PlaybackState.ACTION_SKIP_TO_PREVIOUS
+
                 )
                 .setState(state,position,playbackSpeedMultiple)
                 .build();

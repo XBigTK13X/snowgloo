@@ -27,14 +27,14 @@ import org.json.JSONObject;
 public class CastPlayer implements IAudioPlayer {
     private static final String TAG = "CastPlayer";
 
-    private SessionManager sessionManager;
-    private RemoteMediaClient media;
+    private RemoteMediaClient mediaPlayer;
     private RemoteMediaClient.Listener mediaListener;
     private Integer lastPlayerState;
     private Integer lastIdleReason;
 
     public CastPlayer(){
     }
+
     private MediaInfo prepareMedia(MusicFile musicFile){
         Util.log(TAG, "prepareMedia "+musicFile.Id);
         MediaMetadata metadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
@@ -61,20 +61,20 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public boolean isPlaying(){
-        if(media != null){
-            return media.isPlaying();
+        if(mediaPlayer != null){
+            return mediaPlayer.isPlaying();
         }
         return false;
     }
 
     @Override
     public void setVolume(double volume) {
-        if(media != null) {
-            media.setStreamVolume(volume);
+        if(mediaPlayer != null) {
+            mediaPlayer.setStreamVolume(volume);
         }
     }
 
-    public CastSession getCastSession(){
+    public SessionManager getSessionManager(){
         MainActivity activity = MainActivity.getInstance();
         if(activity == null){
             return null;
@@ -83,17 +83,20 @@ public class CastPlayer implements IAudioPlayer {
         if(castContext == null){
             return null;
         }
-        SessionManager sessionManager = castContext.getSessionManager();
-        if(sessionManager == null){
+        return castContext.getSessionManager();
+    }
+
+    public CastSession getCastSession(){
+        if(getSessionManager() == null){
             return null;
         }
-        return sessionManager.getCurrentCastSession();
+        return getSessionManager().getCurrentCastSession();
     }
 
     public String getRemoteSongId(){
-        if(media != null && media.getMediaInfo() != null && media.getMediaInfo().getMetadata() != null){
+        if(mediaPlayer != null && mediaPlayer.getMediaInfo() != null && mediaPlayer.getMediaInfo().getMetadata() != null){
             try{
-                return media.getMediaInfo().getCustomData().getString("MUSIC_FILE_ID");
+                return mediaPlayer.getMediaInfo().getCustomData().getString("MUSIC_FILE_ID");
             }
             catch(Exception swallow){
 
@@ -113,16 +116,16 @@ public class CastPlayer implements IAudioPlayer {
     private void setMediaListener(boolean stopOnConnect, MusicFile musicFile){
         try {
             if (mediaListener != null) {
-                if (media != null) {
-                    media.removeListener(mediaListener);
+                if (mediaPlayer != null) {
+                    mediaPlayer.removeListener(mediaListener);
                 }
             }
-            media = getCastSession().getRemoteMediaClient();
+            mediaPlayer = getCastSession().getRemoteMediaClient();
             mediaListener = new RemoteMediaClient.Listener() {
                 @Override
                 public void onQueueStatusUpdated() {
                     if(stopOnConnect) {
-                        if (media.isPlaying()) {
+                        if (mediaPlayer.isPlaying()) {
                             String songId = getRemoteSongId();
                             Integer queueIndex = ObservableMusicQueue.getInstance().getIndex(songId);
                             if (queueIndex != null) {
@@ -130,17 +133,17 @@ public class CastPlayer implements IAudioPlayer {
                                 AudioPlayer.getInstance().setPlayerState(MusicQueue.PlayerState.PLAYING);
                             } else {
                                 Util.toast("Stopped casting, current song not in queue.");
-                                media.stop();
+                                mediaPlayer.stop();
                             }
-                            media.removeListener(this);
+                            mediaPlayer.removeListener(this);
                         }
                     }
                 }
 
                 @Override
                 public void onStatusUpdated() {
-                    if (!stopOnConnect && media != null) {
-                        MediaStatus mediaStatus = media.getMediaStatus();
+                    if (!stopOnConnect && mediaPlayer != null) {
+                        MediaStatus mediaStatus = mediaPlayer.getMediaStatus();
                         if (mediaStatus != null) {
                             int playerState = mediaStatus.getPlayerState();
                             int idleReason = mediaStatus.getIdleReason();
@@ -154,7 +157,7 @@ public class CastPlayer implements IAudioPlayer {
                                 if (playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED) {
                                     Util.log(TAG, "Should be going to the next song after " + musicFile.Id);
                                     //noinspection deprecation
-                                    media.removeListener(this);
+                                    mediaPlayer.removeListener(this);
                                     AudioPlayer.getInstance().next();
                                 }
                             }
@@ -181,7 +184,7 @@ public class CastPlayer implements IAudioPlayer {
             };
 
             //noinspection deprecation
-            media.addListener(mediaListener);
+            mediaPlayer.addListener(mediaListener);
         }
         catch(Exception e) {
             Util.error(TAG, e);
@@ -196,7 +199,7 @@ public class CastPlayer implements IAudioPlayer {
                 Util.log(TAG, "Cast session is not null " + getCastSession().getSessionId());
                 setMediaListener(false, musicFile);
                 //noinspection deprecation
-                media.load(prepareMedia(musicFile), true, seekPosition);
+                mediaPlayer.load(prepareMedia(musicFile), true, seekPosition);
             }
         }
         catch(Exception e){
@@ -207,23 +210,23 @@ public class CastPlayer implements IAudioPlayer {
     @Override
     public void stop() {
         Util.log(TAG, "stop");
-        if(media != null){
-            media.stop();
+        if(mediaPlayer != null){
+            mediaPlayer.stop();
         }
     }
 
     @Override
     public void pause() {
         Util.log(TAG, "pause");
-        if(media != null){
-            media.pause();
+        if(mediaPlayer != null){
+            mediaPlayer.pause();
         }
     }
 
     @Override
     public void seek(int position) {
         Util.log(TAG, "seek " +position);
-        media.seek(
+        mediaPlayer.seek(
                 new MediaSeekOptions
                         .Builder()
                         .setPosition(position)
@@ -235,7 +238,7 @@ public class CastPlayer implements IAudioPlayer {
     @Override
     public void resume(int position) {
         Util.log(TAG, "resume " + position);
-        media.seek(
+        mediaPlayer.seek(
                 new MediaSeekOptions
                         .Builder()
                         .setPosition(position)
@@ -252,8 +255,8 @@ public class CastPlayer implements IAudioPlayer {
     @Override
     public Integer getCurrentPosition() {
         try{
-            if(media != null && media.isPlaying()){
-                return (int)media.getApproximateStreamPosition();
+            if(mediaPlayer != null && mediaPlayer.isPlaying()){
+                return (int) mediaPlayer.getApproximateStreamPosition();
             }
         } catch(Exception swallow){
         }
@@ -263,8 +266,8 @@ public class CastPlayer implements IAudioPlayer {
 
     @Override
     public Integer getSongDuration() {
-        if(media != null && media.isPlaying()){
-            return (int)media.getStreamDuration();
+        if(mediaPlayer != null && mediaPlayer.isPlaying()){
+            return (int) mediaPlayer.getStreamDuration();
         }
         return null;
     }
@@ -272,14 +275,14 @@ public class CastPlayer implements IAudioPlayer {
     @Override
     public void destroy() {
         try{
-            if(media != null){
-                media.stop();
+            if(mediaPlayer != null){
+                mediaPlayer.stop();
             }
         } catch(Exception swallow){}
 
         try{
-            if(sessionManager != null){
-                sessionManager.endCurrentSession(true);
+            if(getSessionManager() != null){
+                getSessionManager().endCurrentSession(true);
             }
         } catch(Exception swallow){}
     }

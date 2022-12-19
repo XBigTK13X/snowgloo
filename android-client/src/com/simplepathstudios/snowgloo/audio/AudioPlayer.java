@@ -69,26 +69,23 @@ public class AudioPlayer {
         Util.log(TAG, "Playback mode changed to "+mode);
         Integer seekPosition = currentPlayer.getCurrentPosition();
         if(mode == PlaybackMode.LOCAL){
-            if(currentPlayer == remotePlayer){
-                try {
-                    Util.log(TAG, "Playback in progress on remote, pausing");
-                    remotePlayer.pause();
-                } catch(Exception e){
-                    Util.error(TAG, e);
-                }
+            try {
+                Util.log(TAG, "Try to pause the remote player");
+                remotePlayer.pause();
+            } catch(Exception swallow){
+
             }
             currentPlayer = localPlayer;
         }
         else if(mode == PlaybackMode.REMOTE) {
             if(currentPlayer == localPlayer){
                 try{
-                    Util.log(TAG, "Playback in progress on local, pausing local player");
+                    Util.log(TAG, "Try to pause the local player");
                     try{
                         localPlayer.pause();
                     } catch(Exception swallow){
 
                     }
-
                 }
                 catch(Exception e){
                     Util.error(TAG, e);
@@ -107,15 +104,6 @@ public class AudioPlayer {
         }
     }
 
-    public void refreshLocalPlayer(){
-        if(currentPlayer == localPlayer){
-            currentPlayer.destroy();
-            currentPlayer = null;
-            localPlayer = new LocalPlayer();
-            currentPlayer = localPlayer;
-        }
-    }
-
     public void setPlayerState(MusicQueue.PlayerState playerState){
         this.playerState = playerState;
         observableMusicQueue.setPlayerState(playerState);
@@ -126,23 +114,27 @@ public class AudioPlayer {
     }
 
     public boolean play(boolean startOver){
+        if(localPlayer != null && remotePlayer != null){
+            if(localPlayer != null && localPlayer.isPlaying() && remotePlayer != null && remotePlayer.isPlaying()){
+                setPlaybackMode(PlaybackMode.REMOTE);
+            }
+        }
         try{
             isSeeking = false;
             MusicFile currentQueueSong = observableMusicQueue.getQueue().getCurrent();
             if(currentQueueSong != null && currentQueueSong.Id != null){
-                if(startOver || (currentSong == null || currentSong.Id == null || !currentQueueSong.Id.equals(currentSong.Id))){
+                if(startOver || (currentSong == null || currentSong.Id == null || !currentQueueSong.Id.equals(currentSong.Id)) || lastPosition == null){
                     Util.log(TAG, "This seems like a new song, play from the beginning "+currentQueueSong.Id);
+                    // ExoPlayer causes a double skip when a user hits Next, this avoid that behavior
                     currentSong = currentQueueSong;
                     lastPosition = null;
                     lastDuration = null;
                     currentPlayer.play(currentSong, 0);
-                    setPlayerState(MusicQueue.PlayerState.PLAYING);
-                }
-                else if(currentQueueSong.Id != null){
+                }   else if(currentQueueSong.Id != null){
                     Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
                     currentPlayer.resume(lastPosition);
-                    setPlayerState(MusicQueue.PlayerState.PLAYING);
                 }
+                setPlayerState(MusicQueue.PlayerState.PLAYING);
             }
             return true;
         } catch(Exception e){

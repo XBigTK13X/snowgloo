@@ -17,7 +17,7 @@ repositories {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 31
@@ -52,4 +52,5 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation 'com.google.android.gms:play-services-cast-framework:21.1.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.2'
 }
