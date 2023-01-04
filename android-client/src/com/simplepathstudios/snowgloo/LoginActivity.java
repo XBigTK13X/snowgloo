@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.cast.framework.CastContext;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.UserListViewModel;

@@ -71,6 +71,10 @@ public class ObservableMusicQueue {
         repeatMode = RepeatMode.None;
     }
 
+    public boolean isLoaded(){
+        return !firstLoad;
+    }
+
     public void setRepeatMode(RepeatMode repeatMode) {
         repeatMode = repeatMode;
     }

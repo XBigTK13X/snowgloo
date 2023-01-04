@@ -67,7 +67,10 @@ public class AudioPlayer {
 
     public void setPlaybackMode(PlaybackMode mode){
         Util.log(TAG, "Playback mode changed to "+mode);
-        Integer seekPosition = currentPlayer.getCurrentPosition();
+        Integer seekPosition = null;
+        if(currentPlayer != null){
+            seekPosition = currentPlayer.getCurrentPosition();
+        }
         if(mode == PlaybackMode.LOCAL){
             try {
                 Util.log(TAG, "Try to pause the remote player");
@@ -94,6 +97,7 @@ public class AudioPlayer {
             }
             currentPlayer = remotePlayer;
         }
+
         if(playerState == MusicQueue.PlayerState.PLAYING && seekPosition != null){
             try{
                 Util.log(TAG, "Attempting to resume playback after swapping mode");

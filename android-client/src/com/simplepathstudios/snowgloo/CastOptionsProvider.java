@@ -16,20 +16,14 @@
 
 package com.simplepathstudios.snowgloo;
 
-import com.google.android.gms.cast.framework.CastButtonFactory;
+import android.content.Context;
+
 import com.google.android.gms.cast.framework.CastOptions;
 import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
 import com.google.android.gms.cast.framework.media.CastMediaOptions;
-import com.google.android.gms.cast.framework.media.NotificationAction;
-import com.google.android.gms.cast.framework.media.NotificationActionsProvider;
 import com.google.android.gms.cast.framework.media.NotificationOptions;
-import com.google.android.gms.cast.framework.media.widget.ExpandedControllerActivity;
 
-import android.content.Context;
-import android.view.Menu;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class CastOptionsProvider implements OptionsProvider {

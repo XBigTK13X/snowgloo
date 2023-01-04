@@ -109,6 +109,8 @@ public class QueueFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+
         listView = view.findViewById(R.id.music_queue);
 
         adapter = new SongAdapter(listView);
