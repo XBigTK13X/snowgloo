@@ -201,10 +201,14 @@ public class SnowglooService extends MediaBrowserService {
                     public void onCastStateChanged(int i) {
                         if (i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE) {
                             Util.log(TAG, "Cast session changed state to " + CastState.toString(i) + " use the local player");
-                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                            if(audioPlayer != null){
+                                audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                            }
                         } else if (i == CastState.CONNECTED) {
                             Util.log(TAG, "Cast session changed state to " + CastState.toString(i) + " use the remote player");
-                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
+                            if(audioPlayer != null){
+                                audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
+                            }
                         } else {
                             Util.log(TAG, "Cast session changed state to unhandled " + CastState.toString(i));
                         }

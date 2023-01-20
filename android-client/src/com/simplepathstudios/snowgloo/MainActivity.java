@@ -45,6 +45,8 @@ import com.simplepathstudios.snowgloo.viewmodel.PlaylistListViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -112,7 +114,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_activity);
         __instance = this;
         // If this is done too late, then it will fail to discover
-        castContext = CastContext.getSharedInstance(this);
+        CastContext.getSharedInstance(this, Executors.newSingleThreadExecutor())
+        .addOnSuccessListener(c -> {
+            castContext = c;
+        })
+        .addOnFailureListener(e -> {
+            Util.error(TAG, e);
+        });
+
         Util.registerGlobalExceptionHandler();
 
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
