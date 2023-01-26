@@ -20,10 +20,10 @@ import androidx.lifecycle.Observer;
 
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
-import com.google.android.gms.cast.framework.CastStateListener;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableCastContext;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import java.util.ArrayList;
@@ -76,6 +76,7 @@ public class SnowglooService extends MediaBrowserService {
     MediaController.TransportControls transportControls;
     IntentFilter intentFilter;
     SnowglooBroadcastReceiver broadcastReceiver;
+    CastContext castContext;
 
     public MediaSession getMediaSession(){
         if(mediaSession == null || mediaSession.getSessionToken() == null){
@@ -137,8 +138,6 @@ public class SnowglooService extends MediaBrowserService {
         return mediaSession;
     }
 
-
-
     @Override
     public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
         return new MediaBrowserService.BrowserRoot("__SNOWGLOO_MEDIA_ROOT", null);
@@ -193,60 +192,60 @@ public class SnowglooService extends MediaBrowserService {
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
 
-        if(MainActivity.getInstance() != null) {
-            CastContext castContext = MainActivity.getInstance().getCastContext();
-            if (castContext != null) {
-                castContext.addCastStateListener(new CastStateListener() {
-                    @Override
-                    public void onCastStateChanged(int i) {
-                        if (i == CastState.NOT_CONNECTED || i == CastState.NO_DEVICES_AVAILABLE) {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i) + " use the local player");
-                            if(audioPlayer != null){
-                                audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
-                            }
-                        } else if (i == CastState.CONNECTED) {
-                            Util.log(TAG, "Cast session changed state to " + CastState.toString(i) + " use the remote player");
-                            if(audioPlayer != null){
-                                audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
-                            }
-                        } else {
-                            Util.log(TAG, "Cast session changed state to unhandled " + CastState.toString(i));
+        ObservableCastContext.getInstance().observe(castContext->{
+            this.castContext = castContext;
+            this.castContext.addCastStateListener(castState -> {
+                if (castState == CastState.NOT_CONNECTED) { // A user killed the session from within Snowgloo
+                    Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the local player");
+                    if(audioPlayer != null){
+                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                    }
+                } else if(castState == CastState.NO_DEVICES_AVAILABLE){ // The session died outside of Snowgloo
+                    Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the local player");
+                    if(audioPlayer != null){
+                        if(audioPlayer.getPlaybackMode() == AudioPlayer.PlaybackMode.REMOTE){
+                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                            audioPlayer.pause();
                         }
                     }
-                });
-            }
-
-            updatePlaybackState(true);
-
-            intentFilter = new IntentFilter();
-            intentFilter.addAction(MediaNotification.Action.PLAY);
-            intentFilter.addAction(MediaNotification.Action.PAUSE);
-            intentFilter.addAction(MediaNotification.Action.NEXT);
-            intentFilter.addAction(MediaNotification.Action.PREVIOUS);
-            broadcastReceiver = new SnowglooBroadcastReceiver();
-            Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter);
-
-            // TODO https://stackoverflow.com/questions/64045082/live-data-candidate-resolution-will-be-changed-soon
-            ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
-                @Override
-                public void onChanged(MusicQueue musicQueue) {
-                    updatePlaybackState(musicQueue.playerState == MusicQueue.PlayerState.PLAYING ? true : false);
-                    MusicFile currentSong = musicQueue.getCurrent();
-                    if (musicQueue != null && musicQueue.currentIndex != null) {
-                        MediaMetadata metadata = new MediaMetadata.Builder()
-                                .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, currentSong.Title)
-                                .putString(MediaMetadata.METADATA_KEY_TITLE, currentSong.Title)
-                                .putString(MediaMetadata.METADATA_KEY_ARTIST, currentSong.DisplayArtist)
-                                .putString(MediaMetadata.METADATA_KEY_ALBUM, currentSong.DisplayAlbum)
-                                .putString(MediaMetadata.METADATA_KEY_MEDIA_URI, currentSong.CoverArt)
-                                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
-                                .putBitmap(MediaMetadata.METADATA_KEY_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
-                                .build();
-                        getMediaSession().setMetadata(metadata);
+                } else if (castState == CastState.CONNECTED) {
+                    Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the remote player");
+                    if(audioPlayer != null){
+                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
                     }
+                } else {
+                    Util.log(TAG, "Cast session changed state to unhandled " + CastState.toString(castState));
                 }
             });
-        }
+        });
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(MediaNotification.Action.PLAY);
+        intentFilter.addAction(MediaNotification.Action.PAUSE);
+        intentFilter.addAction(MediaNotification.Action.NEXT);
+        intentFilter.addAction(MediaNotification.Action.PREVIOUS);
+        broadcastReceiver = new SnowglooBroadcastReceiver();
+        Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter);
+
+        ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
+            @Override
+            public void onChanged(MusicQueue musicQueue) {
+                updatePlaybackState(musicQueue.playerState == MusicQueue.PlayerState.PLAYING ? true : false);
+                MusicFile currentSong = musicQueue.getCurrent();
+                if (musicQueue != null && musicQueue.currentIndex != null) {
+                    MediaMetadata metadata = new MediaMetadata.Builder()
+                            .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, currentSong.Title)
+                            .putString(MediaMetadata.METADATA_KEY_TITLE, currentSong.Title)
+                            .putString(MediaMetadata.METADATA_KEY_ARTIST, currentSong.DisplayArtist)
+                            .putString(MediaMetadata.METADATA_KEY_ALBUM, currentSong.DisplayAlbum)
+                            .putString(MediaMetadata.METADATA_KEY_MEDIA_URI, currentSong.CoverArt)
+                            .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
+                            .putBitmap(MediaMetadata.METADATA_KEY_ART, ObservableMusicQueue.getInstance().getCurrentAlbumArt())
+                            .build();
+                    getMediaSession().setMetadata(metadata);
+                }
+            }
+        });
     }
 
     @Override

@@ -33,20 +33,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.cast.framework.CastButtonFactory;
-import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.material.navigation.NavigationView;
 import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylistListItem;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.audio.AudioPlayer;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableCastContext;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import com.simplepathstudios.snowgloo.viewmodel.PlaylistListViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         return __instance;
     }
 
-    private CastContext castContext;
     private NavController navController;
     private NavigationView navigationView;
     private LinearLayout mainLayout;
@@ -72,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private PlaylistList playlistListData;
 
     private Toolbar toolbar;
+    private Menu optionsMenu;
     private DrawerLayout drawerLayout;
     private ProgressBar loadingView;
     private ImageButton previousButton;
@@ -87,10 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
     private AudioPlayer audioPlayer;
     private Handler seekHandler;
-
-    public CastContext getCastContext() {
-        return castContext;
-    }
 
     public void setActionBarTitle(String title) {
         getSupportActionBar().setTitle(title);
@@ -113,14 +107,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         __instance = this;
-        // If this is done too late, then it will fail to discover
-        CastContext.getSharedInstance(this, Executors.newSingleThreadExecutor())
-        .addOnSuccessListener(c -> {
-            castContext = c;
-        })
-        .addOnFailureListener(e -> {
-            Util.error(TAG, e);
-        });
+
 
         Util.registerGlobalExceptionHandler();
 
@@ -417,7 +404,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
+        this.optionsMenu = menu;
         getMenuInflater().inflate(R.menu.menu, menu);
+        // If this happens before cast context discovery is complete, then the menu button won't appear
         CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         return true;
     }
@@ -428,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Util.log(TAG, "Resuming with intent " + intent.getAction());
         audioPlayer = AudioPlayer.getInstance();
+        //New SDK logic ObservableCastContext.getInstance().reconnect();
     }
 
     @Override

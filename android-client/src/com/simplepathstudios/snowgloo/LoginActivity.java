@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.simplepathstudios.snowgloo.api.ApiClient;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableCastContext;
 import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 import com.simplepathstudios.snowgloo.viewmodel.UserListViewModel;
 
@@ -24,6 +25,7 @@ public class LoginActivity extends AppCompatActivity{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Util.setGlobalContext(getApplicationContext());
+        ObservableCastContext.getInstance().reconnect();
         this.settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         settingsViewModel.Data.observe(this, new Observer<SettingsViewModel.Settings>() {
             @Override

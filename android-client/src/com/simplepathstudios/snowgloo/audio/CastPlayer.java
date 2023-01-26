@@ -16,11 +16,14 @@ import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.Util;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
+import com.simplepathstudios.snowgloo.viewmodel.ObservableCastContext;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 
 import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_PLAY;
 import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_UNCHANGED;
 import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_FINISHED;
+
+import androidx.lifecycle.Observer;
 
 import org.json.JSONObject;
 
@@ -31,8 +34,13 @@ public class CastPlayer implements IAudioPlayer {
     private RemoteMediaClient.Listener mediaListener;
     private Integer lastPlayerState;
     private Integer lastIdleReason;
+    private CastContext castContext;
 
     public CastPlayer(){
+        ObservableCastContext.getInstance().observe(castContext -> {
+            this.castContext = castContext;
+            readMediaSession();
+        });
     }
 
     private MediaInfo prepareMedia(MusicFile musicFile){
@@ -79,7 +87,6 @@ public class CastPlayer implements IAudioPlayer {
         if(activity == null){
             return null;
         }
-        CastContext castContext = activity.getCastContext();
         if(castContext == null){
             return null;
         }
@@ -113,6 +120,7 @@ public class CastPlayer implements IAudioPlayer {
             //setPlayerState(MusicQueue.PlayerState.PLAYING);
     }
 
+    //stopOnConnect used for some setup jank. Need to take better notes on that.
     private void setMediaListener(boolean stopOnConnect, MusicFile musicFile){
         try {
             if (mediaListener != null) {

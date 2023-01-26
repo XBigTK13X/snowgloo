@@ -91,6 +91,7 @@ public class MediaNotification {
                             .build();
                     notificationManager.notify(NOTIFICATION_ID, notification);
                     SnowglooService.getInstance().startForeground(NOTIFICATION_ID, notification);
+
                 }
             }
         });

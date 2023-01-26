@@ -27,6 +27,7 @@ public class AudioPlayer {
         return __instance;
     }
 
+    PlaybackMode currentMode;
     IAudioPlayer currentPlayer;
     LocalPlayer localPlayer;
     CastPlayer remotePlayer;
@@ -66,46 +67,55 @@ public class AudioPlayer {
     }
 
     public void setPlaybackMode(PlaybackMode mode){
-        Util.log(TAG, "Playback mode changed to "+mode);
+        Util.log(TAG, "Playback mode changed to " + mode + " while player state is " + playerState);
         Integer seekPosition = null;
-        if(currentPlayer != null){
-            seekPosition = currentPlayer.getCurrentPosition();
+        if(mode == currentMode){
+            return;
         }
         if(mode == PlaybackMode.LOCAL){
             try {
                 Util.log(TAG, "Try to pause the remote player");
                 remotePlayer.pause();
+                if(currentMode == PlaybackMode.REMOTE){
+                    seekPosition = remotePlayer.getCurrentPosition();
+                }
             } catch(Exception swallow){
 
             }
             currentPlayer = localPlayer;
         }
         else if(mode == PlaybackMode.REMOTE) {
-            if(currentPlayer == localPlayer){
-                try{
-                    Util.log(TAG, "Try to pause the local player");
-                    try{
-                        localPlayer.pause();
-                    } catch(Exception swallow){
-
-                    }
-                }
-                catch(Exception e){
-                    Util.error(TAG, e);
+            try{
+                Util.log(TAG, "Try to pause the local player");
+                localPlayer.pause();
+                if(currentMode == PlaybackMode.LOCAL){
+                    seekPosition = localPlayer.getCurrentPosition();
                 }
                 remotePlayer.readMediaSession();
+            } catch(Exception swallow){
+
             }
             currentPlayer = remotePlayer;
         }
 
-        if(playerState == MusicQueue.PlayerState.PLAYING && seekPosition != null){
+        if(seekPosition != null){
             try{
-                Util.log(TAG, "Attempting to resume playback after swapping mode");
-                currentPlayer.play(currentSong, seekPosition);
+                if(playerState == MusicQueue.PlayerState.PLAYING){
+                    Util.log(TAG, "Attempting to resume playback after swapping mode");
+                    currentPlayer.play(currentSong, seekPosition);
+                } else {
+                    Util.log(TAG, "Attempting to seek while paused after swapping mode");
+                    currentPlayer.seek(seekPosition);
+                }
             } catch(Exception e){
                 Util.error(TAG, e);
             }
         }
+        currentMode = mode;
+    }
+
+    public PlaybackMode getPlaybackMode(){
+        return currentMode;
     }
 
     public void setPlayerState(MusicQueue.PlayerState playerState){
