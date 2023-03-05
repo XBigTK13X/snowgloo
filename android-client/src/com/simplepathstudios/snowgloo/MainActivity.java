@@ -122,10 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     ApiClient.retarget(settings.ServerUrl, settings.Username);
                 }
-                if (settings.InternalMediaVolume != lastVolume) {
-                    AudioPlayer.getInstance().setVolume(settings.InternalMediaVolume);
-                    lastVolume = settings.InternalMediaVolume;
-                }
+                AudioPlayer.getInstance().setVolume(settings.InternalMediaVolume);
             }
         });
         SettingsViewModel.Settings settings = settingsViewModel.Data.getValue();

@@ -15,6 +15,7 @@ public class LocalPlayer implements IAudioPlayer {
     private MusicFile currentSong;
     private int currentSeekPosition;
     private int lastPosition;
+    private double lastVolume;
 
     public LocalPlayer(){
     }
@@ -32,6 +33,7 @@ public class LocalPlayer implements IAudioPlayer {
         if(mediaPlayer != null){
             mediaPlayer.setVolume((float)volume);
         }
+        lastVolume = volume;
     }
 
     @Override
@@ -84,6 +86,7 @@ public class LocalPlayer implements IAudioPlayer {
 
 
                 mediaPlayer.addMediaItem(mediaItem);
+                mediaPlayer.setVolume((float)lastVolume);
                 mediaPlayer.seekTo(currentSeekPosition);
                 mediaPlayer.prepare();
                 mediaPlayer.play();

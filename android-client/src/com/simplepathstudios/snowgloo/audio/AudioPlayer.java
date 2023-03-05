@@ -1,11 +1,20 @@
 package com.simplepathstudios.snowgloo.audio;
 
+import android.content.Intent;
+
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.simplepathstudios.snowgloo.LoginActivity;
+import com.simplepathstudios.snowgloo.MainActivity;
 import com.simplepathstudios.snowgloo.SnowglooSettings;
 import com.simplepathstudios.snowgloo.Util;
+import com.simplepathstudios.snowgloo.api.ApiClient;
 import com.simplepathstudios.snowgloo.api.model.MusicFile;
 import com.simplepathstudios.snowgloo.api.model.MusicQueue;
 import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
+import com.simplepathstudios.snowgloo.viewmodel.SettingsViewModel;
 
 public class AudioPlayer {
     public enum PlaybackMode {
@@ -37,6 +46,8 @@ public class AudioPlayer {
     MusicQueue.PlayerState playerState;
     MusicFile currentSong;
     boolean isSeeking = false;
+    SettingsViewModel settingsViewModel;
+    SettingsViewModel.Settings settingsData;
 
     private AudioPlayer() {
         this.localPlayer = new LocalPlayer();
@@ -51,6 +62,14 @@ public class AudioPlayer {
             this.currentPlayer = this.localPlayer;
         }
         this.observableMusicQueue = ObservableMusicQueue.getInstance();
+        this.settingsViewModel = new ViewModelProvider(MainActivity.getInstance()).get(SettingsViewModel.class);
+        settingsViewModel.Data.observe(MainActivity.getInstance(), new Observer<SettingsViewModel.Settings>() {
+            @Override
+            public void onChanged(SettingsViewModel.Settings settings) {
+                settingsData = settings;
+                setVolume(settingsData.InternalMediaVolume);
+            }
+        });
     }
 
     public boolean isPlaying(){
@@ -148,6 +167,7 @@ public class AudioPlayer {
                     Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
                     currentPlayer.resume(lastPosition);
                 }
+                setVolume(settingsData.InternalMediaVolume);
                 setPlayerState(MusicQueue.PlayerState.PLAYING);
             }
             return true;
