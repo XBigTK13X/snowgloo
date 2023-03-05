@@ -78,7 +78,7 @@ public class CastPlayer implements IAudioPlayer {
     @Override
     public void setVolume(double volume) {
         if(mediaPlayer != null) {
-            setVolume(volume);
+            mediaPlayer.setStreamVolume(volume);
         }
     }
 
