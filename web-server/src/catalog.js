@@ -8,6 +8,7 @@ const Organizer = require('./organizer')
 const MusicFile = require('./music-file')
 const MusicAlbum = require('./music-album')
 const MusicArtist = require('./music-artist')
+const playlists = require('./playlists')
 
 class Catalog {
     constructor() {
@@ -62,6 +63,7 @@ class Catalog {
                 Songs: [],
                 Artists: [],
                 Albums: [],
+                Playlists: { list: [] },
                 ItemCount: 0,
             }
             for (let songId of this.media.songs.list) {
@@ -88,6 +90,12 @@ class Catalog {
                         results.Artists.push(artist)
                         results.ItemCount++
                     }
+                }
+            }
+            for (let playlist of playlists.readAll().list) {
+                if (util.searchify(playlist.name).includes(query)) {
+                    results.Playlists.list.push(playlist)
+                    results.ItemCount++
                 }
             }
             resolve(results)

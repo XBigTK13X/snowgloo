@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.simplepathstudios.snowgloo.R;
 import com.simplepathstudios.snowgloo.adapter.AlbumAdapter;
 import com.simplepathstudios.snowgloo.adapter.ArtistAdapter;
+import com.simplepathstudios.snowgloo.adapter.PlaylistAdapter;
 import com.simplepathstudios.snowgloo.adapter.SongAdapter;
 import com.simplepathstudios.snowgloo.api.model.SearchResults;
 import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
@@ -69,12 +70,14 @@ public class SearchFragment extends Fragment {
                         new TimerTask() {
                             @Override
                             public void run() {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        searchResultsViewModel.load(s.toString());
-                                    }
-                                });
+                                if(getActivity() != null) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            searchResultsViewModel.load(s.toString());
+                                        }
+                                    });
+                                }
                             }
                         },
                         DELAY
@@ -92,6 +95,19 @@ public class SearchFragment extends Fragment {
             public void onChanged(SearchResults searchResults) {
                 LinearLayout container = getView().findViewById(R.id.lists_container);
                 container.removeAllViews();
+                if(searchResults.Playlists != null && searchResults.Playlists.list.size() > 0){
+                    View listView = getLayoutInflater().inflate(R.layout.search_result_list,container,false);
+                    TextView resultKindText = listView.findViewById(R.id.result_kind);
+                    resultKindText.setText("Playlists (" + searchResults.Playlists.list.size() +")");
+                    RecyclerView listElement = listView.findViewById(R.id.result_list);
+                    PlaylistAdapter adapter = new PlaylistAdapter();
+                    listElement.setAdapter(adapter);
+                    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                    listElement.setLayoutManager(layoutManager);
+                    adapter.setData(searchResults.Playlists);
+                    adapter.notifyDataSetChanged();
+                    container.addView(listView);
+                }
                 if(searchResults.Artists.size() > 0){
                     View listView = getLayoutInflater().inflate(R.layout.search_result_list,container,false);
                     TextView resultKindText = listView.findViewById(R.id.result_kind);

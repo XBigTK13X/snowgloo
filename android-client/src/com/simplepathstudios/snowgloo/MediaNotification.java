@@ -6,8 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.media.session.MediaSession;
-import android.os.Build;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.lifecycle.Observer;
 
@@ -24,7 +22,6 @@ public class MediaNotification {
         public static final String VIEW_NOW_PLAYING = "com.simplepathstudios.snowgloo.view-now-playing";
     }
     public static final Integer NOTIFICATION_ID = 776677;
-    private static final String TAG = "MediaNotification";
     private static final String NOTIFICATION_NAME = "Snowgloo";
     private static final String NOTIFICATION_CHANNEL_ID = "com.simplepathstudios.snowgloo";
     private static MediaNotification __instance;
@@ -33,9 +30,7 @@ public class MediaNotification {
     }
 
     public static void registerActivity(MainActivity mainActivity){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            __instance = new MediaNotification(mainActivity);
-        }
+        __instance = new MediaNotification(mainActivity);
     }
 
     public Notification notification;
@@ -76,7 +71,7 @@ public class MediaNotification {
                     Notification.MediaStyle notificationStyle = new Notification.MediaStyle();
                     notificationStyle.setMediaSession(token);
                     notification = new Notification.Builder(MainActivity.getInstance(), NOTIFICATION_NAME)
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.ic_notification)
                             .setContentTitle(currentSong.Title)
                             .setContentText(currentSong.DisplayAlbum)
                             .setLargeIcon(ObservableMusicQueue.getInstance().getCurrentAlbumArt())

@@ -22,14 +22,17 @@ import com.google.android.gms.cast.framework.CastOptions;
 import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
 import com.google.android.gms.cast.framework.media.CastMediaOptions;
+import com.google.android.gms.cast.framework.media.MediaIntentReceiver;
 import com.google.android.gms.cast.framework.media.NotificationOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CastOptionsProvider implements OptionsProvider {
 
     @Override
     public CastOptions getCastOptions(Context context) {
+        // Trying to expose prev/next buttons here causes a bunch of Background start not allowed: service Intent exceptions
         NotificationOptions notificationOptions = new NotificationOptions.Builder()
                 .setActions(null,null)
                 .build();

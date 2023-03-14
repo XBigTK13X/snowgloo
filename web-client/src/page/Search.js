@@ -81,10 +81,24 @@ export default class Search extends Component {
                     <Comp.SongPicker api={this.props.api} songs={this.state.results.Songs} playMedia={this.props.playMedia} addToQueue={this.props.addToQueue} />
                 </div>
             ) : null
+        let playlists =
+            this.state.results && this.state.results.Playlists.list.length ? (
+                <div>
+                    <h3>
+                        {this.state.results.Playlists.list.length} Playlist{this.state.results.Playlists.list.length > 1 ? 's' : ''}
+                    </h3>
+                    <div className="list-grid">
+                        {this.state.results.Playlists.list.map((playlist, playlistIndex) => {
+                            return <Comp.PlaylistListItem key={playlistIndex} playlist={playlist} />
+                        })}
+                    </div>
+                </div>
+            ) : null
         let results = this.state.searching ? (
             'Loading...'
         ) : this.state.results && this.state.results.ItemCount > 0 ? (
             <div>
+                {playlists}
                 {artists}
                 {albums}
                 {songs}

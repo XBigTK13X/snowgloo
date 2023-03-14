@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         google()
     }
     dependencies {
@@ -9,7 +9,7 @@ buildscript {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
     google()
 }
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         minSdkVersion 31
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 21
         versionName "3.1"
         applicationId "com.simplepathstudios.snowgloo"
@@ -39,18 +39,18 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.core:core:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.media:media:1.6.0'
-    implementation "androidx.media3:media3-session:1.0.0-beta03"
+    implementation "androidx.media3:media3-session:1.0.0-rc02"
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.0'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation 'com.google.android.gms:play-services-cast-framework:21.2.0'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.4'
 }

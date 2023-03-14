@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplepathstudios.snowgloo.R;
+import com.simplepathstudios.snowgloo.adapter.PlaylistAdapter;
 import com.simplepathstudios.snowgloo.api.model.MusicPlaylistListItem;
 import com.simplepathstudios.snowgloo.api.model.PlaylistList;
 import com.simplepathstudios.snowgloo.viewmodel.PlaylistListViewModel;
@@ -26,7 +27,7 @@ import com.simplepathstudios.snowgloo.viewmodel.PlaylistListViewModel;
 public class PlaylistListFragment extends Fragment {
     private final String TAG = "PlaylistListFragment";
     private RecyclerView listElement;
-    private Adapter adapter;
+    private PlaylistAdapter adapter;
     private LinearLayoutManager layoutManager;
     private PlaylistListViewModel viewModel;
     private MenuItem createPlaylistButton;
@@ -65,7 +66,7 @@ public class PlaylistListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         listElement = view.findViewById(R.id.playlist_list);
-        adapter = new Adapter();
+        adapter = new PlaylistAdapter();
         listElement.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity());
         listElement.setLayoutManager(layoutManager);
@@ -78,58 +79,5 @@ public class PlaylistListFragment extends Fragment {
             }
         });
         viewModel.load();
-    }
-    private class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        public final TextView textView;
-        public MusicPlaylistListItem playlist;
-
-        public ViewHolder(TextView textView) {
-            super(textView);
-            this.textView = textView;
-            textView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            NavController navController = Navigation.findNavController(getActivity(),R.id.nav_host_fragment);
-            Bundle bundle = new Bundle();
-            bundle.putString("PlaylistName", playlist.name);
-            bundle.putString("PlaylistId", playlist.id);
-            navController.navigate(R.id.playlist_view_fragment, bundle);
-        }
-    }
-    private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-        private PlaylistList data;
-        public Adapter(){
-            this.data = null;
-        }
-
-        public void setData(PlaylistList data){
-            this.data = data;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.small_list_item, parent, false);
-            return new ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            MusicPlaylistListItem playlist = this.data.list.get(position);
-            holder.playlist = playlist;
-            TextView view = holder.textView;
-            view.setText(holder.playlist.name);
-        }
-
-        @Override
-        public int getItemCount() {
-            if(this.data == null || this.data.list == null){
-                return 0;
-            }
-            return this.data.list.size();
-        }
     }
 }

@@ -282,10 +282,6 @@ public class MainActivity extends AppCompatActivity {
                 if (AudioPlayer.getInstance() != null && fromUser) {
                     if(fromUser){
                         AudioPlayer.getInstance().seekTo(progress);
-                        Integer duration = AudioPlayer.getInstance().getSongDuration();
-                        if (duration != null) {
-                            seekTime.setText(String.format("%s / %s", Util.millisecondsToTimestamp(progress), Util.millisecondsToTimestamp(duration)));
-                        }
                     }
                 }
             }
