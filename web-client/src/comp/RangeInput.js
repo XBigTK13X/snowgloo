@@ -47,9 +47,9 @@ export default class RangeInput extends Component {
                         {...props}
                         style={{
                             ...props.style,
-                            height: '20px',
-                            width: '20px',
-                            borderRadius: '4px',
+                            height: '50px',
+                            width: '50px',
+                            borderRadius: '6px',
                             backgroundColor: '#FFF',
                             display: 'flex',
                             justifyContent: 'center',

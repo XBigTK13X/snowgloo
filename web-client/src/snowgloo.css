@@ -46,20 +46,17 @@ td {
 }
 
 .page-wrapper {
-    margin-bottom: 350px;
+    margin-bottom: 375px;
 }
 
-.sticky-footer {
+.sticky-audio-controls {
     background-color: #fff;
     border: 5px solid black;
-    padding: 20px;
-    width: 400px;
+    width: 95%;
     height: 300px;
-    z-index: 1000;
-    position: -webkit-sticky;
     position: fixed;
-    bottom: 10px;
-    right: 10px;
+    bottom: 2.5%;
+    left: 2.5%;
 }
 
 .compact-table {
@@ -79,12 +76,14 @@ input[type='range']:focus {
 }
 
 .seek-range {
-    width: 100%;
+    width: 90%;
     height: 40px;
+    margin-left: 30px;
+    margin-right:30px;
 }
 
 .volume-range {
-    width: 50px;
+    width: 75%;
     height: 40px;
     display: inline-block;
     margin-left: 30px;
@@ -93,6 +92,7 @@ input[type='range']:focus {
 
 .audio-button {
     height: 50px;
+    width: 50px;
     font-size: 25px;
     color: #ac03f4;
 }
@@ -132,9 +132,10 @@ input[type='range']:focus {
 .short-text {
     white-space: nowrap;
     overflow: hidden;
-    text-wrap: ellipsis;
+    word-wrap: ellipsis;
     width: 240px;
     height: 20px;
+    margin-top: -10px;
 }
 
 .icon-button {

@@ -8,9 +8,7 @@ export default class AudioControls extends Component {
             return null
         }
         return (
-            <div className="sticky-footer centered">
-                <Comp.AudioPlayer song={this.props.song} songFinished={this.props.songFinished} />
-                <br />
+            <div className="sticky-audio-controls centered">
                 <div className="neighbor">
                     <Comp.CoverArt size="small" imageUrl={this.props.song.CoverArt} />
                 </div>
@@ -25,6 +23,8 @@ export default class AudioControls extends Component {
                         {this.props.song.DisplayArtist}
                     </p>
                 </div>
+                <br />
+                <Comp.AudioPlayer song={this.props.song} songFinished={this.props.songFinished} />
             </div>
         )
     }

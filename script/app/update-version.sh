@@ -16,5 +16,6 @@ sed -i -E "s/serverVersion: '{1}(.*?)'{1}/serverVersion: '${BUILD_VERSION}'/" ./
 sed -i -E "s/buildDate: '{1}(.*?)'{1}/buildDate: '${BUILD_DATE}'/" ./web-server/src/settings.js
 sed -i -E "s/clientVersion = '{1}(.*?)'{1}/clientVersion = '${BUILD_VERSION}'/" ./web-client/src/settings.js
 sed -i -E "s/buildDate = '{1}(.*?)'{1}/buildDate = '${BUILD_DATE}'/" ./web-client/src/settings.js
+sed -i -E "s/versionName \\\"{1}(.*?)\\\"{1}/versionName \\\"${BUILD_VERSION}\\\"/" ./android-client/build.gradle
 sed -i -E "s/ClientVersion = \\\"{1}(.*?)\\\"{1}/ClientVersion = \\\"${BUILD_VERSION}\\\"/" ./android-client/src/com/simplepathstudios/snowgloo/SnowglooSettings.java
 sed -i -E "s/BuildDate = \\\"{1}(.*?)\\\"{1}/BuildDate = \\\"${BUILD_DATE}\\\"/" ./android-client/src/com/simplepathstudios/snowgloo/SnowglooSettings.java
