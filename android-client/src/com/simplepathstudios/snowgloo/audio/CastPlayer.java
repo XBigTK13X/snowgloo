@@ -4,6 +4,8 @@ package com.simplepathstudios.snowgloo.audio;
 import android.net.Uri;
 
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaLoadOptions;
+import com.google.android.gms.cast.MediaLoadRequestData;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaSeekOptions;
 import com.google.android.gms.cast.MediaStatus;
@@ -23,15 +25,13 @@ import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_PLAY;
 import static com.google.android.gms.cast.MediaSeekOptions.RESUME_STATE_UNCHANGED;
 import static com.google.android.gms.cast.MediaStatus.IDLE_REASON_FINISHED;
 
-import androidx.lifecycle.Observer;
-
 import org.json.JSONObject;
 
 public class CastPlayer implements IAudioPlayer {
     private static final String TAG = "CastPlayer";
 
     private RemoteMediaClient mediaPlayer;
-    private RemoteMediaClient.Listener mediaListener;
+    private RemoteMediaClient.Callback mediaCallback;
     private Integer lastPlayerState;
     private Integer lastIdleReason;
     private CastContext castContext;
@@ -58,12 +58,14 @@ public class CastPlayer implements IAudioPlayer {
         catch(Exception swallow){
 
         }
-        return new MediaInfo.Builder(musicFile.AudioUrl)
+        MediaInfo mediaInfo = new MediaInfo.Builder(musicFile.AudioUrl)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setContentType("audio/mpeg")
                 .setMetadata(metadata)
                 .setCustomData(jsonObject)
                 .build();
+
+        return mediaInfo;
 
     }
 
@@ -123,13 +125,11 @@ public class CastPlayer implements IAudioPlayer {
     //stopOnConnect used for some setup jank. Need to take better notes on that.
     private void setMediaListener(boolean stopOnConnect, MusicFile musicFile){
         try {
-            if (mediaListener != null) {
-                if (mediaPlayer != null) {
-                    mediaPlayer.removeListener(mediaListener);
-                }
+            if (mediaCallback != null && mediaPlayer != null) {
+                    mediaPlayer.unregisterCallback(mediaCallback);
             }
             mediaPlayer = getCastSession().getRemoteMediaClient();
-            mediaListener = new RemoteMediaClient.Listener() {
+            mediaCallback = new RemoteMediaClient.Callback() {
                 @Override
                 public void onQueueStatusUpdated() {
                     if(stopOnConnect) {
@@ -143,7 +143,6 @@ public class CastPlayer implements IAudioPlayer {
                                 Util.toast("Stopped casting, current song not in queue.");
                                 mediaPlayer.stop();
                             }
-                            mediaPlayer.removeListener(this);
                         }
                     }
                 }
@@ -164,8 +163,6 @@ public class CastPlayer implements IAudioPlayer {
                                 lastPlayerState = playerState;
                                 if (playerState == MediaStatus.PLAYER_STATE_IDLE && idleReason == IDLE_REASON_FINISHED) {
                                     Util.log(TAG, "Should be going to the next song after " + musicFile.Id);
-                                    //noinspection deprecation
-                                    mediaPlayer.removeListener(this);
                                     AudioPlayer.getInstance().next();
                                 }
                             }
@@ -191,8 +188,7 @@ public class CastPlayer implements IAudioPlayer {
                 }
             };
 
-            //noinspection deprecation
-            mediaPlayer.addListener(mediaListener);
+            mediaPlayer.registerCallback(mediaCallback);
         }
         catch(Exception e) {
             Util.error(TAG, e);
@@ -206,8 +202,9 @@ public class CastPlayer implements IAudioPlayer {
             if(getCastSession() != null) {
                 Util.log(TAG, "Cast session is not null " + getCastSession().getSessionId());
                 setMediaListener(false, musicFile);
-                //noinspection deprecation
-                mediaPlayer.load(prepareMedia(musicFile), true, seekPosition);
+                MediaInfo mediaInfo = prepareMedia(musicFile);
+                MediaLoadOptions mediaOptions = new MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(seekPosition).build();
+                mediaPlayer.load(mediaInfo, mediaOptions);
             }
         }
         catch(Exception e){

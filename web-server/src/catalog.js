@@ -66,7 +66,7 @@ class Catalog {
                 Playlists: { list: [] },
                 ItemCount: 0,
             }
-            for (let songId of this.media.songs.list) {
+            for (let songId of this.media.songs.list) {                
                 if (this.media.songs.lookup[songId].matches(query)) {
                     results.Songs.push(this.media.songs.lookup[songId])
                     results.ItemCount++

@@ -78,7 +78,7 @@ public class Util {
                 return;
             }
             String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-            String logEntry = String.format("%s - %s - %s : %s",System.currentTimeMillis(), timestamp,tag,message);
+            String logEntry = String.format("[SNOW] %s - %s - %s : %s",System.currentTimeMillis(), timestamp,tag,message);
             Log.d(tag, logEntry);
             if (ApiClient.getInstance().getCurrentUser() != null) {
                 ApiClient.getInstance().log(logEntry).enqueue(new Callback() {
@@ -86,12 +86,12 @@ public class Util {
                     public void onResponse(Call call, Response response) { }
                     @Override
                     public void onFailure(Call call, Throwable t) {
-                        Log.e(TAG, "Unable to send log",t);
+                        Log.e(TAG, "[SNOW] Unable to send log",t);
                     }
                 });
             }
         } catch(Exception e){
-            Log.d(TAG, "An error occurred while logging",e);
+            Log.d(TAG, "[SNOW] An error occurred while logging",e);
         }
 
     }

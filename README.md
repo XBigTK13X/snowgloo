@@ -26,4 +26,4 @@ It currently only works for me. There is a hard-configured list of servers to ta
 1. Snowgloo will never have metadata management.
     1. I was annoyed when other solutions started pinging third party services to do things like collect album art. I already have a curated collection, that sort of feature is wasted on my library.
 1. Play anything other than music
-    1. There are way better tools for handling other media. For video, [Emby](https://github.com/MediaBrowser/Emby) is the way to go. Their ultra high definition and anime playback is lacking, but that's where [Snowby](https://github.com/XBigTK13X/snowby) comes in.
+    1. There are way better tools for handling other media. For video, [Jellyfin](https://github.com/jellyfin/jellyfin) is the way to go. Their ultra high definition and anime playback is lacking, but that's where [Snowby](https://github.com/XBigTK13X/snowby) comes in.
