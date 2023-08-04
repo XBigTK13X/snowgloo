@@ -23,7 +23,7 @@ android {
         minSdkVersion 31
         targetSdkVersion 33
         versionCode 21
-        versionName "1.6.9"
+        versionName "1.6.10"
         applicationId "com.simplepathstudios.snowgloo"
     }
 

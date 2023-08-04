@@ -167,7 +167,9 @@ public class AudioPlayer {
                     Util.log(TAG, "This song was playing before, attempt to resume "+currentQueueSong.Id);
                     currentPlayer.resume(lastPosition);
                 }
-                setVolume(settingsData.InternalMediaVolume);
+                if(settingsData != null){
+                    setVolume(settingsData.InternalMediaVolume);
+                }
                 setPlayerState(MusicQueue.PlayerState.PLAYING);
             }
             return true;
