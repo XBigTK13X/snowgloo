@@ -3,8 +3,8 @@
 let webApiUrl
 let castPollMilliseconds
 let debounceMilliseconds
-let clientVersion = '1.6.10'
-let buildDate = 'August 04, 2023'
+let clientVersion = '1.6.11'
+let buildDate = 'October 20, 2023'
 let songDurationMinimumSeconds = 10
 
 try {

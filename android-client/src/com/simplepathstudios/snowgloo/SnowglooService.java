@@ -194,29 +194,31 @@ public class SnowglooService extends MediaBrowserService {
 
         ObservableCastContext.getInstance().observe(castContext->{
             this.castContext = castContext;
-            this.castContext.addCastStateListener(castState -> {
-                if (castState == CastState.NOT_CONNECTED) { // A user killed the session from within Snowgloo
-                    Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the local player");
-                    if(audioPlayer != null){
-                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
-                    }
-                } else if(castState == CastState.NO_DEVICES_AVAILABLE){ // The session died outside of Snowgloo
-                    Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the local player");
-                    if(audioPlayer != null){
-                        if(audioPlayer.getPlaybackMode() == AudioPlayer.PlaybackMode.REMOTE){
+            if(this.castContext != null) {
+                this.castContext.addCastStateListener(castState -> {
+                    if (castState == CastState.NOT_CONNECTED) { // A user killed the session from within Snowgloo
+                        Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the local player");
+                        if (audioPlayer != null) {
                             audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
-                            audioPlayer.pause();
                         }
+                    } else if (castState == CastState.NO_DEVICES_AVAILABLE) { // The session died outside of Snowgloo
+                        Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the local player");
+                        if (audioPlayer != null) {
+                            if (audioPlayer.getPlaybackMode() == AudioPlayer.PlaybackMode.REMOTE) {
+                                audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.LOCAL);
+                                audioPlayer.pause();
+                            }
+                        }
+                    } else if (castState == CastState.CONNECTED) {
+                        Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the remote player");
+                        if (audioPlayer != null) {
+                            audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
+                        }
+                    } else {
+                        Util.log(TAG, "Cast session changed state to unhandled " + CastState.toString(castState));
                     }
-                } else if (castState == CastState.CONNECTED) {
-                    Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the remote player");
-                    if(audioPlayer != null){
-                        audioPlayer.setPlaybackMode(AudioPlayer.PlaybackMode.REMOTE);
-                    }
-                } else {
-                    Util.log(TAG, "Cast session changed state to unhandled " + CastState.toString(castState));
-                }
-            });
+                });
+            }
         });
 
         intentFilter = new IntentFilter();
