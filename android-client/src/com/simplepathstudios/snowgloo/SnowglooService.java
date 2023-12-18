@@ -227,7 +227,7 @@ public class SnowglooService extends MediaBrowserService {
         intentFilter.addAction(MediaNotification.Action.NEXT);
         intentFilter.addAction(MediaNotification.Action.PREVIOUS);
         broadcastReceiver = new SnowglooBroadcastReceiver();
-        Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter);
+        Util.getGlobalContext().registerReceiver(broadcastReceiver, intentFilter, RECEIVER_EXPORTED);
 
         ObservableMusicQueue.getInstance().observe(new Observer<MusicQueue>() {
             @Override

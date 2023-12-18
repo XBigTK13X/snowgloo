@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.media.session.MediaSession;
 
 import androidx.lifecycle.Observer;
@@ -85,7 +86,7 @@ public class MediaNotification {
                             .addAction(nextAction)
                             .build();
                     notificationManager.notify(NOTIFICATION_ID, notification);
-                    SnowglooService.getInstance().startForeground(NOTIFICATION_ID, notification);
+                    SnowglooService.getInstance().startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
 
                 }
             }
