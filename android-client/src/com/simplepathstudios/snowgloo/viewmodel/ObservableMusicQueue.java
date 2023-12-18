@@ -289,7 +289,7 @@ public class ObservableMusicQueue {
         queue.currentIndex = queue.currentIndex == null ? queue.getSize() - items.size():queue.currentIndex;
         notifyObservers();
         if(foundCount == 0){
-            Util.toast("All songs added to queue.");
+            Util.toast("All " + items.size() + " songs added to queue.");
         }
         else if(foundCount == items.size()) {
             Util.toast("No songs added, they were already queued up or too short");

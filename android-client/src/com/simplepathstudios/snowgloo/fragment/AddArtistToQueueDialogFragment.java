@@ -65,9 +65,8 @@ public class AddArtistToQueueDialogFragment extends DialogFragment {
                                 if (isChecked) {
                                     selectedItems.add(item);
                                 } else if (selectedItems.contains(item)) {
-                                    selectedItems.remove(Integer.valueOf(item));
+                                    selectedItems.remove(item);
                                 }
-
                             }
                         })
                 .setPositiveButton("Queue Up", new DialogInterface.OnClickListener() {
