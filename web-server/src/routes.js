@@ -3,6 +3,7 @@ const catalog = require('./catalog')
 const musicQueue = require('./music-queue')
 const playlists = require('./playlists')
 const log = require('./log')
+const util = require('./util')
 
 const register = (router) => {
     router.get('/api/category/list', async (request, response) => {
@@ -134,6 +135,16 @@ const register = (router) => {
         response.send({
             songs: await catalog.getRandomList(),
         })
+    })
+
+    router.get('/api/queue/:username/playlist.m3u', async (request, response) => {
+        response.setHeader('content-type', 'text/plain')
+        response.send(await musicQueue.getM3U(request.params.username))
+    })
+
+    router.get('/api/playlist/:playlistId/playlist.m3u', async (request, response) => {
+        response.setHeader('content-type', 'text/plain');
+        response.send(await playlists.getM3U(request.params.playlistId))
     })
 }
 

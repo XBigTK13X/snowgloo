@@ -1,5 +1,6 @@
 const database = require('./database')
 const settings = require('./settings')
+const util = require('./util')
 
 class MusicQueue {
     read(user) {
@@ -27,6 +28,19 @@ class MusicQueue {
         for (let user of settings.userList) {
             this.clear(user)
         }
+    }
+
+    getM3U(username){
+        return new Promise((resolve)=>{
+            this.read(username)
+            .then(queue=>{
+                let m3u = `#EXTM3U\n#PLAYLIST:${username}'s Queue`
+                for(let song of queue.songs){
+                    m3u += util.m3uEntry(song)
+                }
+                return resolve(m3u)
+            })
+        })
     }
 }
 

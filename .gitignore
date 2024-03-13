@@ -1,3 +1,7 @@
+variables.sh
+.docker-volume/
+.web-media/
+android-client/release/
 .idea/
 snowgloo.json
 web-build/

@@ -23,12 +23,15 @@ export default class Queue extends Component {
                 </div>
             )
         }
+        let m3uUrl = `${this.props.api.baseURL.replace(/"/g,'')}queue/${this.props.user}/playlist.m3u`
         return (
             <div>
                 <h1>
                     {this.props.user}'s Queue {this.props.queuedSongs.length === 1 ? '(1 song)' : `(${this.props.queuedSongs.length} songs)`}
                     {this.props.queueDuration ? `[${util.secondsToTimeStamp(this.props.queueDuration)}]` : ''}
                 </h1>
+                <h2>M3U - {m3uUrl}</h2>
+
                 <button className="icon-button" onClick={this.props.shuffleQueue} title="Shuffle the queue">
                     <FontAwesomeIcon icon={faRandom} />
                 </button>

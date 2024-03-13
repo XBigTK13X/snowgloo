@@ -90,6 +90,7 @@ class Organizer {
                 categories: this.categories,
                 randomizer: this.randomizer,
             }
+            util.log(`Found [${this.songs.length}] songs across [${this.albums.length}] albums`)
             this.endTime = new Date()
             let timeSpent = (this.endTime.getTime() - this.startTime.getTime()) / 1000
             this.building = false
@@ -129,7 +130,7 @@ class Organizer {
                 }
                 if (file.includes('.jpg') || file.includes('.png') || file.includes('.jpeg')) {
                     if (!file.toLowerCase().includes('small')) {
-                        this.coverArts.list.push(file)
+                        this.coverArts.list.push(new MusicFile(file))
                     }
                     return false
                 }
@@ -200,9 +201,8 @@ class Organizer {
     assignCoverArt() {
         return new Promise((resolve) => {
             for (let coverArt of this.coverArts.list) {
-                let artFile = new MusicFile(coverArt)
-                if (!_.has(this.coverArts.lookup, artFile.AlbumSlug)) {
-                    this.coverArts.lookup[artFile.AlbumSlug] = `${settings.mediaServer}${coverArt}`
+                if (!_.has(this.coverArts.lookup, coverArt.AlbumSlug)) {
+                    this.coverArts.lookup[coverArt.AlbumSlug] = coverArt.AudioUrl
                 }
             }
             for (let songId of this.songs.list) {

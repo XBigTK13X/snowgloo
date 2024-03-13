@@ -114,7 +114,7 @@ class Playlists {
     read(playlistId) {
         return new Promise((resolve) => {
             let playlist = { ...this.playlists.lookup[playlistId] }
-            if (playlist.songs.length) {
+            if (playlist && playlist.songs && playlist.songs.length) {
                 this.catalog.getSongs(playlist.songs).then((songs) => {
                     playlist.songs = songs
                     resolve(playlist)
@@ -122,6 +122,19 @@ class Playlists {
             } else {
                 resolve(playlist)
             }
+        })
+    }
+
+    getM3U(playlistId){
+        return new Promise((resolve)=>{
+            this.read(playlistId)
+            .then(playlist=>{
+                let m3u = `#EXTM3U\n#PLAYLIST:${playlist.name}`
+                for(let song of playlist.songs){
+                    m3u += util.m3uEntry(song)
+                }
+                return resolve(m3u)
+            })
         })
     }
 

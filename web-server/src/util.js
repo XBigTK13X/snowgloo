@@ -1,5 +1,6 @@
 const _ = require('lodash')
 const hash = require('object-hash')
+const settings = require('./settings')
 
 const searchify = (text) => {
     return _.deburr(text).toLowerCase().replace(/\W/g, '').replace(/\s/g, '')
@@ -30,10 +31,26 @@ const log = (...args) => {
     }
 }
 
+const nginxMediaPath = (absoluteFilePath) => {
+    let relativePath = absoluteFilePath.replace(settings.mediaRoot + '/','')
+    return `${settings.mediaServer}/media/${settings.relativeMediaDir}${encodeURI(relativePath).replace(/#/g, '%23')}`
+}
+
+const m3uEntry = (songDict) => {
+    let m3u = ``
+    m3u += `\n#EXTINF: ${songDict.AudioDuration},${songDict.Artist} - ${songDict.Title}`
+    m3u += `\n#EXTALB: ${songDict.DisplayAlbum}`
+    m3u += `\n#EXTIMG: ${songDict.CoverArt}`
+    m3u += `\n${songDict.AudioUrl}`
+    return m3u
+}
+
 module.exports = {
     searchify,
     sortify,
     alphabetize,
     contentHash,
     log,
+    nginxMediaPath,
+    m3uEntry
 }

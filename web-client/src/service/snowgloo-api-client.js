@@ -7,6 +7,7 @@ class ApiClient {
             baseURL: settings.webApiUrl,
             username: null,
         })
+        this.baseURL = settings.webApiUrl
     }
 
     setUser(username) {

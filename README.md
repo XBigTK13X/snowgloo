@@ -4,6 +4,42 @@ Snowman's Igloo
 
 A cool place to chill and listen to music.
 
+## First time setup
+Setup nvm. Use latest node stable.
+
+In project root, run
+
+```
+npm install
+cd web-server
+npm install
+cd ..
+cd web-client
+npm install
+cd ..
+```
+
+Create a file called variables.sh. It will need at minimum.
+
+```
+#! /bin/bash
+
+export SNOWGLOO_MEDIA_ROOT="/<absolute-path-to-repo>/.web-media"
+
+export SNOWGLOO_DATABASE_DIR="./docker-volume/db/snowgloo"
+
+export SNOWGLOO_WEB_API_URL='"http://localhost:5051/api/"'
+
+export SNOWGLOO_MEDIA_SERVER_URL='http://localhost:5050'
+```
+
+Make a directory in the repo root called `.web-media`. All music for development goes in this folder.
+
+## Developing
+Adjust the parameters of `script/docker/test.sh` to match your environment. Run it. Then run `script/app/develop.sh` to restart the app from scratch.
+
+A temporary directory will be created in the project root at `.docker-volume`. Some scripts can delete this from time to time.
+
 ## Why build another music player?
 
 I wanted a media app that did two things.

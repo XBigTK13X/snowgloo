@@ -68,9 +68,11 @@ export default class PlaylistView extends Component {
         if (!this.state.playlist) {
             return null
         }
+        let m3uUrl = `${this.props.api.baseURL.replace(/"/g,'')}playlist/${this.props.$stateParams.playlistId}/playlist.m3u`
         return (
             <div>
                 <h1>Playlist - {this.state.playlist.name}</h1>
+                <h2>M3U - {m3uUrl}</h2>
                 <div>
                     <label>
                         Change playlist name
