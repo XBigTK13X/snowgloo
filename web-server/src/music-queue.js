@@ -1,6 +1,7 @@
 const database = require('./database')
 const settings = require('./settings')
 const util = require('./util')
+const _ = require('lodash')
 
 class MusicQueue {
     read(user) {
@@ -35,6 +36,7 @@ class MusicQueue {
             this.read(username)
             .then(queue=>{
                 let m3u = `#EXTM3U\n#PLAYLIST:${username}'s Queue`
+                queue.songs = _.shuffle(queue.songs)
                 for(let song of queue.songs){
                     m3u += util.m3uEntry(song)
                 }

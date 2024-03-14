@@ -130,6 +130,7 @@ class Playlists {
             this.read(playlistId)
             .then(playlist=>{
                 let m3u = `#EXTM3U\n#PLAYLIST:${playlist.name}`
+                playlist.songs = _.shuffle(playlist.songs)
                 for(let song of playlist.songs){
                     m3u += util.m3uEntry(song)
                 }
