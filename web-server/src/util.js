@@ -32,8 +32,8 @@ const log = (...args) => {
 }
 
 const nginxMediaPath = (absoluteFilePath) => {
-    let relativePath = absoluteFilePath.replace(settings.mediaRoot + '/','')
-    return `${settings.mediaServer}/media/${settings.relativeMediaDir}${encodeURI(relativePath).replace(/#/g, '%23')}`
+    let relativePath = absoluteFilePath.replace(settings.mediaRoot + '/', '')
+    return `${settings.mediaServer}/${settings.relativeMediaDir}${encodeURI(relativePath).replace(/#/g, '%23')}`
 }
 
 const m3uEntry = (songDict) => {

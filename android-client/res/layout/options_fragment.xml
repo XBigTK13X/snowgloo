@@ -46,7 +46,7 @@
             android:id="@+id/prod_server_radio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Settler" />
+            android:text="Beast" />
 
         <RadioButton
             android:id="@+id/dev_server_radio"
