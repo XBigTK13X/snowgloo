@@ -4,7 +4,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.6.1'
+        classpath 'com.android.tools.build:gradle:8.7.3'
     }
 }
 
@@ -23,7 +23,7 @@ android {
         minSdkVersion 31
         targetSdkVersion 34
         versionCode 21
-        versionName "1.7.3"
+        versionName "1.7.4"
         applicationId "com.simplepathstudios.snowgloo"
     }
 
