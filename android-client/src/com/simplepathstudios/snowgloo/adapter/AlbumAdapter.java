@@ -21,6 +21,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {
+
     private ArrayList<MusicAlbum> data;
 
     public AlbumAdapter() {
@@ -47,8 +48,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         artist.setText(holder.musicAlbum.DisplayArtist);
         TextView year = holder.yearText;
         year.setText(holder.musicAlbum.ReleaseYear);
-        if(holder.musicAlbum.CoverArt != null && !holder.musicAlbum.CoverArt.isEmpty()){
-            Picasso.get().load(holder.musicAlbum.CoverArt).into(holder.coverArt, new Callback() {
+        if (holder.musicAlbum.ThumbnailCoverArt != null && !holder.musicAlbum.ThumbnailCoverArt.isEmpty()) {
+            Picasso.get().load(holder.musicAlbum.ThumbnailCoverArt).into(holder.coverArt, new Callback() {
                 @Override
                 public void onSuccess() {
                     holder.coverArt.setVisibility(View.VISIBLE);
@@ -70,6 +71,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
         public MusicAlbum musicAlbum;
         public TextView yearText;
         public TextView albumText;
@@ -90,10 +92,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
             NavController navController = Navigation.findNavController(MainActivity.getInstance(), R.id.nav_host_fragment);
             Bundle bundle = new Bundle();
             bundle.putString("AlbumSlug", musicAlbum.AlbumSlug);
-            bundle.putString("AlbumDisplay", musicAlbum.Album + " ("+musicAlbum.ReleaseYear+")");
+            bundle.putString("AlbumDisplay", musicAlbum.Album + " (" + musicAlbum.ReleaseYear + ")");
             navController.navigate(R.id.album_view_fragment, bundle);
         }
     }
 }
-
-

@@ -36,6 +36,21 @@ const nginxMediaPath = (absoluteFilePath) => {
     return `${settings.mediaServer}/${settings.relativeMediaDir}${encodeURI(relativePath).replace(/#/g, '%23')}`
 }
 
+const nginxThumbnailPath = (absoluteFilePath, isLocalPath) => {
+    if (isLocalPath) {
+        let relativePath = absoluteFilePath.replace(settings.mediaRoot + '/', '')
+        relativePath = relativePath.replace('music/', '')
+        relativePath = relativePath.replaceAll('/', '-') + '.jpg'
+        return `${settings.mediaServer}/music/.snowgloo/thumbnails/200x200/-${relativePath}`
+    }
+    else {
+        let relativePath = absoluteFilePath.replace(settings.mediaServer + '/', '')
+        relativePath = relativePath.replace('music/', '')
+        relativePath = relativePath.replaceAll('/', '-') + '.jpg'
+        return `${settings.mediaServer}/music/.snowgloo/thumbnails/200x200/-${relativePath}`
+    }
+}
+
 const m3uEntry = (songDict) => {
     let m3u = ``
     m3u += `\n#EXTINF: ${songDict.AudioDuration},${songDict.Artist} - ${songDict.Title}`
@@ -52,5 +67,6 @@ module.exports = {
     contentHash,
     log,
     nginxMediaPath,
+    nginxThumbnailPath,
     m3uEntry
 }

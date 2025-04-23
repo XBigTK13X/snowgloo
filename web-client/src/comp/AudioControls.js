@@ -10,7 +10,7 @@ export default class AudioControls extends Component {
         return (
             <div className="sticky-audio-controls centered">
                 <div className="neighbor">
-                    <Comp.CoverArt size="small" imageUrl={this.props.song.CoverArt} />
+                    <Comp.CoverArt size="small" imageUrl={this.props.song.ThumbnailCoverArt} />
                 </div>
                 <div className="neighbor">
                     <p className="short-text" title={this.props.song.Title}>

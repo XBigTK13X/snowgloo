@@ -58,6 +58,7 @@ class Catalog {
 
     search(query) {
         query = util.searchify(query)
+        let maxItemCount = 25
         return new Promise((resolve) => {
             let results = {
                 Songs: [],
@@ -66,12 +67,18 @@ class Catalog {
                 Playlists: { list: [] },
                 ItemCount: 0,
             }
-            for (let songId of this.media.songs.list) {                
+            let subCount = 0
+            for (let songId of this.media.songs.list) {
                 if (this.media.songs.lookup[songId].matches(query)) {
                     results.Songs.push(this.media.songs.lookup[songId])
                     results.ItemCount++
+                    subCount += 1
+                }
+                if (subCount >= maxItemCount) {
+                    break
                 }
             }
+            subCount = 0
             for (let albumSlug of this.media.albums.list) {
                 const album = this.media.albums.lookup[albumSlug]
                 if (album.matches(query)) {
@@ -81,8 +88,13 @@ class Catalog {
                     })
                     results.Albums.push(albumHit)
                     results.ItemCount++
+                    subCount += 1
+                }
+                if (subCount >= maxItemCount) {
+                    break
                 }
             }
+            subCount = 0
             for (let category of this.media.categories.list) {
                 for (let artistName of this.media.categories.lookup[category].artists.list) {
                     const artist = this.media.categories.lookup[category].artists.lookup[artistName]
@@ -90,12 +102,21 @@ class Catalog {
                         results.Artists.push(artist)
                         results.ItemCount++
                     }
+                    subCount += 1
+                }
+                if (subCount >= maxItemCount) {
+                    break
                 }
             }
+            subCount = 0
             for (let playlist of playlists.readAll().list) {
                 if (util.searchify(playlist.name).includes(query)) {
                     results.Playlists.list.push(playlist)
                     results.ItemCount++
+                    subCount += 1
+                }
+                if (subCount >= maxItemCount) {
+                    break
                 }
             }
             resolve(results)

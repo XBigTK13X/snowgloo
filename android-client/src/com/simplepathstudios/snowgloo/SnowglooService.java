@@ -29,19 +29,18 @@ import com.simplepathstudios.snowgloo.viewmodel.ObservableMusicQueue;
 import java.util.ArrayList;
 import java.util.List;
 
-
 //https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide#MediaBrowser
 public class SnowglooService extends MediaBrowserService {
 
     public static android.content.ComponentName ComponentName = new ComponentName("com.simplepathstudios.snowgloo.SnowglooService", SnowglooService.class.getName());
 
-    public static class SnowglooBroadcastReceiver extends BroadcastReceiver{
+    public static class SnowglooBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Util.log(TAG, "onReceive "+intent.getAction());
+            Util.log(TAG, "onReceive " + intent.getAction());
             String action = intent.getAction();
-            switch(action){
+            switch (action) {
                 case MediaNotification.Action.PLAY:
                     __instance.audioPlayer.play();
                     break;
@@ -62,7 +61,8 @@ public class SnowglooService extends MediaBrowserService {
     private static final String WAKE_LOCK_TAG = "snowgloo:background_audio";
 
     public static SnowglooService __instance;
-    public static SnowglooService getInstance(){
+
+    public static SnowglooService getInstance() {
         return __instance;
     }
 
@@ -78,8 +78,8 @@ public class SnowglooService extends MediaBrowserService {
     SnowglooBroadcastReceiver broadcastReceiver;
     CastContext castContext;
 
-    public MediaSession getMediaSession(){
-        if(mediaSession == null || mediaSession.getSessionToken() == null){
+    public MediaSession getMediaSession() {
+        if (mediaSession == null || mediaSession.getSessionToken() == null) {
             mediaCallback = new MediaSession.Callback() {
                 @Override
                 public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
@@ -121,7 +121,7 @@ public class SnowglooService extends MediaBrowserService {
                     Util.log(TAG, "onStop");
                     // When recovering an active cast session, the service onStop gets called.
                     // This ignores that unwanted call.
-                    if(!audioPlayer.isCasting()){
+                    if (!audioPlayer.isCasting()) {
                         audioPlayer.stop();
                     }
                 }
@@ -148,13 +148,13 @@ public class SnowglooService extends MediaBrowserService {
         MusicQueue queue = ObservableMusicQueue.getInstance().getQueue();
         ArrayList<MediaItem> mediaItems = new ArrayList<>();
         MusicFile song = queue.getCurrent();
-        if(song == null || song.Id == null) {
+        if (song == null || song.Id == null) {
             result.sendResult(null);
             return;
         }
         MediaDescription mediaDescription = new MediaDescription.Builder()
                 .setMediaId(song.Id)
-                .setIconUri(Uri.parse(song.CoverArt))
+                .setIconUri(Uri.parse(song.ThumbnailCoverArt))
                 .setTitle(song.Title)
                 .setSubtitle(song.DisplayAlbum + " - " + song.DisplayArtist)
                 .build();
@@ -163,7 +163,7 @@ public class SnowglooService extends MediaBrowserService {
         result.sendResult(mediaItems);
     }
 
-    public void updatePlaybackState(boolean isPlaying){
+    public void updatePlaybackState(boolean isPlaying) {
         AudioPlayer player = AudioPlayer.getInstance();
         Integer position = player.getSongPosition();
         position = position == null ? 0 : position;
@@ -171,13 +171,12 @@ public class SnowglooService extends MediaBrowserService {
         int state = isPlaying ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED;
         playbackState = new PlaybackState.Builder()
                 .setActions(
-                        PlaybackState.ACTION_PLAY |
-                        PlaybackState.ACTION_PAUSE |
-                        PlaybackState.ACTION_SKIP_TO_NEXT |
-                        PlaybackState.ACTION_SKIP_TO_PREVIOUS
-
+                        PlaybackState.ACTION_PLAY
+                        | PlaybackState.ACTION_PAUSE
+                        | PlaybackState.ACTION_SKIP_TO_NEXT
+                        | PlaybackState.ACTION_SKIP_TO_PREVIOUS
                 )
-                .setState(state,position,playbackSpeedMultiple)
+                .setState(state, position, playbackSpeedMultiple)
                 .build();
         getMediaSession().setPlaybackState(playbackState);
     }
@@ -192,9 +191,9 @@ public class SnowglooService extends MediaBrowserService {
         wakeLock.acquire();
         audioPlayer = AudioPlayer.getInstance();
 
-        ObservableCastContext.getInstance().observe(castContext->{
+        ObservableCastContext.getInstance().observe(castContext -> {
             this.castContext = castContext;
-            if(this.castContext != null) {
+            if (this.castContext != null) {
                 this.castContext.addCastStateListener(castState -> {
                     if (castState == CastState.NOT_CONNECTED) { // A user killed the session from within Snowgloo
                         Util.log(TAG, "Cast session changed state to " + CastState.toString(castState) + " use the local player");
@@ -256,22 +255,22 @@ public class SnowglooService extends MediaBrowserService {
         return START_NOT_STICKY;
     }
 
-    private void cleanup(){
-        try{
+    private void cleanup() {
+        try {
             audioPlayer.destroy();
             audioPlayer = null;
-        } catch(Exception swallow){
+        } catch (Exception swallow) {
         }
-        try{
+        try {
             wakeLock.release();
-        } catch(Exception swallow){
+        } catch (Exception swallow) {
 
         }
 
-        if(mediaSession != null){
+        if (mediaSession != null) {
             mediaSession.release();
         }
-        if(MediaNotification.getInstance() != null){
+        if (MediaNotification.getInstance() != null) {
             MediaNotification.getInstance().close();
         }
         stopForeground(true);

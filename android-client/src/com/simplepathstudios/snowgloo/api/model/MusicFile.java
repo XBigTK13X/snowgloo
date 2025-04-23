@@ -20,6 +20,7 @@ public class MusicFile {
     public Integer ReleaseYear;
     public Float ReleaseYearSort;
     public String CoverArt;
+    public String ThumbnailCoverArt;
     public String Title;
     public Integer Disc;
     public Integer Track;

@@ -12,6 +12,7 @@ class MusicAlbum {
         this.AlbumSlug = musicFile.AlbumSlug
         this.Artist = musicFile.Artist
         this.CoverArt = coverArtUrl
+        this.ThumbnailCoverArt = util.nginxThumbnailPath(coverArtUrl, false)
         this.Kind = musicFile.Kind
         this.ReleaseYear = musicFile.ReleaseYear
         this.ReleaseYearSort = musicFile.ReleaseYearSort

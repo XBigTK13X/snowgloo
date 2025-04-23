@@ -11,7 +11,7 @@ export default class AlbumListItem extends Component {
             <Comp.Href to="album-view" params={{ albumSlug: this.props.album.AlbumSlug }}>
                 <a href="/">
                     <div className="list-item">
-                        <Comp.CoverArt imageUrl={this.props.album.CoverArt} />
+                        <Comp.CoverArt imageUrl={this.props.album.ThumbnailCoverArt} />
                         <p className="truncate">
                             {this.props.album.DisplayAlbum} ({this.props.album.ReleaseYear})
                         </p>

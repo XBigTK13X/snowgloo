@@ -47,29 +47,31 @@ import retrofit2.Response;
 import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
+
     public static String TAG = "SongAdapter";
+
     public enum Kind {
         QUEUE,
         TRACKS
     }
-
 
     private ArrayList<MusicFile> songs;
     private Kind kind;
     private ItemTouchHelper itemTouchHelper;
     private View view;
 
-    public SongAdapter(RecyclerView reorderableListView){
+    public SongAdapter(RecyclerView reorderableListView) {
         this.kind = Kind.QUEUE;
-        itemTouchHelper= new ItemTouchHelper(new RecyclerViewCallback());
+        itemTouchHelper = new ItemTouchHelper(new RecyclerViewCallback());
         itemTouchHelper.attachToRecyclerView(reorderableListView);
     }
-    public SongAdapter(){
+
+    public SongAdapter() {
         this.kind = Kind.TRACKS;
         this.songs = null;
     }
 
-    public void setData(ArrayList<MusicFile> songs){
+    public void setData(ArrayList<MusicFile> songs) {
         this.songs = songs;
     }
 
@@ -84,9 +86,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(SongAdapter.ViewHolder holder, int position) {
         holder.musicFile = this.songs.get(position);
-        if(kind != Kind.QUEUE){
-            if(holder.musicFile.CoverArt != null && !holder.musicFile.CoverArt.isEmpty()){
-                Picasso.get().load(holder.musicFile.CoverArt).into(holder.coverArt, new Callback() {
+        if (kind != Kind.QUEUE) {
+            if (holder.musicFile.ThumbnailCoverArt != null && !holder.musicFile.ThumbnailCoverArt.isEmpty()) {
+                Picasso.get().load(holder.musicFile.ThumbnailCoverArt).into(holder.coverArt, new Callback() {
                     @Override
                     public void onSuccess() {
                         holder.coverArt.setVisibility(View.VISIBLE);
@@ -99,17 +101,29 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             }
         } else {
             holder.coverArt.setVisibility(View.GONE);
+            if (holder.musicFile.ThumbnailCoverArt != null && !holder.musicFile.ThumbnailCoverArt.isEmpty()) {
+                Picasso.get().load(holder.musicFile.ThumbnailCoverArt).into(holder.dragHandle, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        holder.dragHandle.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                });
+            }
         }
 
         TextView title = holder.titleText;
         title.setText(holder.musicFile.Title);
         TextView album = holder.albumText;
         album.setText(holder.musicFile.DisplayAlbum);
-        TextView artist= holder.artistText;
+        TextView artist = holder.artistText;
         artist.setText(holder.musicFile.DisplayArtist);
-        if(kind == Kind.QUEUE){
+        if (kind == Kind.QUEUE) {
             Integer currentIndex = ObservableMusicQueue.getInstance().getQueue().currentIndex;
-            if(currentIndex != null){
+            if (currentIndex != null) {
                 boolean isSelected = position == currentIndex;
                 title.setTextColor(
                         ColorUtils.setAlphaComponent(
@@ -129,7 +143,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        if(this.songs == null){
+        if (this.songs == null) {
             return 0;
         }
         return this.songs.size();
@@ -146,7 +160,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         public ImageView dragHandle;
 
         @SuppressLint("ClickableViewAccessibility")
-        public ViewHolder(LinearLayout layout){
+        public ViewHolder(LinearLayout layout) {
             super(layout);
             self = this;
             this.titleText = layout.findViewById(R.id.title);
@@ -155,23 +169,22 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             this.coverArt = layout.findViewById(R.id.cover_art);
             itemView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    if(kind == Kind.QUEUE){
+                    if (kind == Kind.QUEUE) {
                         ObservableMusicQueue.getInstance().setCurrentIndex(getAbsoluteAdapterPosition());
                         AudioPlayer.getInstance().play();
-                    }
-                    else {
+                    } else {
                         ObservableMusicQueue.getInstance().addItem(musicFile);
                     }
                 }
             });
             itemView.setOnCreateContextMenuListener(this);
-            if(kind == Kind.QUEUE){
+            if (kind == Kind.QUEUE) {
                 this.dragHandle = layout.findViewById(R.id.handle);
                 this.dragHandle.setVisibility(View.VISIBLE);
                 this.dragHandle.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-                        if (event.getActionMasked()== MotionEvent.ACTION_DOWN) {
+                        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                             itemTouchHelper.startDrag(self);
                         }
                         return true;
@@ -181,24 +194,24 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         }
 
         public void onCreateContextMenu(ContextMenu menu, View v,
-                                        ContextMenu.ContextMenuInfo menuInfo) {
+                ContextMenu.ContextMenuInfo menuInfo) {
             MenuItem viewAlbumAction = menu.add("View Album");
-            viewAlbumAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+            viewAlbumAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
                     NavController navController = Navigation.findNavController(MainActivity.getInstance(), R.id.nav_host_fragment);
                     Bundle bundle = new Bundle();
                     bundle.putString("AlbumSlug", musicFile.AlbumSlug);
-                    bundle.putString("AlbumDisplay", musicFile.Album + " ("+musicFile.ReleaseYear+")");
+                    bundle.putString("AlbumDisplay", musicFile.Album + " (" + musicFile.ReleaseYear + ")");
                     navController.navigate(R.id.album_view_fragment, bundle);
                     return false;
                 }
             });
             MenuItem viewArtistAction = menu.add("View Artist");
-            viewArtistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+            viewArtistAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    NavController navController = Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment);
+                    NavController navController = Navigation.findNavController(MainActivity.getInstance(), R.id.nav_host_fragment);
                     Bundle bundle = new Bundle();
                     bundle.putString("Artist", musicFile.Artist);
                     navController.navigate(R.id.artist_view_fragment, bundle);
@@ -211,15 +224,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                 public boolean onMenuItemClick(MenuItem item) {
                     Integer songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
                     Integer currentIndex = ObservableMusicQueue.getInstance().getQueue().currentIndex;
-                    if(currentIndex == null){
+                    if (currentIndex == null) {
                         currentIndex = 0;
                     }
-                    if(songIndex == null){
+                    if (songIndex == null) {
                         ObservableMusicQueue.getInstance().addItem(musicFile);
                         songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
                     }
-                    if(songIndex != currentIndex){
-                        if(songIndex < currentIndex){
+                    if (songIndex != currentIndex) {
+                        if (songIndex < currentIndex) {
                             ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex);
                         } else {
                             ObservableMusicQueue.getInstance().moveItem(musicFile, songIndex, currentIndex + 1);
@@ -228,18 +241,18 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                     return false;
                 }
             });
-            if(kind != Kind.QUEUE){
+            if (kind != Kind.QUEUE) {
                 MenuItem findInQueue = menu.add("Find in queue");
                 findInQueue.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         Integer songIndex = ObservableMusicQueue.getInstance().getIndex(musicFile);
-                        if(songIndex == null){
+                        if (songIndex == null) {
                             Util.toast("Song not currently in queue.");
                         } else {
                             Bundle bundle = new Bundle();
-                            bundle.putInt("ScrollToItemIndex",songIndex);
-                            Navigation.findNavController(MainActivity.getInstance(),R.id.nav_host_fragment).navigate(R.id.queue_fragment, bundle);
+                            bundle.putInt("ScrollToItemIndex", songIndex);
+                            Navigation.findNavController(MainActivity.getInstance(), R.id.nav_host_fragment).navigate(R.id.queue_fragment, bundle);
                         }
                         return false;
                     }
@@ -260,7 +273,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                     MenuInflater inflater = popup.getMenuInflater();
                     inflater.inflate(R.menu.playlist_popup, popup.getMenu());
                     Menu popupMenu = popup.getMenu();
-                    for(MusicPlaylistListItem playlist : MainActivity.getInstance().getPlaylists()){
+                    for (MusicPlaylistListItem playlist : MainActivity.getInstance().getPlaylists()) {
                         MenuItem playlistItem = popupMenu.add(playlist.name);
                         playlistItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                             @Override
@@ -269,7 +282,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                                     @Override
                                     public void onResponse(Call call, Response response) {
                                         PlaylistAddResult result = (PlaylistAddResult) response.body();
-                                        if(result != null && !result.success && result.error.contains("Already")){
+                                        if (result != null && !result.success && result.error.contains("Already")) {
                                             Util.toast(musicFile.Title + " is already in playlist " + playlist.name);
                                         } else {
                                             Util.toast("Added song to playlist.");
@@ -329,7 +342,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
             int position = viewHolder.getAbsoluteAdapterPosition();
             MusicQueue musicQueue = ObservableMusicQueue.getInstance().getQueue();
-            if(musicQueue.currentIndex != null && musicQueue.currentIndex == position){
+            if (musicQueue.currentIndex != null && musicQueue.currentIndex == position) {
                 AudioPlayer.getInstance().stop();
             }
             ObservableMusicQueue.getInstance().removeItem(position);
@@ -341,14 +354,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             viewHolder.itemView.setAlpha(1.0f);
             if (draggingFromPosition != -1) {
                 ViewHolder holder = (ViewHolder) viewHolder;
-                ObservableMusicQueue.getInstance().moveItem(holder.musicFile,draggingFromPosition, draggingToPosition);
+                ObservableMusicQueue.getInstance().moveItem(holder.musicFile, draggingFromPosition, draggingToPosition);
             }
             draggingFromPosition = -1;
             draggingToPosition = -1;
         }
 
         @Override
-        public boolean isLongPressDragEnabled(){
+        public boolean isLongPressDragEnabled() {
             return false;
         }
     }

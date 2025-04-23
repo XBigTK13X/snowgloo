@@ -8,12 +8,13 @@ class MusicFile {
         }
 
         this.LocalFilePath = path
-        this.RelativeFilePath = this.LocalFilePath.replace(settings.mediaRoot,'')
+        this.RelativeFilePath = this.LocalFilePath.replace(settings.mediaRoot, '')
         this.LocalPathParts = this.RelativeFilePath.split('/')
         this.AudioUrl = util.nginxMediaPath(path)
         this.CoverArt = null
         this.AlbumCoverArt = null
         this.EmbeddedCoverArt = null
+        this.ThumbnailCoverArt = null
 
         this.parseMetadataFromPath()
 
@@ -116,6 +117,7 @@ class MusicFile {
     populateMetadata(embeddedCoverArt, durationSeconds) {
         if (embeddedCoverArt) {
             this.EmbeddedCoverArt = util.nginxMediaPath(embeddedCoverArt)
+            this.ThumbnailCoverArt = util.nginxThumbnailPath(embeddedCoverArt, true)
         }
         if (durationSeconds) {
             this.AudioDuration = durationSeconds

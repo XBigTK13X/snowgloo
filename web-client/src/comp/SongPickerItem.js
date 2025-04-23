@@ -76,7 +76,7 @@ export default class SongPickerItem extends Component {
                 </td>
                 <td data-kind="play" className="small-cell">
                     <div className="inline-cover-art" data-kind="play">
-                        <img src={this.props.song.CoverArt} alt="cover art" className="inline-cover-art-img" data-kind="play" />
+                        <img src={this.props.song.ThumbnailCoverArt} alt="cover art" className="inline-cover-art-img" data-kind="play" />
                     </div>
                 </td>
                 <td data-kind="play" className="medium-cell">

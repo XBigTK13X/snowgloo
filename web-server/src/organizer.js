@@ -209,8 +209,10 @@ class Organizer {
                 let song = this.songs.lookup[songId]
                 if (_.has(this.coverArts.lookup, song.AlbumSlug)) {
                     song.AlbumCoverArt = this.coverArts.lookup[song.AlbumSlug]
+                    song.ThumbnailCoverArt = util.nginxThumbnailPath(song.AlbumCoverArt, false)
                 }
                 song.CoverArt = song.EmbeddedCoverArt ? song.EmbeddedCoverArt : song.AlbumCoverArt
+                song.ThumbnailCoverArt = util.nginxThumbnailPath(song.CoverArt, false)
                 this.songs.lookup[songId] = song
             }
             resolve()
